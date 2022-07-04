@@ -34,6 +34,24 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
     testImplementation 'org.springframework.security:spring-security-test'
+
+    // https://mvnrepository.com/artifact/javax.validation/validation-api
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+
+    // Jackson
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.2'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2'
+
+    // Querydsl
+    implementation 'com.querydsl:querydsl-jpa'
+    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa"
+
+    // https://mvnrepository.com/artifact/io.fabric8/kubernetes-client
+    implementation 'io.fabric8:kubernetes-client:5.12.2'
+
+    // https://mvnrepository.com/artifact/org.mockito/mockito-all
+    testImplementation 'org.mockito:mockito-all:1.10.19'
+
 }
 
 tasks.named('test') {
@@ -45,3 +63,11 @@ tasks.named('asciidoctor') {
     inputs.dir snippetsDir
     dependsOn test
 }
+
+// clean task 실행시 QClass 삭제
+tasks.clean {
+    // IntelliJ Annotation processor 생성물 생성 위치
+    delete file('src/main/generated')
+}
+
+
