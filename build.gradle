@@ -44,13 +44,22 @@ dependencies {
 
     // Querydsl
     implementation 'com.querydsl:querydsl-jpa'
+    implementation 'com.querydsl:querydsl-core'
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+    // java.lang.NoClassDefFoundError(javax.annotation.Entity) 발생 대응
+    annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa"
 
     // https://mvnrepository.com/artifact/io.fabric8/kubernetes-client
     implementation 'io.fabric8:kubernetes-client:5.12.2'
 
-    // https://mvnrepository.com/artifact/org.mockito/mockito-all
-    testImplementation 'org.mockito:mockito-all:1.10.19'
+    // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-iam
+    implementation 'com.amazonaws:aws-java-sdk-iam:1.12.253'
+
+    // https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+
 
 }
 
