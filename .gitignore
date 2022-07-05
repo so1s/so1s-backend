@@ -145,3 +145,6 @@ replay_pid*
 # gradle
 .gradle
 .idea
+
+bin
+build
