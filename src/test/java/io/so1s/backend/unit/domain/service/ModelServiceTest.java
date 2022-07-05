@@ -12,6 +12,7 @@ import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.domain.model.service.ModelService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,7 +30,8 @@ class ModelServiceTest {
   @Mock
   ModelMetadataRepository modelMetadataRepository;
 
-
+  
+  @DisplayName("서비스 save()를 통해 DB 모델을 저장할 수 있다.")
   @Test
   void testSave() {
     // given
