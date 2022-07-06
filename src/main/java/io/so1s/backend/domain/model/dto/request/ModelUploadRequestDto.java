@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.lang.Nullable;
 
 @Data
 @Builder
@@ -20,4 +21,10 @@ public class ModelUploadRequestDto {
   private String info = "";
   @NotNull
   private String version = "";
+
+  @Nullable
+  private String userId = null;
+  @Nullable
+  private String userPassword = null;
+
 }

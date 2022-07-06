@@ -8,14 +8,11 @@ import lombok.Data;
 public class ImageAuthDto {
 
   @Builder.Default
-  private String apikey = "";
+  private String userId = "";
 
   @Builder.Default
-  private String userName = "";
+  private String userPassword = "";
 
   @Builder.Default
-  private String password = "";
-
-  @Builder.Default
-  private ImageAuthPolicy authPolicy = ImageAuthPolicy.NONE;
+  private ImageAuthPolicy authPolicy = ImageAuthPolicy.DOCKERHUB_PUBLIC;
 }

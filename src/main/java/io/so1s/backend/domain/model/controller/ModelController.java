@@ -1,5 +1,6 @@
 package io.so1s.backend.domain.model.controller;
 
+import io.so1s.backend.domain.kubernetes.service.ImageService;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
 import io.so1s.backend.domain.model.dto.response.ModelUploadResponseDto;
 import io.so1s.backend.domain.model.service.ModelService;
@@ -19,9 +20,19 @@ public class ModelController {
 
   private final ModelService modelService;
 
+  private final ImageService imageService;
+
   @PostMapping
   public ResponseEntity<ModelUploadResponseDto> upload(
       @RequestBody @Valid ModelUploadRequestDto modelUploadRequestDto) {
+
+    if (imageService.checkAuthInfoNotGiven(modelUploadRequestDto)) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body(ModelUploadResponseDto.builder()
+              .success(false)
+              .modelName(modelUploadRequestDto.getModelName())
+              .build());
+    }
 
     ModelUploadResponseDto result = modelService.save(modelUploadRequestDto);
 
