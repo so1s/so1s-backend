@@ -15,6 +15,9 @@ jobs:
         run: |
           sudo apt update -y
           sudo apt install openjdk-17-jdk -y
+      - name: Run build
+        run: |
+          ./gradlew build
       - name: Run test
         run: |
           ./gradlew test
