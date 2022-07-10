@@ -1,0 +1,21 @@
+name: Build Image
+on:
+  push:
+    branches:
+      - main
+      - SO1S-137-ci-파이프라인-구축을-통한-pr-테스트-검증-자동화
+  pull_request:
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: Set up Java for Gradle
+        run: |
+          sudo apt update -y
+          sudo apt install openjdk-17-jdk -y
+      - name: Run test
+        run: |
+          ./gradlew test
