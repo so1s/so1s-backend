@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  docker-build:
+  gradle-test:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
