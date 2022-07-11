@@ -11,16 +11,16 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-      - name: Install Sdkman dependencies
-        run: apt update -y && apt install zip unzip -y
-      - name: Install Sdkman
-        run: curl -s "https://get.sdkman.io" | bash
-      - name: Change shell session
-        run: source ~/.sdkman/bin/sdkman-init.sh
-      - name: Set up JDK 11
-        run: sdk install java 11.0.15-open
-      - name: Setup Gradle
-        run: sdk install gradle 7.4.2
+      - name: Install java
+        uses: sdkman/sdkman-action@master
+        with:
+          candidate: java
+          version: 11.0.15-open
+      - name: Install gradle
+        uses: sdkman/sdkman-action@master
+        with:
+          candidate: gradle
+          version: 7.4.2
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Install gradle wrapper
