@@ -15,6 +15,8 @@ jobs:
         run: apt update -y && apt install zip unzip -y
       - name: Install Sdkman
         run: curl -s "https://get.sdkman.io" | bash
+      - name: Change shell session
+        run: source "/Users/lee/.sdkman/bin/sdkman-init.sh"
       - name: Set up JDK 11
         run: sdk install java 11.0.15-open
       - name: Setup Gradle
