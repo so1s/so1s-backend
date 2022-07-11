@@ -2,7 +2,7 @@ name: Build Image
 on:
   push:
     branches:
-      - SO1S-137-ci-파이프라인-구축을-통한-pr-테스트-검증-자동화
+      - main
   pull_request:
 
 jobs:
@@ -25,4 +25,28 @@ jobs:
       - name: Run build
         run: ./gradlew build
       - name: Run test
-        run: ./gradlew test
+        run: |
+          ./gradlew test
+  sonarqube-scan:
+    runs-on: self-hosted
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          apt update -y && apt install zip unzip -y
+          curl -s "https://get.sdkman.io" | bash
+          source ~/.sdkman/bin/sdkman-init.sh
+          sdk install java 11.0.15.9.1-amzn
+          sdk install gradle 7.4.2
+          sdk use java 11.0.15.9.1-amzn
+          sdk use gradle 7.4.2
+          gradle wrapper
+          chmod +x gradlew
+      - name: Run build
+        run: ./gradlew build
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
