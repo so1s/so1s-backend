@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
+      - name: Install Sdkman dependencies
+        run: apt update -y && apt install zip unzip -y
       - name: Install Sdkman
         run: curl -s "https://get.sdkman.io" | bash
       - name: Set up JDK 11
