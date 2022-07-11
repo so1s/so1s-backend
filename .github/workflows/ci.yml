@@ -9,23 +9,23 @@ on:
 
 jobs:
   gradle-test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: checkout
         uses: actions/checkout@v2
-      - name: Set up JDK 17
-        uses: actions/setup-java@v1
-        with:
-          java-version: 17
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Install gradle wrapper
-        run: gradle wrapper
-      - name: Run build
+      - name: Install dependencies
         run: |
-          ./gradlew build
+          apt update -y && apt install zip unzip -y
+          curl -s "https://get.sdkman.io" | bash
+          source ~/.sdkman/bin/sdkman-init.sh
+          sdk install java 11.0.15.9.1-amzn
+          sdk install gradle 7.4.2
+          sdk use java 11.0.15.9.1-amzn
+          sdk use gradle 7.4.2
+          gradle wrapper
+          chmod +x gradlew
+      - name: Run build
+        run: ./gradlew build
       - name: Run test
         run: |
           ./gradlew test
@@ -52,3 +52,4 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: ./gradlew test
