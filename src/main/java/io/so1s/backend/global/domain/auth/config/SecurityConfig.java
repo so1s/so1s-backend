@@ -70,7 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         .authorizeRequests()
         .antMatchers("/livez").permitAll()
-        .antMatchers("/api/v1/authenticate").permitAll()
+        .antMatchers("/api/v1/signin").permitAll()
         .antMatchers("/api/v1/signup").permitAll()
 
         .anyRequest().authenticated()

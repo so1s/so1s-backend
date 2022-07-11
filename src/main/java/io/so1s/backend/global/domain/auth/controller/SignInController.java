@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/authenticate")
+@RequestMapping("/api/v1/signin")
 @RequiredArgsConstructor
-public class AuthController {
+public class SignInController {
 
   private final TokenProvider tokenProvider;
   private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -39,7 +39,7 @@ public class AuthController {
     String jwt = tokenProvider.createToken(authentication);
 
     HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.add(JwtFilter.getAUTHORIZATION_HEADER(), JwtFilter.getHeaderPrefix() + jwt);
+    httpHeaders.add(JwtFilter.getAUTHORIZATION_HEADER(), JwtFilter.getHEADER_PREFIX() + jwt);
 
     TokenResponseDto responseDto = new TokenResponseDto(jwt);
 
