@@ -15,7 +15,7 @@ jobs:
         uses: sdkman/sdkman-action@master
         with:
           candidate: java
-          version: 11.0.15.9.1
+          version: 11.0.15.9.1-amzn
       - name: Install gradle
         uses: sdkman/sdkman-action@master
         with:
