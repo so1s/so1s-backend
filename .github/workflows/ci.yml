@@ -48,7 +48,7 @@ jobs:
       - name: Run test
         run: ./gradlew test
       - name: Run jacoco report
-        run: ./gradlew jacocoTestReport sonarqube
+        run: ./gradlew jacocoTestReport
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
