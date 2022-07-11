@@ -7,11 +7,13 @@ spring:
   datasource:
     url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
     driverClassName: org.h2.Driver
-    username: so1s
+    username: sos
     password:
 
   jpa:
+    hibernate.dialect: org.hibernate.dialect.MariaDBDialect
     database-platform: org.hibernate.dialect.H2Dialect
+    hibernate.ddl-auto: create
     properties:
       hibernate:
         # Print all SQL queries from Hibernate execution to console
@@ -20,5 +22,4 @@ spring:
         format_sql: true
         # Print extra information besides SQL queries for debugging
         use_sql_comments: true
-        ddl-auto: update
       generate-ddl: true
