@@ -1,4 +1,4 @@
-package io.so1s.backend.integration;
+package io.so1s.backend.integration.healthcheck.controller;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
