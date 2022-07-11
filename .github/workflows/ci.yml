@@ -21,6 +21,8 @@ jobs:
         with:
           candidate: gradle
           version: 7.4.2
+      - name: Use gradle 7.4.2
+        run: sdk use gradle 7.4.2
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Install gradle wrapper
