@@ -3,8 +3,6 @@ on:
   push:
     branches:
       - main
-      - SO1S-137-ci-파이프라인-구축을-통한-pr-테스트-검증-자동화
-      - SO1S-116-코드-정적-분석-툴-적용-및-정적-분석-서버-구축
   pull_request:
 
 jobs:
