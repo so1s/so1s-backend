@@ -16,7 +16,7 @@ jobs:
         with:
           java-version: 17
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        run: apt update -y && apt install gradle
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Install gradle wrapper
