@@ -1,4 +1,4 @@
-package io.so1s.backend.domain.auth.exception;
+package io.so1s.backend.global.error.exception;
 
 import lombok.Getter;
 import lombok.Setter;
