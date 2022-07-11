@@ -29,7 +29,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
   private org.springframework.security.core.userdetails.User getUser(
       User user) {
-    List<GrantedAuthority> grantedAuthorities = user.getUserRole().stream()
+    List<GrantedAuthority> grantedAuthorities = user.getUserToRoles().stream()
         .map(authority -> new SimpleGrantedAuthority(authority.getUserRole().toString()))
         .collect(Collectors.toList());
     return new org.springframework.security.core.userdetails.User(user.getUsername(),

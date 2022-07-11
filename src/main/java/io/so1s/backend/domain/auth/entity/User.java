@@ -21,7 +21,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 @Entity
-@Table(name = "user")
+@Table(name = "user_table")
 @Getter
 @Builder
 @AllArgsConstructor
@@ -31,19 +31,25 @@ public class User {
 
   @JsonIgnore
   @Id
+  @Column(name = "user_id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Long userId;
 
-  @Column(unique = true)
+  @Column(name = "username", length = 50, unique = true)
   private String username;
 
   @JsonIgnore
   @ToString.Exclude
+  @Column(name = "password", length = 100)
   private String password;
 
   @Fetch(FetchMode.JOIN)
   @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
   @Builder.Default
-  private List<UserToRole> userRole = new ArrayList<>();
+  private List<UserToRole> userToRoles = new ArrayList<>();
+
+  public void addAllUserToRole(List<UserToRole> userToRoles) {
+    this.userToRoles.addAll(userToRoles);
+  }
 
 }
