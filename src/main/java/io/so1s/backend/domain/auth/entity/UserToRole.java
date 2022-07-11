@@ -2,6 +2,8 @@ package io.so1s.backend.domain.auth.entity;
 
 import io.so1s.backend.domain.auth.vo.UserRole;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
@@ -19,6 +21,7 @@ import lombok.ToString;
 public class UserToRole {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @ManyToOne
