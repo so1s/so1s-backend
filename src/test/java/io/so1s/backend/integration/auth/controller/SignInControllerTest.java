@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -30,7 +31,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @ActiveProfiles(profiles = {"test"})
 class SignInControllerTest {
 
-  private final String signInEndPoint = "/api/v1/signin";
+  private static final String signInEndPoint = "/api/v1/signin";
+
+  private static final String helloEndPoint = "/api/v1/hello";
 
   @Autowired
   private UserService userService;
@@ -44,7 +47,7 @@ class SignInControllerTest {
   private User user;
 
   @Test
-  @DisplayName("기존에 생성된 Owner Role 계정을 통해 로그인할 수 있다. - 1")
+  @DisplayName("기존에 생성된 Owner Role 계정을 통해 로그인할 수 있다.")
   void testSignIn() throws Exception {
     //given
     user = userService.createUser("admin", "so1s", UserRole.OWNER);
@@ -64,9 +67,22 @@ class SignInControllerTest {
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andReturn();
 
+    // HelloController 200 test
+
+    // given
     TokenResponseDto tokenResponseDto = jsonMapper.fromMvcResult(result, TokenResponseDto.class);
 
     assertThat(tokenResponseDto.getToken()).isNotBlank();
+
+    String token = tokenResponseDto.getToken();
+
+    // when
+    mockMvc.perform(MockMvcRequestBuilders
+            .get(helloEndPoint)
+            .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
+            .accept(MediaType.APPLICATION_JSON))
+        //then
+        .andExpect(MockMvcResultMatchers.status().isOk());
 
   }
 
