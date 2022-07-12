@@ -73,8 +73,8 @@ public class JwtFilter extends GenericFilterBean {
       String result = jsonMapper.asJsonString(errorResponseDto);
       log.info(result);
       response.getWriter().write(result);
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (IOException ignored) {
+      log.error("Failed to set error response because of IOException");
     }
   }
 }
