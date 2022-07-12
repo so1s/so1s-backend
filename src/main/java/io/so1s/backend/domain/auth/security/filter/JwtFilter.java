@@ -1,15 +1,19 @@
 package io.so1s.backend.domain.auth.security.filter;
 
 import io.so1s.backend.domain.auth.security.provider.TokenProvider;
+import io.so1s.backend.global.error.dto.response.ErrorResponseDto;
+import io.so1s.backend.global.utils.JsonMapper;
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -25,6 +29,7 @@ public class JwtFilter extends GenericFilterBean {
   private static final String HEADER_PREFIX = "Bearer ";
 
   private final TokenProvider tokenProvider;
+  private final JsonMapper jsonMapper;
 
 
   @Override
@@ -44,7 +49,12 @@ public class JwtFilter extends GenericFilterBean {
       log.debug("유효한 JWT 토큰이 없습니다, uri: {}", requestURI);
     }
 
-    filterChain.doFilter(servletRequest, servletResponse);
+    try {
+      filterChain.doFilter(servletRequest, servletResponse);
+    } catch (Exception ex) {
+      log.info(String.format("Exception filter %s", ex.getMessage()));
+      setErrorResponse(HttpStatus.BAD_REQUEST, (HttpServletResponse) servletResponse, ex);
+    }
   }
 
   private String resolveToken(HttpServletRequest request) {
@@ -53,5 +63,18 @@ public class JwtFilter extends GenericFilterBean {
       return bearerToken.substring(7);
     }
     return null;
+  }
+
+  public void setErrorResponse(HttpStatus status, HttpServletResponse response, Throwable ex) {
+    response.setStatus(status.value());
+    response.setContentType("application/json");
+    ErrorResponseDto errorResponseDto = ErrorResponseDto.builder().message(ex.getMessage()).build();
+    try {
+      String result = jsonMapper.asJsonString(errorResponseDto);
+      log.info(result);
+      response.getWriter().write(result);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }

@@ -25,6 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   private final JwtFilter jwtFilter;
   private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
   private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+  private final JwtSecurityConfig jwtSecurityConfig;
 
   @Bean
   public PasswordEncoder passwordEncoder() {
@@ -72,6 +73,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .anyRequest().authenticated()
 
         .and()
-        .apply(new JwtSecurityConfig(jwtFilter));
+        .apply(jwtSecurityConfig);
   }
 }
