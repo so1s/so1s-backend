@@ -6,11 +6,11 @@ import io.so1s.backend.domain.auth.repository.UserRepository;
 import io.so1s.backend.domain.auth.repository.UserToRoleRepository;
 import io.so1s.backend.domain.auth.vo.UserRole;
 import io.so1s.backend.global.error.exception.DuplicateUserException;
+import io.so1s.backend.global.error.exception.UnableToCreateUserException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,8 +44,9 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  @Transactional
-  public User createUser(String username, String password, UserRole role) {
+  @Transactional(rollbackFor = {DuplicateUserException.class})
+  public User createUser(String username, String password, UserRole role)
+      throws DuplicateUserException {
     Optional<User> previous = findByUsername(username);
 
     if (previous.isPresent()) {
@@ -69,8 +71,8 @@ public class UserServiceImpl implements UserService {
     return user;
   }
 
-  @Transactional
-  public User signUp(String username, String password) {
+  @Transactional(rollbackFor = {UnableToCreateUserException.class})
+  public User signUp(String username, String password) throws UnableToCreateUserException {
     User currentUser = getCurrentUser();
 
     UserRole userRole = currentUser.getUserToRoles().stream().sorted(
@@ -87,7 +89,7 @@ public class UserServiceImpl implements UserService {
     int childRoleIndex = userRoleIndex + 1;
 
     if (childRoleIndex >= 3) {
-      throw new IllegalStateException("사용자는 계정 생성이 불가능합니다.");
+      throw new UnableToCreateUserException("사용자는 계정 생성이 불가능합니다.");
     }
 
     UserRole childUserRole = userRoles.get(childRoleIndex);
