@@ -16,7 +16,7 @@ public enum UserRole {
   // API 서버의 관리자 역할
   ADMIN(2),
   // 인퍼런스 서버의 사용자 역할
-  USER(2);
+  USER(3);
 
   final int id;
 
