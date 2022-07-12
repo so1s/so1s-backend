@@ -3,6 +3,8 @@ package io.so1s.backend.integration.auth.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.so1s.backend.domain.auth.dto.request.LoginRequestDto;
+import io.so1s.backend.domain.auth.dto.request.SignUpRequestDto;
+import io.so1s.backend.domain.auth.dto.response.SignUpResponseDto;
 import io.so1s.backend.domain.auth.dto.response.TokenResponseDto;
 import io.so1s.backend.domain.auth.entity.User;
 import io.so1s.backend.domain.auth.service.UserService;
@@ -16,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -29,9 +32,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ActiveProfiles(profiles = {"test"})
-class SignInControllerTest {
+class AuthControllerTest {
 
   private static final String signInEndPoint = "/api/v1/signin";
+  private static final String signUpEndPoint = "/api/v1/signup";
 
   private static final String helloEndPoint = "/api/v1/hello";
 
@@ -46,24 +50,26 @@ class SignInControllerTest {
 
   private User user;
 
+  private String token;
+
   @Test
   @DisplayName("기존에 생성된 Owner Role 계정을 통해 로그인할 수 있다.")
   void testSignIn() throws Exception {
-    //given
-    user = userService.createUser("admin", "so1s", UserRole.OWNER);
+    // given
+    user = userService.createUser("owner", "so1s", UserRole.OWNER);
 
-    LoginRequestDto loginRequestDto = LoginRequestDto.builder().username("admin").password("so1s")
+    LoginRequestDto loginRequestDto = LoginRequestDto.builder().username("owner").password("so1s")
         .build();
 
     String requestBody = jsonMapper.asJsonString(loginRequestDto);
 
-    //when
+    // when
     MvcResult result = mockMvc.perform(MockMvcRequestBuilders
             .post(signInEndPoint)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(requestBody))
-        //then
+        // then
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andReturn();
 
@@ -74,7 +80,7 @@ class SignInControllerTest {
 
     assertThat(tokenResponseDto.getToken()).isNotBlank();
 
-    String token = tokenResponseDto.getToken();
+    token = tokenResponseDto.getToken();
 
     // when
     mockMvc.perform(MockMvcRequestBuilders
@@ -86,5 +92,35 @@ class SignInControllerTest {
 
   }
 
-  // TODO: Register Test
+  @Test
+  @DisplayName("기존에 생성된 Owner Role 계정이 Admin Role 계정을 생성할 수 있다.")
+  void testSignUp() throws Exception {
+    // given
+    testSignIn();
+
+    SignUpRequestDto signUpRequestDto = SignUpRequestDto.builder()
+        .username("admin")
+        .password("so1s")
+        .build();
+
+    String requestBody = jsonMapper.asJsonString(signUpRequestDto);
+
+    // when
+    MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
+            .post(signUpEndPoint)
+            .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestBody))
+        .andExpect(MockMvcResultMatchers.status().is(HttpStatus.CREATED.value()))
+        .andReturn();
+
+    // then
+    SignUpResponseDto signUpResponseDto = jsonMapper.fromMvcResult(mvcResult,
+        SignUpResponseDto.class);
+
+    assertThat(signUpResponseDto.getSuccess()).isTrue();
+
+    assertThat(userService.findByUsername("admin").isPresent()).isTrue();
+  }
 }
