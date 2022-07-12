@@ -121,6 +121,6 @@ class AuthControllerTest {
 
     assertThat(signUpResponseDto.getSuccess()).isTrue();
 
-    assertThat(userService.findByUsername("admin").isPresent()).isTrue();
+    assertThat(userService.findByUsername("admin")).isPresent();
   }
 }
