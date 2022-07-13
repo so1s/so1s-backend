@@ -1,7 +1,16 @@
 package io.so1s.backend.integration.auth.controller;
 
+import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
+import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import io.so1s.backend.domain.auth.dto.request.LoginRequestDto;
 import io.so1s.backend.domain.auth.dto.request.SignUpRequestDto;
 import io.so1s.backend.domain.auth.dto.response.SignUpResponseDto;
@@ -23,14 +32,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
 
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
@@ -75,13 +86,31 @@ class AuthControllerTest {
     String requestBody = jsonMapper.asJsonString(loginRequestDto);
 
     // when
-    MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+    MvcResult result = mockMvc.perform(RestDocumentationRequestBuilders
             .post(signInEndPoint)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(requestBody))
         // then
+        .andDo(print())
         .andExpect(MockMvcResultMatchers.status().isOk())
+        .andDo(document("sign-in",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            resource(
+                ResourceSnippetParameters.builder()
+                    .description("로그인하여 토큰을 발급받습니다.")
+                    .summary("로그인")
+                    .requestFields(
+                        fieldWithPath("username").type(JsonFieldType.STRING).description("사용자명"),
+                        fieldWithPath("password").type(JsonFieldType.STRING).description("비밀번호")
+                    )
+                    .responseFields(
+                        fieldWithPath("token").type(JsonFieldType.STRING)
+                            .description("추후 인증에 사용될 JWT 토큰")
+                    )
+                    .build()
+            )))
         .andReturn();
 
     // HelloController 200 test
@@ -94,12 +123,28 @@ class AuthControllerTest {
     token = tokenResponseDto.getToken();
 
     // when
-    mockMvc.perform(MockMvcRequestBuilders
+    mockMvc.perform(RestDocumentationRequestBuilders
             .get(helloEndPoint)
             .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
             .accept(MediaType.APPLICATION_JSON))
         //then
-        .andExpect(MockMvcResultMatchers.status().isOk());
+        .andDo(print())
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andDo(document("hello-world",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            resource(
+                ResourceSnippetParameters.builder()
+                    .description("사용자 토큰 인증 여부를 확인합니다.")
+                    .summary("사용자 인증 확인")
+                    .requestHeaders(
+                        headerWithName(HttpHeaders.AUTHORIZATION).description("Bearer JWT 토큰")
+                    )
+                    .responseFields(
+                        fieldWithPath("comment").type(JsonFieldType.STRING).description("메시지")
+                    )
+                    .build()
+            )));
 
     return token;
   }
@@ -150,7 +195,7 @@ class AuthControllerTest {
       String requestBody = jsonMapper.asJsonString(signUpRequestDto);
 
       // when
-      ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders
+      ResultActions resultActions = mockMvc.perform(RestDocumentationRequestBuilders
           .post(signUpEndPoint)
           .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
           .accept(MediaType.APPLICATION_JSON)
@@ -167,6 +212,22 @@ class AuthControllerTest {
       if (i == 3) {
         continue;
       }
+
+      resultActions.andDo(document("sign-up",
+          preprocessRequest(prettyPrint()),
+          preprocessResponse(prettyPrint()),
+          resource(
+              ResourceSnippetParameters.builder()
+                  .description("현재 사용자가 자신보다 낮은 권한을 가진 사용자를 생성합니다.")
+                  .summary("사용자 생성")
+                  .requestHeaders(
+                      headerWithName(HttpHeaders.AUTHORIZATION).description("Bearer JWT 토큰")
+                  )
+                  .responseFields(
+                      fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부")
+                  )
+                  .build()
+          )));
 
       SignUpResponseDto signUpResponseDto = jsonMapper.fromMvcResult(mvcResult,
           SignUpResponseDto.class);
