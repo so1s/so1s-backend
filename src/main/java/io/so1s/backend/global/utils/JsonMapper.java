@@ -1,7 +1,9 @@
 package io.so1s.backend.global.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.UnsupportedEncodingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -18,15 +20,17 @@ public class JsonMapper {
     try {
       return objectMapper.writeValueAsString(obj);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      return "";
     }
   }
 
-  public <T> T fromMvcResult(MvcResult result, Class<T> clazz) throws Exception {
+  public <T> T fromMvcResult(MvcResult result, Class<T> clazz)
+      throws JsonProcessingException, UnsupportedEncodingException {
     return objectMapper.readValue(result.getResponse().getContentAsString(), clazz);
   }
 
-  public <T> T fromMvcResult(MvcResult result, TypeReference<T> typeReference) throws Exception {
+  public <T> T fromMvcResult(MvcResult result, TypeReference<T> typeReference)
+      throws JsonProcessingException, UnsupportedEncodingException {
     return objectMapper.readValue(result.getResponse().getContentAsString(), typeReference);
   }
 }
