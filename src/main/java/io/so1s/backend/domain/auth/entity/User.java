@@ -34,12 +34,11 @@ public class User {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(length = 50, unique = true)
+  @Column(unique = true)
   private String username;
 
   @JsonIgnore
   @ToString.Exclude
-  @Column(length = 100)
   private String password;
 
   @Fetch(FetchMode.JOIN)
