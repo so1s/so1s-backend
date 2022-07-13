@@ -44,7 +44,7 @@ class HealthCheckControllerTest {
   private ObjectMapper objectMapper;
 
 
-  @DisplayName("모델을 API를 통해 업로드 할 수 있다. - 1")
+  @DisplayName("모델을 API를 통해 업로드 할 수 있다.")
   @Test
   void testModelUploadApi() throws Exception {
     //given
