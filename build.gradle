@@ -115,7 +115,7 @@ tasks.clean {
 openapi3 {
     servers = [{ url = 'http://localhost:8000' }]
     title = 'So1s'
-    description = 'MLOps Inference Deployment Managing Framework'
+    description = 'MLOps Inference Deployment Management Framework'
     version = '0.1.0'
     format = 'json'
     outputDirectory = 'src/main/resources/static/docs'
