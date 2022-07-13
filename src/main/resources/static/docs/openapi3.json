@@ -2,7 +2,7 @@
   "openapi" : "3.0.1",
   "info" : {
     "title" : "So1s",
-    "description" : "MLOps Inference Deployment Managing Framework",
+    "description" : "MLOps Inference Deployment Management Framework",
     "version" : "0.1.0"
   },
   "servers" : [ {
@@ -24,7 +24,7 @@
           "schema" : {
             "type" : "string"
           },
-          "example" : "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyMSIsImF1dGgiOiJVc2VyUm9sZS5VU0VSKGlkPTMpIiwiZXhwIjoxNjU3Nzc0MTc1fQ.yYLdv-17yeM11HkkHdKTgQ4_cgbT6ng02Wn4vgnssXYJfY9F2Ag9ox4egn4mrlYMBMRKEXdA6vZ5tJg-gldbrQ"
+          "example" : "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyMSIsImF1dGgiOiJVc2VyUm9sZS5VU0VSKGlkPTMpIiwiZXhwIjoxNjU3Nzc0NzY3fQ.I-tmaZ-SCkCb9GU1fPAjMaxHV8WeHVYPScrCCT1M90-mG3l-YsXca6Lg9LeT83UBVqTbWvy2FtvWjPnDk4PwXA"
         } ],
         "responses" : {
           "200" : {
@@ -78,7 +78,7 @@
                 },
                 "examples" : {
                   "sign-in" : {
-                    "value" : "{\n  \"token\" : \"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyMSIsImF1dGgiOiJVc2VyUm9sZS5VU0VSKGlkPTMpIiwiZXhwIjoxNjU3Nzc0MTc1fQ.yYLdv-17yeM11HkkHdKTgQ4_cgbT6ng02Wn4vgnssXYJfY9F2Ag9ox4egn4mrlYMBMRKEXdA6vZ5tJg-gldbrQ\"\n}"
+                    "value" : "{\n  \"token\" : \"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyMSIsImF1dGgiOiJVc2VyUm9sZS5VU0VSKGlkPTMpIiwiZXhwIjoxNjU3Nzc0NzY3fQ.I-tmaZ-SCkCb9GU1fPAjMaxHV8WeHVYPScrCCT1M90-mG3l-YsXca6Lg9LeT83UBVqTbWvy2FtvWjPnDk4PwXA\"\n}"
                   }
                 }
               }
@@ -101,7 +101,7 @@
           "schema" : {
             "type" : "string"
           },
-          "example" : "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbjEiLCJhdXRoIjoiVXNlclJvbGUuQURNSU4oaWQ9MiksVXNlclJvbGUuVVNFUihpZD0zKSIsImV4cCI6MTY1Nzc3NDE3NH0.CJwXZmv_Dt_524EqfjRw4HJdhNiAYnDIOMBnqWLgvwU7NUyvpb00hboJNZG07XY5PmQ_10dTLp717q6jjBwDHQ"
+          "example" : "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbjEiLCJhdXRoIjoiVXNlclJvbGUuQURNSU4oaWQ9MiksVXNlclJvbGUuVVNFUihpZD0zKSIsImV4cCI6MTY1Nzc3NDc2N30.efH4oCF1aWH4GjsODnW6geBxNzjPQgcUqvUOKyZNxvFj52lJtWVg78K0oEHv5rS4T_j7GH-A3cPAIRje8-ZIGg"
         } ],
         "requestBody" : {
           "content" : {
