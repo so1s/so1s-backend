@@ -2,6 +2,8 @@ package io.so1s.backend.domain.auth.entity;
 
 import io.so1s.backend.domain.auth.vo.UserRole;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -28,6 +30,8 @@ public class UserToRole {
   @ToString.Exclude
   private User user;
 
+
+  @Enumerated(EnumType.STRING)
   private UserRole userRole;
 
 }
