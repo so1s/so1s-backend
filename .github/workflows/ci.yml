@@ -24,9 +24,13 @@ jobs:
           chmod +x gradlew
       - name: Run build
         run: ./gradlew build
+        env:
+          jwt-secret: ${{ secrets.JWT_SECRET }}
       - name: Run test
         run: |
           ./gradlew test
+        env:
+          jwt-secret: ${{ secrets.JWT_SECRET }}
   sonarqube-scan:
     runs-on: self-hosted
     steps:
@@ -45,12 +49,19 @@ jobs:
           chmod +x gradlew
       - name: Run build
         run: ./gradlew build
+        env:
+          jwt-secret: ${{ secrets.JWT_SECRET }}
       - name: Run test
         run: ./gradlew test
+        env:
+          jwt-secret: ${{ secrets.JWT_SECRET }}
       - name: Run jacoco report
         run: ./gradlew jacocoTestReport
+        env:
+          jwt-secret: ${{ secrets.JWT_SECRET }}
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          jwt-secret: ${{ secrets.JWT_SECRET }}
