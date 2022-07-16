@@ -17,6 +17,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 @Entity
 @Table(name = "model_metadata")
@@ -31,23 +33,20 @@ public class ModelMetadata extends BaseTimeEntity {
   @Column(name = "model_metadata_id")
   private Long id;
 
-  @Column(name = "model_metadata_url")
   private String url;
 
-  @Column(name = "model_metadata_version")
   private String version;
 
-  @Column(name = "model_metadata_info")
   private String info;
 
-  @Column(name = "model_metadata_status")
   private String status;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "model_id")
   private Model model;
 
-  @OneToMany(mappedBy = "modelMetadata", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "modelMetadata")
+  @Fetch(FetchMode.SUBSELECT)
   private List<Deployment> deployments = new ArrayList<>();
 
   public void setModel(Model model) {

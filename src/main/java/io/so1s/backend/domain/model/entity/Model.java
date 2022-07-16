@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -15,6 +14,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 @Entity
 @Table(name = "model")
@@ -29,13 +30,12 @@ public class Model extends BaseTimeEntity {
   @Column(name = "model_id")
   private Long id;
 
-  @Column(name = "model_name")
   private String name;
 
-  @Column(name = "model_library")
   private String library;
 
-  @OneToMany(mappedBy = "model", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "model")
+  @Fetch(FetchMode.SUBSELECT)
   private List<ModelMetadata> modelMetadatas = new ArrayList<>();
 
 }
