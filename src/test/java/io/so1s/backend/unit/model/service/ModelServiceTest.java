@@ -12,6 +12,7 @@ import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
 import io.so1s.backend.global.utils.HashGenerator;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,6 +38,7 @@ class ModelServiceTest {
   String info = "this is test model.";
 
   @Test
+  @DisplayName("모델을 업로드 한다.")
   public void modelUpload() throws Exception {
     // given
     ModelUploadRequestDto requestDto = ModelUploadRequestDto.builder()
@@ -45,7 +47,7 @@ class ModelServiceTest {
         .library(library)
         .info(info)
         .build();
-    String version = HashGenerator.hashGenerateBySha256();
+    String version = HashGenerator.sha256();
     ModelMetadata modelMetadata = ModelMetadata.builder()
         .url(url)
         .version(version)
@@ -57,7 +59,7 @@ class ModelServiceTest {
     when(kubernetesService.inferenceServerBuild(any(), any())).thenReturn(true);
 
     // when
-    ModelUploadResponseDto result = modelService.modelUpload(requestDto);
+    ModelUploadResponseDto result = modelService.upload(requestDto);
 
     //then
     assertThat(name).isEqualTo(result.getName());

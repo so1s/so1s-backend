@@ -1,5 +1,9 @@
 package io.so1s.backend.integration.model.service;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
 import io.so1s.backend.global.utils.JsonMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -15,7 +19,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @AutoConfigureMockMvc
 @WithMockUser
@@ -51,6 +54,10 @@ class ModelControllerTest {
         .content(requestDto));
 
     //then
-    result.andExpect(MockMvcResultMatchers.status().isOk());
+
+    result.andExpect(status().isOk())
+        .andExpect(jsonPath("$.success").value("true"))
+        .andExpect(jsonPath("$.name").value(modelUploadRequestDto.getName()))
+        .andDo(print());
   }
 }
