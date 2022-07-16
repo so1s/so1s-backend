@@ -53,9 +53,6 @@ jobs:
           sdk use gradle 7.4.2
           gradle wrapper
           chmod +x gradlew
-      - name: start minikube
-        id: minikube
-        uses: medyagh/setup-minikube@master
       - name: Run build
         run: ./gradlew build --stacktrace
         env:
