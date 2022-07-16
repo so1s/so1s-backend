@@ -4,7 +4,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
 import io.so1s.backend.domain.model.dto.response.ModelUploadResponseDto;
@@ -26,8 +25,6 @@ class ModelServiceTest {
   ModelRepository modelRepository;
   @Mock
   ModelMetadataRepository modelMetadataRepository;
-  @Mock
-  KubernetesClient kubernetesClient;
   @Mock
   KubernetesService kubernetesService;
 
