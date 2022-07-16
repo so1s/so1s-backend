@@ -21,9 +21,9 @@ public class ModelServiceImpl implements ModelService {
   private final KubernetesService kubernetesService;
 
   @Transactional
-  public ModelUploadResponseDto modelUpload(ModelUploadRequestDto modelUploadRequestDto) {
+  public ModelUploadResponseDto upload(ModelUploadRequestDto modelUploadRequestDto) {
     Model saveModel = modelRepository.save(modelUploadRequestDto.toEntity());
-    String version = HashGenerator.hashGenerateBySha256();
+    String version = HashGenerator.sha256();
     ModelMetadata saveModelMetadata = modelMetadataRepository.save(
         ModelMetadata.builder()
             .model(saveModel)

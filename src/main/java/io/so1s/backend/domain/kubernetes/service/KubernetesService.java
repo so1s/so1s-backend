@@ -20,7 +20,7 @@ public class KubernetesService {
 
   public boolean inferenceServerBuild(Model model, String version) {
 
-    String tag = HashGenerator.hashGenerateBySha256();
+    String tag = HashGenerator.sha256();
     String jobName = (model.getName()
         + "-build-" + tag.substring(0, 6)).toLowerCase();
     String library = model.getLibrary().toLowerCase();

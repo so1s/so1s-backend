@@ -21,6 +21,6 @@ public class ModelController {
   @PostMapping
   public ResponseEntity<ModelUploadResponseDto> modelUpload(
       @Valid @RequestBody ModelUploadRequestDto modelUploadRequestDto) {
-    return ResponseEntity.ok(modelService.modelUpload(modelUploadRequestDto));
+    return ResponseEntity.ok(modelService.upload(modelUploadRequestDto));
   }
 }
