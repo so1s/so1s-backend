@@ -28,12 +28,16 @@ public class ModelMetadata extends BaseTimeEntity {
   @Column(name = "model_metadata_id")
   private Long id;
 
+  @Column(nullable = false)
   private String url;
 
+  @Column(nullable = false)
   private String version;
 
+  @Column
   private String info;
 
+  @Column(nullable = false)
   private String status;
 
   @ManyToOne(fetch = FetchType.LAZY)

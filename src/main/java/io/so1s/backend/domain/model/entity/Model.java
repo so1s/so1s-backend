@@ -30,8 +30,10 @@ public class Model extends BaseTimeEntity {
   @Column(name = "model_id")
   private Long id;
 
+  @Column(unique = true)
   private String name;
 
+  @Column(nullable = false)
   private String library;
 
   @OneToMany(mappedBy = "model")
