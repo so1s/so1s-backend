@@ -48,6 +48,7 @@ public class ModelMetadata extends BaseTimeEntity {
 
   @OneToMany(mappedBy = "modelMetadata")
   @Fetch(FetchMode.SUBSELECT)
+  @Builder.Default
   private List<Deployment> deployments = new ArrayList<>();
 
   public void setModel(Model model) {

@@ -36,6 +36,7 @@ public class Model extends BaseTimeEntity {
 
   @OneToMany(mappedBy = "model")
   @Fetch(FetchMode.SUBSELECT)
+  @Builder.Default
   private List<ModelMetadata> modelMetadatas = new ArrayList<>();
 
 }
