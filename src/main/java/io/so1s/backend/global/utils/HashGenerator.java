@@ -16,5 +16,16 @@ public class HashGenerator {
     } catch (NoSuchAlgorithmException e) {
       return null;
     }
+
+  }
+
+  public static String sha1() {
+    try {
+      return DatatypeConverter.printHexBinary(
+          MessageDigest.getInstance("SHA-1")
+              .digest(NanoIdUtils.randomNanoId().getBytes(StandardCharsets.UTF_8)));
+    } catch (NoSuchAlgorithmException e) {
+      return null;
+    }
   }
 }

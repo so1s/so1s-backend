@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ModelServiceImpl implements ModelService {
 
@@ -20,26 +21,27 @@ public class ModelServiceImpl implements ModelService {
   private final ModelMetadataRepository modelMetadataRepository;
   private final KubernetesService kubernetesService;
 
-  @Transactional
-  public ModelUploadResponseDto upload(ModelUploadRequestDto modelUploadRequestDto) {
-    Model saveModel = modelRepository.save(modelUploadRequestDto.toEntity());
-    String version = HashGenerator.sha256();
-    ModelMetadata saveModelMetadata = modelMetadataRepository.save(
-        ModelMetadata.builder()
-            .model(saveModel)
-            .url(modelUploadRequestDto.getUrl())
-            .version(version)
-            .info(modelUploadRequestDto.getInfo())
-            .status("pending")
-            .build());
+  public Model createModel(ModelUploadRequestDto modelUploadRequestDto) {
+    return modelRepository.save(modelUploadRequestDto.toEntity());
+  }
 
-    // kubernetes job run
-    kubernetesService.inferenceServerBuild(saveModel, version);
+  public ModelMetadata createModelMetadata(Model model,
+      ModelUploadRequestDto modelUploadRequestDto) {
+    return modelMetadataRepository.save(ModelMetadata.builder()
+        .model(model)
+        .url(modelUploadRequestDto.getUrl())
+        .version(HashGenerator.sha1())
+        .info(modelUploadRequestDto.getInfo())
+        .status("pending")
+        .build());
+  }
 
+  public ModelUploadResponseDto buildModel(ModelMetadata modelMetadata) {
     return ModelUploadResponseDto.builder()
-        .success(Boolean.TRUE)
-        .name(saveModel.getName())
-        .version(saveModelMetadata.getVersion())
+        .success(kubernetesService.inferenceServerBuild(modelMetadata))
+        .name(modelMetadata.getModel().getName())
+        .version(modelMetadata.getVersion())
         .build();
   }
+
 }

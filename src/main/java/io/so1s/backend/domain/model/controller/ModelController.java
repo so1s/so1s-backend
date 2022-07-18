@@ -6,12 +6,12 @@ import io.so1s.backend.domain.model.service.ModelService;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 @RequestMapping("/api/v1/models")
 @RequiredArgsConstructor
 public class ModelController {
@@ -21,6 +21,9 @@ public class ModelController {
   @PostMapping
   public ResponseEntity<ModelUploadResponseDto> modelUpload(
       @Valid @RequestBody ModelUploadRequestDto modelUploadRequestDto) {
-    return ResponseEntity.ok(modelService.upload(modelUploadRequestDto));
+    return ResponseEntity.ok(
+        modelService.buildModel(
+            modelService.createModelMetadata(
+                modelService.createModel(modelUploadRequestDto), modelUploadRequestDto)));
   }
 }

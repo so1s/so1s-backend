@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.so1s.backend.domain.model.entity.Model;
+import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.global.utils.HashGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,14 +17,17 @@ import org.springframework.stereotype.Service;
 public class KubernetesService {
 
   private final KubernetesClient client;
-  private final String namespace = "inference-build";
 
-  public boolean inferenceServerBuild(Model model, String version) {
+  public boolean inferenceServerBuild(ModelMetadata modelMetadata) {
+    Model model = modelMetadata.getModel();
 
-    String tag = HashGenerator.sha256();
+    String namespace = "inference-build";
+
+    String tag = HashGenerator.sha1();
     String jobName = (model.getName()
         + "-build-" + tag.substring(0, 6)).toLowerCase();
     String library = model.getLibrary().toLowerCase();
+    String version = modelMetadata.getVersion().toLowerCase();
 
     final Job job = new JobBuilder()
         .withApiVersion("batch/v1")
@@ -37,9 +41,9 @@ public class KubernetesService {
         .withNewSpec()
         .addNewContainer()
         .withName(jobName)
-        .withImage("shinilseop12/" + library + "-build:v1")
-        .withCommand("sudo", "usermod", "-a", "-G", "docker", "$USER")
-        .withCommand("/bin/sh", "/apps/build.sh", model.getName().toLowerCase(), version)
+        .withImage("so1s/" + library + "-build:v1")
+        .withCommand("/bin/sh", "/apps/build.sh", model.getName().toLowerCase(), version,
+            "vkxmxkdlaj")
         .withVolumeMounts(
             new VolumeMountBuilder()
                 .withMountPath("/var/run/docker.sock")
@@ -63,4 +67,5 @@ public class KubernetesService {
 
     return true;
   }
+
 }
