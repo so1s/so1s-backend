@@ -11,7 +11,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,10 +44,6 @@ public class Deployment extends BaseTimeEntity {
   @JoinColumn(name = "deployment_strategy_id")
   private DeploymentStrategy deploymentStrategy;
 
-  @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "resource_id")
-  private Resource resource;
-
   public void setModelMetadata(ModelMetadata modelMetadata) {
     this.modelMetadata = modelMetadata;
     modelMetadata.getDeployments().add(this);
@@ -57,10 +52,5 @@ public class Deployment extends BaseTimeEntity {
   public void setDeploymentStrategy(DeploymentStrategy deploymentStrategy) {
     this.deploymentStrategy = deploymentStrategy;
     deploymentStrategy.getDeployments().add(this);
-  }
-
-  public void setResource(Resource resource) {
-    this.resource = resource;
-    resource.setDeployment(this);
   }
 }
