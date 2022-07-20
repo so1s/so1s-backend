@@ -23,7 +23,7 @@ jobs:
           gradle wrapper
           chmod +x gradlew
       - name: Run build
-        run: ./gradlew build
+        run: ./gradlew build --stacktrace
         env:
           jwt-secret: ${{ secrets.JWT_SECRET }}
       - name: Run test
@@ -48,7 +48,7 @@ jobs:
           gradle wrapper
           chmod +x gradlew
       - name: Run build
-        run: ./gradlew build
+        run: ./gradlew build --stacktrace
         env:
           jwt-secret: ${{ secrets.JWT_SECRET }}
       - name: Run test
