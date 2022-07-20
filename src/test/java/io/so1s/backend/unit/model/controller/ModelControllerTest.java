@@ -80,12 +80,11 @@ class ModelControllerTest {
 
     // when
     ResultActions result = mockMvc.perform(MockMvcRequestBuilders
-            .post("/api/v1/models")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(requestDtoMapped)
-            .with(csrf()))
-        .andDo(print());
+        .post("/api/v1/models")
+        .accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(requestDtoMapped)
+        .with(csrf()));
 
     //then
     result.andExpect(status().isOk())
