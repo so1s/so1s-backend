@@ -30,7 +30,7 @@ public class ModelServiceImpl implements ModelService {
     return modelMetadataRepository.save(ModelMetadata.builder()
         .model(model)
         .url(modelUploadRequestDto.getUrl())
-        .version(HashGenerator.sha1())
+        .version(HashGenerator.sha256())
         .info(modelUploadRequestDto.getInfo())
         .status("pending")
         .build());

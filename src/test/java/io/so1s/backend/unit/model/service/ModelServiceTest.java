@@ -43,7 +43,7 @@ class ModelServiceTest {
 
   @BeforeEach
   public void setup() {
-    version = HashGenerator.sha1();
+    version = HashGenerator.sha256();
     kubernetesService = new KubernetesService(client);
     modelService = new ModelServiceImpl(modelRepository, modelMetadataRepository,
         kubernetesService);

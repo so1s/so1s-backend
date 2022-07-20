@@ -40,7 +40,7 @@ class ModelServiceTest {
 
   @BeforeEach
   public void setup() {
-    version = HashGenerator.sha1();
+    version = HashGenerator.sha256();
     modelUploadRequestDto = ModelUploadRequestDto.builder()
         .name(name)
         .url(url)

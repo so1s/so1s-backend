@@ -64,7 +64,7 @@ class ModelControllerTest {
         .build();
     objectMapper = new ObjectMapper();
     requestDtoMapped = objectMapper.writeValueAsString(requestDto);
-    String version = HashGenerator.sha1();
+    String version = HashGenerator.sha256();
     responseDto = ModelUploadResponseDto.builder()
         .name(name)
         .success(Boolean.TRUE)
