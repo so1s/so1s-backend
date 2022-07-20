@@ -8,11 +8,12 @@ import javax.xml.bind.DatatypeConverter;
 
 public class HashGenerator {
 
-  public static String sha1() {
+  public static String sha256() {
     try {
       return DatatypeConverter.printHexBinary(
-          MessageDigest.getInstance("SHA-1")
-              .digest(NanoIdUtils.randomNanoId().getBytes(StandardCharsets.UTF_8)));
+              MessageDigest.getInstance("SHA-256")
+                  .digest(NanoIdUtils.randomNanoId().getBytes(StandardCharsets.UTF_8)))
+          .substring(0, 32);
     } catch (NoSuchAlgorithmException e) {
       return null;
     }
