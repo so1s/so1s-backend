@@ -31,9 +31,9 @@ jobs:
       - name: Run test
         run: |
           ./gradlew test
-          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
         env:
           jwt-secret: ${{ secrets.JWT_SECRET }}
+          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
   sonarqube-scan:
     runs-on: self-hosted
     steps:
