@@ -90,8 +90,15 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Install dependencies
+          run: |
+            apt update -y && apt install zip unzip -y
+            wget https://services.gradle.org/distributions/gradle-7.4.1-bin.zip
+            mkdir /opt/gradle
+            unzip -d /opt/gradle gradle-7.4.1-bin.zip
+            export PATH=$PATH:/opt/gradle/gradle-7.4.1/bin
+            gradle wrap
+            chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew clean jib -x test
         env:
