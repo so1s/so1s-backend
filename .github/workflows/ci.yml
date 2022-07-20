@@ -27,9 +27,11 @@ jobs:
         run: ./gradlew build --stacktrace
         env:
           jwt-secret: ${{ secrets.JWT_SECRET }}
+          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: Run test
         run: |
           ./gradlew test
+          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
         env:
           jwt-secret: ${{ secrets.JWT_SECRET }}
   sonarqube-scan:
@@ -52,14 +54,17 @@ jobs:
         run: ./gradlew build --stacktrace
         env:
           jwt-secret: ${{ secrets.JWT_SECRET }}
+          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: Run test
         run: ./gradlew test
         env:
           jwt-secret: ${{ secrets.JWT_SECRET }}
+          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: Run jacoco report
         run: ./gradlew jacocoTestReport
         env:
           jwt-secret: ${{ secrets.JWT_SECRET }}
+          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
@@ -96,3 +101,4 @@ jobs:
           jwt-secret: ${{ secrets.JWT_SECRET }}
           REPO: ${{ secrets.REPO }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
