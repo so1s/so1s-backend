@@ -1,0 +1,39 @@
+name: CD
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  image-build-and-push:
+    runs-on: self-hosted
+    needs: [ gradle-test, sonarqube-scan ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Docker Build
+        uses: docker/setup-buildx-action@v1
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.REPO }}
+          password: ${{ secrets.GHCR_TOKEN }}
+      - name: Install dependencies
+        run: |
+          apt update -y && apt install zip unzip -y
+          curl -s "https://get.sdkman.io" | bash
+          source ~/.sdkman/bin/sdkman-init.sh
+          sdk install java 11.0.15.9.1-amzn
+          sdk install gradle 7.4.2
+          sdk use java 11.0.15.9.1-amzn
+          sdk use gradle 7.4.2
+          gradle wrapper
+          chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew clean jib -x test
+        env:
+          jwt-secret: ${{ secrets.JWT_SECRET }}
+          REPO: ${{ secrets.REPO }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
