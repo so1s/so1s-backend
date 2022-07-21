@@ -7,7 +7,6 @@ on:
 jobs:
   image-build-and-push:
     runs-on: self-hosted
-    needs: [ gradle-test, sonarqube-scan ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
