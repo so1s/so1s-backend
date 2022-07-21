@@ -5,6 +5,13 @@ plugins {
     id 'com.epages.restdocs-api-spec' version '0.16.0'
     id 'java'
     id 'jacoco'
+    id 'com.google.cloud.tools.jib' version '3.2.1' //jib
+}
+
+ext {
+    applicationVersion = "0.0.1"
+    repo = System.getenv("REPO")
+    set('snippetsDir', file("build/generated-snippets"))
 }
 
 jacoco {
@@ -19,8 +26,35 @@ jacocoTestReport {
     }
 }
 
+jib {
+    from {
+        image = 'openjdk:11-jre-slim'
+        platforms {
+            platform {
+                architecture = 'amd64'
+                os = 'linux'
+            }
+            platform {
+                architecture = 'arm64'
+                os = 'linux'
+            }
+        }
+    }
+    to {
+        image = 'ghcr.io/' + "${rootProject.ext.repo}" + '/api-server'
+        tags = ["latest", "${rootProject.ext.applicationVersion}"]
+    }
+    container {
+        mainClass = "io.so1s.backend.BackendApplication"
+        creationTime = 'USE_CURRENT_TIMESTAMP'
+        ports = ['8080']
+        jvmFlags = ['-Dspring.profiles.active=dev', '-Dserver.port=8080', '-XX:+UseContainerSupport'
+                    , '-Dfile.encoding=UTF-8']
+    }
+}
+
 group = 'io.so1s'
-version = '0.0.1-SNAPSHOT'
+version = "${rootProject.ext.applicationVersion}" + '-SNAPSHOT' + new Date().format("yyyyMMddHHmmss")
 sourceCompatibility = '11'
 
 configurations {
@@ -31,10 +65,6 @@ configurations {
 
 repositories {
     mavenCentral()
-}
-
-ext {
-    set('snippetsDir', file("build/generated-snippets"))
 }
 
 dependencies {
@@ -97,7 +127,7 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter
     testImplementation 'org.mockito:mockito-junit-jupiter:4.6.1'
-    
+
 }
 
 tasks.named('test') {

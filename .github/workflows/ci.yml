@@ -1,4 +1,4 @@
-name: Build Image
+name: CI
 on:
   push:
     branches:
@@ -6,31 +6,6 @@ on:
   pull_request:
 
 jobs:
-  gradle-test:
-    runs-on: self-hosted
-    steps:
-      - name: checkout
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: |
-          apt update -y && apt install zip unzip -y
-          curl -s "https://get.sdkman.io" | bash
-          source ~/.sdkman/bin/sdkman-init.sh
-          sdk install java 11.0.15.9.1-amzn
-          sdk install gradle 7.4.2
-          sdk use java 11.0.15.9.1-amzn
-          sdk use gradle 7.4.2
-          gradle wrapper
-          chmod +x gradlew
-      - name: Run build
-        run: ./gradlew build --stacktrace
-        env:
-          jwt-secret: ${{ secrets.JWT_SECRET }}
-      - name: Run test
-        run: |
-          ./gradlew test
-        env:
-          jwt-secret: ${{ secrets.JWT_SECRET }}
   sonarqube-scan:
     runs-on: self-hosted
     steps:
@@ -51,14 +26,17 @@ jobs:
         run: ./gradlew build --stacktrace
         env:
           jwt-secret: ${{ secrets.JWT_SECRET }}
+          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: Run test
         run: ./gradlew test
         env:
           jwt-secret: ${{ secrets.JWT_SECRET }}
+          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: Run jacoco report
         run: ./gradlew jacocoTestReport
         env:
           jwt-secret: ${{ secrets.JWT_SECRET }}
+          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
