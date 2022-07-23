@@ -40,7 +40,7 @@ public class ModelController {
         .success(kubernetesService.inferenceServerBuild(modelMetadata))
         .modelName(model.getName())
         .version(modelMetadata.getVersion())
-        .fileName(saveResult.getFileName())
+        .fileName(saveResult.getSavedName())
         .savedUrl(saveResult.getUrl())
         .build());
   }

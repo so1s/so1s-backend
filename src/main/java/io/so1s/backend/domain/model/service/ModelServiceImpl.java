@@ -43,7 +43,7 @@ public class ModelServiceImpl implements ModelService {
     return modelMetadataRepository.save(ModelMetadata.builder()
         .status("pending")
         .version(HashGenerator.sha256())
-        .fileName(fileSaveResultForm.getFileName())
+        .fileName(fileSaveResultForm.getSavedName())
         .url(fileSaveResultForm.getUrl())
         .inputShape(modelUploadRequestDto.getInputShape())
         .inputDtype(modelUploadRequestDto.getInputDtype())

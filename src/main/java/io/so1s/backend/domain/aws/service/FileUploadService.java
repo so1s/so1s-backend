@@ -27,8 +27,9 @@ public class FileUploadService {
     }
 
     return FileSaveResultForm.builder()
+        .originName(file.getName())
+        .savedName(fileName)
         .url(uploadService.getFileUrl(fileName))
-        .fileName(fileName)
         .build();
   }
 
@@ -36,7 +37,7 @@ public class FileUploadService {
     return UUID.randomUUID().toString().concat(getFileExtension(originalFilename));
   }
 
-  private String getFileExtension(String fileName) {
+  public String getFileExtension(String fileName) {
     try {
       return fileName.substring(fileName.lastIndexOf("."));
     } catch (StringIndexOutOfBoundsException e) {

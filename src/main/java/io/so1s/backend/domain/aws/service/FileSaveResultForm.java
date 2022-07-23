@@ -7,6 +7,7 @@ import lombok.Getter;
 @Builder
 public class FileSaveResultForm {
 
-  String fileName;
-  String url;
+  private String originName;
+  private String savedName;
+  private String url;
 }
