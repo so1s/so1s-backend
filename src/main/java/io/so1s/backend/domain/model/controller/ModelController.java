@@ -36,13 +36,12 @@ public class ModelController {
     ModelMetadata modelMetadata = modelService.createModelMetadata(
         model, modelUploadRequestDto, saveResult);
 
-    return ResponseEntity.ok(
-        ModelUploadResponseDto.builder()
-            .success(kubernetesService.inferenceServerBuild(modelMetadata))
-            .modelName(modelUploadRequestDto.getName())
-            .version(modelMetadata.getVersion())
-            .fileName(saveResult.getFileName())
-            .savedUrl(saveResult.getUrl())
-            .build());
+    return ResponseEntity.ok(ModelUploadResponseDto.builder()
+        .success(kubernetesService.inferenceServerBuild(modelMetadata))
+        .modelName(model.getName())
+        .version(modelMetadata.getVersion())
+        .fileName(saveResult.getFileName())
+        .savedUrl(saveResult.getUrl())
+        .build());
   }
 }
