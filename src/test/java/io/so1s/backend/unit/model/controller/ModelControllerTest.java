@@ -70,7 +70,7 @@ class ModelControllerTest {
         .build();
     requestDtoMapped = objectMapper.writeValueAsString(modelUploadRequestDto);
     saveResult = FileSaveResultForm.builder()
-        .fileName("testFileName")
+        .savedName("testFileName")
         .url("http://s3.test.com/")
         .build();
   }
@@ -104,7 +104,7 @@ class ModelControllerTest {
         .andExpect(jsonPath("$.success").value("true"))
         .andExpect(jsonPath("$.modelName").value(modelUploadRequestDto.getName()))
         .andExpect(jsonPath("$.version").value(version))
-        .andExpect(jsonPath("$.fileName").value(saveResult.getFileName()))
+        .andExpect(jsonPath("$.fileName").value(saveResult.getSavedName()))
         .andExpect(jsonPath("$.savedUrl").value(saveResult.getUrl()));
   }
 }

@@ -103,7 +103,7 @@ class ModelServiceTest {
     // given
     // setup()
     FileSaveResultForm saveResult = FileSaveResultForm.builder()
-        .fileName("fileName")
+        .savedName("fileName")
         .url("http://test.com/")
         .build();
 
@@ -116,6 +116,6 @@ class ModelServiceTest {
     // then
     assertThat(result.getModel().getName()).isEqualTo(modelUploadRequestDto.getName());
     assertThat(result.getUrl()).isEqualTo(saveResult.getUrl());
-    assertThat(result.getFileName()).isEqualTo(saveResult.getFileName());
+    assertThat(result.getFileName()).isEqualTo(saveResult.getSavedName());
   }
 }
