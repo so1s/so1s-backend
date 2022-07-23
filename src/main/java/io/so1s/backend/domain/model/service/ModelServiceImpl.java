@@ -14,13 +14,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class ModelServiceImpl implements ModelService {
 
   private final ModelRepository modelRepository;
   private final ModelMetadataRepository modelMetadataRepository;
 
+  @Transactional(readOnly = true)
   public void validateDuplicateModelName(String name) {
     Optional<Model> result = modelRepository.findByName(name);
     if (result.isPresent()) {
@@ -31,11 +31,13 @@ public class ModelServiceImpl implements ModelService {
     }
   }
 
+  @Transactional
   public Model createModel(ModelUploadRequestDto modelUploadRequestDto) {
     validateDuplicateModelName(modelUploadRequestDto.getName());
     return modelRepository.save(modelUploadRequestDto.toModelEntity());
   }
 
+  @Transactional
   public ModelMetadata createModelMetadata(Model model,
       ModelUploadRequestDto modelUploadRequestDto, FileSaveResultForm fileSaveResultForm) {
     return modelMetadataRepository.save(ModelMetadata.builder()
