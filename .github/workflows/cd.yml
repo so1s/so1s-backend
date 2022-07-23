@@ -35,4 +35,8 @@ jobs:
           jwt-secret: ${{ secrets.JWT_SECRET }}
           REPO: ${{ secrets.REPO }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          aws-s3-access-key: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          aws-s3-secret-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+          aws-s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
+          aws-region: ${{ secrets.AWS_REGION }}
           JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
