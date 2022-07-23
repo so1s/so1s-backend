@@ -40,7 +40,8 @@ public class FileUploadService {
     try {
       return fileName.substring(fileName.lastIndexOf("."));
     } catch (StringIndexOutOfBoundsException e) {
-      throw new IllegalArgumentException(String.format("잘못된 형식의 파일입니다. 확장자를 명시해주세요.", fileName));
+      throw new IllegalArgumentException(
+          String.format("잘못된 형식의 파일입니다. 확장자를 명시해주세요. (%s)", fileName));
     }
   }
 }
