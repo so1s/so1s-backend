@@ -12,4 +12,7 @@ public interface ModelRepository extends JpaRepository<Model, Long> {
   Optional<Model> findById(Long id);
 
   List<Model> findAll();
+
+  Optional<Model> findByName(String name);
+
 }
