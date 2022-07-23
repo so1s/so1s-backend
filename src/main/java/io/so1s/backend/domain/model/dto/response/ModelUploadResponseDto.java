@@ -14,8 +14,12 @@ public class ModelUploadResponseDto {
   @Builder.Default
   private Boolean success = Boolean.TRUE;
 
-  private String name;
+  private String modelName;
+
+  private String fileName;
 
   private String version;
+
+  private String savedUrl;
 
 }

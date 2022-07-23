@@ -29,16 +29,28 @@ public class ModelMetadata extends BaseTimeEntity {
   private Long id;
 
   @Column(nullable = false)
-  private String url;
+  private String status;
 
   @Column(nullable = false)
   private String version;
 
-  @Column
-  private String info;
+  @Column(unique = true)
+  private String fileName;
+
+  @Column(unique = true)
+  private String url;
 
   @Column(nullable = false)
-  private String status;
+  private String inputShape;
+
+  @Column(nullable = false)
+  private String inputDtype;
+
+  @Column(nullable = false)
+  private String outputShape;
+
+  @Column(nullable = false)
+  private String outputDtype;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "model_id")
