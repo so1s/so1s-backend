@@ -72,6 +72,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
 
     // Json Logging Configuration
@@ -127,6 +128,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter
     testImplementation 'org.mockito:mockito-junit-jupiter:4.6.1'
+
+    // aws
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
 }
 
