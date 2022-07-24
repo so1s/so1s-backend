@@ -26,16 +26,16 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 public class FileUploadServiceTest {
 
-  private static String BUCKET_NAME;
+  private static String bucketName;
   private static AwsS3UploadService awsS3UploadService;
   private static FileUploadService fileUploadService;
 
   @BeforeAll
   static void setUp(@Autowired S3Config s3Config, @Autowired S3Mock s3Mock,
       @Autowired AmazonS3 amazonS3) {
-    BUCKET_NAME = s3Config.getBucket();
+    bucketName = s3Config.getBucket();
     s3Mock.start();
-    amazonS3.createBucket(BUCKET_NAME);
+    amazonS3.createBucket(bucketName);
     awsS3UploadService = new AwsS3UploadService(amazonS3, s3Config);
     fileUploadService = new FileUploadService(awsS3UploadService);
   }
