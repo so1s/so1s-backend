@@ -1,4 +1,4 @@
-package io.so1s.backend.domain.aws.service;
+package io.so1s.backend.domain.aws.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

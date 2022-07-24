@@ -1,6 +1,6 @@
 package io.so1s.backend.domain.model.service;
 
-import io.so1s.backend.domain.aws.service.FileSaveResultForm;
+import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;

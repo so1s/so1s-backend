@@ -1,6 +1,6 @@
 package io.so1s.backend.domain.model.controller;
 
-import io.so1s.backend.domain.aws.service.FileSaveResultForm;
+import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.aws.service.FileUploadService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;

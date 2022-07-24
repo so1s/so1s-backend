@@ -1,6 +1,7 @@
 package io.so1s.backend.domain.aws.service;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
