@@ -5,6 +5,13 @@ on:
       - main
   pull_request:
 
+env:
+  jwt-secret: ${{ secrets.JWT_SECRET }}
+  aws-s3-access-key: ${{ secrets.AWS_S3_ACCESS_KEY }}
+  aws-s3-secret-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+  aws-s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
+  aws-region: ${{ secrets.AWS_REGION }}
+
 jobs:
   sonarqube-scan:
     runs-on: self-hosted
@@ -25,21 +32,17 @@ jobs:
       - name: Run build
         run: ./gradlew build --stacktrace
         env:
-          jwt-secret: ${{ secrets.JWT_SECRET }}
           JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: Run test
         run: ./gradlew test
         env:
-          jwt-secret: ${{ secrets.JWT_SECRET }}
           JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: Run jacoco report
         run: ./gradlew jacocoTestReport
         env:
-          jwt-secret: ${{ secrets.JWT_SECRET }}
           JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          jwt-secret: ${{ secrets.JWT_SECRET }}
