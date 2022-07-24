@@ -3,10 +3,16 @@ jwt:
   # HS512 알고리즘을 사용할 것이기 때문에 512bit, 즉 64byte 이상의 secret key를 사용해야 한다.
   secret: c28xcy10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQtc28xcy10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQK
   token-validity-in-seconds: 86400
+
 cloud:
   aws:
+    credentials:
+      instance-profile: true # AWS CLI에서 aws configure list 정보를 반영할건지 여부
+      access-key: RWQRNSD123FWE23FASD2
+      secret-key: DSJBqrkjq12ndaksnd13kwa+WEK21ndaSKwe12lj
+    s3:
+      bucket: testbucket
     region:
       static: ap-northeast-2
-      auto: false
     stack:
-      auto: false
+      auto: false # aws 배포할때 기본으로 CloudFormation 구성을 시작해서 기능을 끔
