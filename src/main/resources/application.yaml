@@ -1,8 +1,5 @@
 spring:
   profiles:
-    include:
-      - aws
-      - credentials
     active: dev
 
   h2:
