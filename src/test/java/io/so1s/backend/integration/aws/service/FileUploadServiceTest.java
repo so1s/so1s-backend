@@ -1,4 +1,4 @@
-package io.so1s.backend.integration.service;
+package io.so1s.backend.integration.aws.service;
 
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;

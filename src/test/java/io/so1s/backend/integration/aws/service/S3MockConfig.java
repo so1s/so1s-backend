@@ -1,4 +1,4 @@
-package io.so1s.backend.integration.service;
+package io.so1s.backend.integration.aws.service;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.AnonymousAWSCredentials;
