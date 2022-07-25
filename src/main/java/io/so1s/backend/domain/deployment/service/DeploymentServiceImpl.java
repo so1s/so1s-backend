@@ -37,7 +37,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         deploymentRequestDto.getModelMetadataId());
     if (!modelMetadata.isPresent()) {
       throw new IllegalArgumentException(
-          String.format("잘못된 모델 버전입니다. (%s)", deploymentRequestDto.getModelVersion()));
+          String.format("잘못된 모델을 선택했습니다. (%s)", deploymentRequestDto.getModelMetadataId()));
     }
 
     Optional<DeploymentStrategy> deploymentStrategy = deploymentStrategyRepository.findByName(
