@@ -4,6 +4,7 @@ import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.ResourceQuotaBuilder;
+import io.fabric8.kubernetes.api.model.TolerationBuilder;
 import io.fabric8.kubernetes.api.model.VolumeBuilder;
 import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
@@ -58,12 +59,12 @@ public class KubernetesService {
                 .withName("docker-sock")
                 .build())
         .endContainer()
-//        .withTolerations(new TolerationBuilder()
-//            .withKey("kind")
-//            .withOperator("Equal")
-//            .withValue("api")
-//            .withEffect("Noschedule")
-//            .build())
+        .withTolerations(new TolerationBuilder()
+            .withKey("kind")
+            .withOperator("Equal")
+            .withValue("api")
+            .withEffect("Noschedule")
+            .build())
         .withVolumes(new VolumeBuilder()
             .withName("docker-sock")
             .withHostPath(new HostPathVolumeSourceBuilder()
@@ -146,7 +147,6 @@ public class KubernetesService {
     Deployment inferenceDeployment = new DeploymentBuilder()
         .withNewMetadata()
         .withName(deployName)
-//        .withNamespace(deployName)
         .withNamespace(namespace)
         .addToLabels(labels)
         .endMetadata()
@@ -175,12 +175,12 @@ public class KubernetesService {
         .withContainerPort(8080)
         .endPort()
         .endContainer()
-//        .withTolerations(new TolerationBuilder()
-//            .withKey("kind")
-//            .withOperator("Equal")
-//            .withValue("api")
-//            .withEffect("Noschedule")
-//            .build())
+        .withTolerations(new TolerationBuilder()
+            .withKey("kind")
+            .withOperator("Equal")
+            .withValue("api")
+            .withEffect("Noschedule")
+            .build())
         .endSpec()
         .endTemplate()
         .endSpec()
