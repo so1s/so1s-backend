@@ -42,7 +42,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 
     Optional<DeploymentStrategy> deploymentStrategy = deploymentStrategyRepository.findByName(
         deploymentRequestDto.getStrategy());
-    if (!modelMetadata.isPresent()) {
+    if (!deploymentStrategy.isPresent()) {
       throw new IllegalArgumentException(
           String.format("잘못된 배포 전략입니다. (%s)", deploymentRequestDto.getStrategy()));
     }

@@ -19,6 +19,7 @@ import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.Optional;
+import org.junit.After;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -63,6 +64,14 @@ public class DeploymentServiceTest {
         .memoryLimit("2Gi")
         .gpuLimit("0")
         .build();
+  }
+
+  @After
+  void deleteData() {
+    modelMetadataRepository.deleteAll();
+    deploymentRepository.deleteAll();
+    deploymentStrategyRepository.deleteAll();
+    resourceRepository.deleteAll();
   }
 
   @Test
@@ -144,7 +153,7 @@ public class DeploymentServiceTest {
   }
 
   @Test
-  @DisplayName("잘못된 전략을 선택했을경우 IllgalArgumentException이 발생한다.")
+  @DisplayName("잘못된 전략을 선택했을경우 IllegalArgumentException 발생한다.")
   public void createDeploymentWrongStragegyTest() throws Exception {
     // given
     ModelMetadata modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
