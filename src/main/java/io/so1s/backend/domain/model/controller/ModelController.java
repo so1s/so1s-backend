@@ -28,7 +28,7 @@ public class ModelController {
 
   @PostMapping
   public ResponseEntity<ModelUploadResponseDto> modelUpload(
-      @Valid @RequestBody ModelUploadRequestDto modelUploadRequestDto)
+      @Valid ModelUploadRequestDto modelUploadRequestDto)
       throws IllegalAccessError, IllegalArgumentException, DuplicateModelNameException {
 
     Model model = modelService.createModel(modelUploadRequestDto);
