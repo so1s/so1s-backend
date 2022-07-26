@@ -38,6 +38,7 @@ jobs:
           chmod +x gradlew
       - name: Build Openapi3 json
         run: |
+          mkdir -p ./src/main/resources/static/docs
           touch ./src/main/resources/static/docs/openapi3.json
           ./gradlew openapi3
         env:
