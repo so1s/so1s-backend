@@ -36,6 +36,10 @@ jobs:
           sdk use gradle 7.4.2
           gradle wrapper
           chmod +x gradlew
+      - name: Build Openapi3 json
+        run: ./gradlew openapi3
+        env:
+          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: Build with Gradle
         run: ./gradlew clean jib -x test
         env:
