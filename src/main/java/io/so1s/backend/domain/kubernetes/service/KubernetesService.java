@@ -1,12 +1,9 @@
 package io.so1s.backend.domain.kubernetes.service;
 
-import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.ResourceQuotaBuilder;
 import io.fabric8.kubernetes.api.model.TolerationBuilder;
-import io.fabric8.kubernetes.api.model.VolumeBuilder;
-import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
@@ -53,11 +50,11 @@ public class KubernetesService {
         .withImage("so1s/" + library + "-build:v1")
         .withCommand("/bin/sh", "/apps/build.sh", model.getName().toLowerCase(), version,
             "vkxmxkdlaj")
-        .withVolumeMounts(
-            new VolumeMountBuilder()
-                .withMountPath("/var/run/docker.sock")
-                .withName("docker-sock")
-                .build())
+//        .withVolumeMounts(
+//            new VolumeMountBuilder()
+//                .withMountPath("/var/run/docker.sock")
+//                .withName("docker-sock")
+//                .build())
         .endContainer()
         .withTolerations(new TolerationBuilder()
             .withKey("kind")
@@ -65,12 +62,12 @@ public class KubernetesService {
             .withValue("inference")
             .withEffect("Noschedule")
             .build())
-        .withVolumes(new VolumeBuilder()
-            .withName("docker-sock")
-            .withHostPath(new HostPathVolumeSourceBuilder()
-                .withPath("/var/run/docker.sock")
-                .build())
-            .build())
+//        .withVolumes(new VolumeBuilder()
+//            .withName("docker-sock")
+//            .withHostPath(new HostPathVolumeSourceBuilder()
+//                .withPath("/var/run/docker.sock")
+//                .build())
+//            .build())
         .withRestartPolicy("Never")
         .endSpec()
         .endTemplate()
