@@ -38,6 +38,7 @@ jobs:
           chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew clean jib -x test
+        env:
           REPO: ${{ secrets.REPO }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
