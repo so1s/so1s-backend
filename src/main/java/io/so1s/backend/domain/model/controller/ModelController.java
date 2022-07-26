@@ -13,6 +13,7 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,7 +28,7 @@ public class ModelController {
 
   @PostMapping
   public ResponseEntity<ModelUploadResponseDto> modelUpload(
-      @Valid ModelUploadRequestDto modelUploadRequestDto)
+      @Valid @RequestBody ModelUploadRequestDto modelUploadRequestDto)
       throws IllegalAccessError, IllegalArgumentException, DuplicateModelNameException {
 
     Model model = modelService.createModel(modelUploadRequestDto);
