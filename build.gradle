@@ -155,7 +155,7 @@ tasks.clean {
 // ./gradlew openapi3
 // See /src/main/resources/static/docs/openapi3.json
 openapi3 {
-    servers = [{ url = 'http://localhost:8000' }, { url = 'https://www.so1s.io' }]
+    servers = [{ url = 'http://localhost:8080' }, { url = 'https://www.so1s.io' }]
     title = 'So1s'
     description = 'MLOps Inference Deployment Management Framework'
     version = '0.1.0'
