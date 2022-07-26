@@ -50,6 +50,12 @@ public class KubernetesService {
         .withImage("so1s/" + library + "-build:v1")
         .withCommand("/bin/sh", "/apps/build.sh", model.getName().toLowerCase(), version,
             "vkxmxkdlaj")
+        .withNewResources()
+        .addToRequests("cpu", new Quantity("1"))
+        .addToRequests("memory", new Quantity("1Gi"))
+        .addToLimits("cpu", new Quantity("1"))
+        .addToLimits("memory", new Quantity("1Gi"))
+        .endResources()
 //        .withVolumeMounts(
 //            new VolumeMountBuilder()
 //                .withMountPath("/var/run/docker.sock")
