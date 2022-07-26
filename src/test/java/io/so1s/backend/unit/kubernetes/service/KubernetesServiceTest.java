@@ -4,6 +4,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
+import io.so1s.backend.domain.deployment.entity.Deployment;
+import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
@@ -55,5 +57,98 @@ public class KubernetesServiceTest {
     // then
     assertThat(result).isTrue();
 
+  }
+
+  @Test
+  @DisplayName("성공적으로 네임스페이스가 생성되면 true를 반환한다.")
+  public void createNamespaceTest() throws Exception {
+    // given
+    String namespace = "test-space";
+
+    // when
+    boolean result = kubernetesService.createNamespace(namespace);
+
+    // then
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  @DisplayName("성공적으로 리소스 쿼타가 생성되면 true를 반환한다.")
+  public void createResourceQuotaTest() throws Exception {
+    // given
+    Resource resource = Resource.builder()
+        .cpu("1")
+        .memory("1Gi")
+        .gpu("0")
+        .cpuLimit("2")
+        .memoryLimit("2Gi")
+        .gpuLimit("0")
+        .build();
+    String namespace = "test-space";
+
+    // when
+    boolean result = kubernetesService.createResourceQuota(resource, namespace);
+
+    // then
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  @DisplayName("성공적으로 리소스 쿼타(withGpu)가 생성되면 true를 반환한다.")
+  public void createResourceQuotaWithGpuTest() throws Exception {
+    // given
+    Resource resource = Resource.builder()
+        .cpu("1")
+        .memory("1Gi")
+        .gpu("1")
+        .cpuLimit("2")
+        .memoryLimit("2Gi")
+        .gpuLimit("2")
+        .build();
+    String namespace = "test-space";
+
+    // when
+    boolean result = kubernetesService.createResourceQuotaWithGpu(resource, namespace);
+
+    // then
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  @DisplayName("성공적으로 인퍼런스 서버를 생성하면 true를 반환한다.")
+  public void deployInferenceServerTest() throws Exception {
+    // given
+    Deployment deployment = Deployment.builder()
+        .name("testDeployment")
+        .status("pending")
+        .modelMetadata(ModelMetadata.builder()
+            .status("success")
+            .version(HashGenerator.sha256())
+            .fileName("titanic.h5")
+            .url("https://s3.test.com/")
+            .inputShape("(10,)")
+            .inputDtype("float32")
+            .outputShape("(1,)")
+            .outputDtype("float32")
+            .model(Model.builder()
+                .name("testModel")
+                .library("torch")
+                .build())
+            .build())
+        .resource(Resource.builder()
+            .cpu("1")
+            .memory("1Gi")
+            .gpu("0")
+            .cpuLimit("2")
+            .memoryLimit("2Gi")
+            .gpuLimit("0")
+            .build())
+        .build();
+
+    // when
+    boolean result = kubernetesService.deployInferenceServer(deployment);
+
+    // then
+    assertThat(result).isTrue();
   }
 }
