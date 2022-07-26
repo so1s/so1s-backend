@@ -37,7 +37,9 @@ jobs:
           gradle wrapper
           chmod +x gradlew
       - name: Build Openapi3 json
-        run: ./gradlew openapi3
+        run: |
+          touch ./src/main/resources/static/docs/openapi3.json
+          ./gradlew openapi3
         env:
           JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: Build with Gradle
