@@ -49,6 +49,7 @@ public class KubernetesService {
         .withNewTemplate()
         .withNewSpec()
         .addNewContainer()
+        .withImagePullPolicy("Always")
         .withName(jobName)
         .withImage("so1s/" + library + "-build:v1")
         .withCommand("/bin/sh", "/apps/build.sh", model.getName().toLowerCase(), version,
@@ -146,6 +147,7 @@ public class KubernetesService {
     String modelVersion = deployment.getModelMetadata().getVersion().toLowerCase();
 
     Map<String, String> labels = new HashMap<>();
+    labels.put("apps", "inference");
     labels.put("inference", deployName);
     labels.put("model", modelName);
     labels.put("version", modelVersion);
@@ -168,6 +170,7 @@ public class KubernetesService {
         .endMetadata()
         .withNewSpec()
         .addNewContainer()
+        .withImagePullPolicy("Always")
         .withName(deployName)
         .withImage("so1s/" + modelName + ":" + modelVersion)
         .withNewResources()
