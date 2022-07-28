@@ -27,6 +27,7 @@ spring:
         # Print extra information besides SQL queries for debugging
         use_sql_comments: true
       generate-ddl: true
+    defer-datasource-initialization: true
 
 # jwt secret 임시값 사용
 jwt:
