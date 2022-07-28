@@ -167,7 +167,7 @@ public class DeploymentServiceTest {
         .name("testDeployment")
         .modelMetadataId(1L)
         .modelVersion(HashGenerator.sha256())
-        .strategy("rolling")
+        .strategy("not-exist-strategy")
         .resources(resourceRequestDto)
         .build();
 
