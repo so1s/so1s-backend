@@ -8,7 +8,6 @@ import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
-import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
 import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository;
@@ -106,9 +105,6 @@ public class DeploymentServiceTest {
         .inputDtype("float32")
         .outputShape("(1,)")
         .outputDtype("float32")
-        .build());
-    deploymentStrategyRepository.save(DeploymentStrategy.builder()
-        .name("rolling")
         .build());
     Resource resource = resourceRequestDto.toEntity();
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
