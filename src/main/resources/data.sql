@@ -1,0 +1,1 @@
+INSERT INTO DEPLOTMENT_STRATEGY (CREATED_ON, UPDATED_ON, name) VALUES (now(), now(), 'rolling')
