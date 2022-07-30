@@ -1,6 +1,5 @@
 package io.so1s.backend.domain.deployment.entity;
 
-import io.so1s.backend.global.entity.BaseTimeEntity;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
@@ -22,7 +21,7 @@ import org.hibernate.annotations.FetchMode;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DeploymentStrategy extends BaseTimeEntity {
+public class DeploymentStrategy {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
