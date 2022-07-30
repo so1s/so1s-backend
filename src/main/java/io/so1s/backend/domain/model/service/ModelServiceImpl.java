@@ -10,6 +10,7 @@ import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.global.error.exception.DuplicateModelNameException;
 import io.so1s.backend.global.error.exception.LibraryNotFoundException;
+import io.so1s.backend.global.error.exception.ModelNotFoundException;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -69,5 +70,16 @@ public class ModelServiceImpl implements ModelService {
     }
 
     return result.get();
+  }
+
+  @Transactional(readOnly = true)
+  public Model findModelByName(String name) throws ModelNotFoundException {
+
+    Optional<Model> model = modelRepository.findByName(name);
+    if (!model.isPresent()) {
+      throw new ModelNotFoundException(String.format("해당 모델을 찾을 수 없습니다.(%s)", name));
+    }
+
+    return model.get();
   }
 }
