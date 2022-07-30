@@ -13,6 +13,7 @@ import io.so1s.backend.domain.aws.service.FileUploadService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.controller.ModelController;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
+import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
@@ -56,6 +57,7 @@ class ModelControllerTest {
   ModelUploadRequestDto modelUploadRequestDto;
   String requestDtoMapped;
   FileSaveResultForm saveResult;
+  Model model;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -73,6 +75,13 @@ class ModelControllerTest {
         .savedName("testFileName")
         .url("http://s3.test.com/")
         .build();
+    model = Model.builder()
+        .name(modelUploadRequestDto.getName())
+        .library(Library.builder()
+            .name(modelUploadRequestDto.getLibrary())
+            .build())
+        .build();
+
   }
 
   @Test
@@ -82,7 +91,7 @@ class ModelControllerTest {
     // setup()
     String version = HashGenerator.sha256();
     when(modelService.createModel(any(ModelUploadRequestDto.class))).thenReturn(
-        modelUploadRequestDto.toModelEntity());
+        model);
     when(fileUploadService.uploadFile(any())).thenReturn(saveResult);
     when(modelService.createModelMetadata(any(Model.class), any(ModelUploadRequestDto.class), any(
         FileSaveResultForm.class))).thenReturn(ModelMetadata.builder()

@@ -2,11 +2,14 @@ package io.so1s.backend.domain.model.service;
 
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
+import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
+import io.so1s.backend.domain.model.repository.LibraryRepository;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.global.error.exception.DuplicateModelNameException;
+import io.so1s.backend.global.error.exception.LibraryNotFoundException;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ModelServiceImpl implements ModelService {
 
   private final ModelRepository modelRepository;
+  private final LibraryRepository libraryRepository;
   private final ModelMetadataRepository modelMetadataRepository;
 
   @Transactional(readOnly = true)
@@ -34,7 +38,11 @@ public class ModelServiceImpl implements ModelService {
   @Transactional
   public Model createModel(ModelUploadRequestDto modelUploadRequestDto) {
     validateDuplicateModelName(modelUploadRequestDto.getName());
-    return modelRepository.save(modelUploadRequestDto.toModelEntity());
+    Library library = validateLibrary(modelUploadRequestDto.getLibrary());
+    return modelRepository.save(Model.builder()
+        .name(modelUploadRequestDto.getName())
+        .library(library)
+        .build());
   }
 
   @Transactional
@@ -53,4 +61,13 @@ public class ModelServiceImpl implements ModelService {
         .build());
   }
 
+  @Transactional(readOnly = true)
+  public Library validateLibrary(String library) throws LibraryNotFoundException {
+    Optional<Library> result = libraryRepository.findByName(library);
+    if (!result.isPresent()) {
+      throw new LibraryNotFoundException(String.format("잘못된 라이브러리를 요청하셨습니다. (%s)", library));
+    }
+
+    return result.get();
+  }
 }
