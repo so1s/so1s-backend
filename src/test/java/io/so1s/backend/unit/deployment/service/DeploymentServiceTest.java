@@ -110,7 +110,6 @@ public class DeploymentServiceTest {
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
         .modelMetadataId(modelMetadata.getId())
-        .modelVersion(HashGenerator.sha256())
         .strategy("rolling")
         .resources(resourceRequestDto)
         .build();
@@ -136,7 +135,6 @@ public class DeploymentServiceTest {
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
         .modelMetadataId(1L)
-        .modelVersion(HashGenerator.sha256())
         .strategy("rolling")
         .resources(resourceRequestDto)
         .build();
@@ -166,7 +164,6 @@ public class DeploymentServiceTest {
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
         .modelMetadataId(1L)
-        .modelVersion(HashGenerator.sha256())
         .strategy("not-exist-strategy")
         .resources(resourceRequestDto)
         .build();

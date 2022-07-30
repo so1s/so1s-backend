@@ -21,9 +21,6 @@ public class DeploymentRequestDto {
   @NotBlank
   private Long modelMetadataId;
 
-  @NotBlank
-  private String modelVersion;
-
   @Builder.Default
   private String strategy = "rolling";
 

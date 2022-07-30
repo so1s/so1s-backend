@@ -30,31 +30,46 @@ public class DeploymentServiceImpl implements DeploymentService {
     return resourceRepository.save(resourceRequestDto.toEntity());
   }
 
+
   @Override
   @Transactional
   public Deployment createDeployment(Resource resource, DeploymentRequestDto deploymentRequestDto) {
-    Optional<ModelMetadata> modelMetadata = modelMetadataRepository.findById(
-        deploymentRequestDto.getModelMetadataId());
-    if (!modelMetadata.isPresent()) {
-      throw new IllegalArgumentException(
-          String.format("잘못된 모델을 선택했습니다. (%s)", deploymentRequestDto.getModelMetadataId()));
-    }
 
-    Optional<DeploymentStrategy> deploymentStrategy = deploymentStrategyRepository.findByName(
+    ModelMetadata modelMetadata = validateExistModelMetadata(
+        deploymentRequestDto.getModelMetadataId());
+    DeploymentStrategy deploymentStrategy = validateExistDeploymentStrategy(
         deploymentRequestDto.getStrategy());
-    if (!deploymentStrategy.isPresent()) {
-      throw new IllegalArgumentException(
-          String.format("잘못된 배포 전략입니다. (%s)", deploymentRequestDto.getStrategy()));
-    }
 
     Deployment deployment = Deployment.builder()
         .name(deploymentRequestDto.getName())
         .status("pending")
         .build();
-    deployment.setModelMetadata(modelMetadata.get());
-    deployment.setDeploymentStrategy(deploymentStrategy.get());
+    deployment.setModelMetadata(modelMetadata);
+    deployment.setDeploymentStrategy(deploymentStrategy);
     deployment.setResource(resource);
 
     return deploymentRepository.save(deployment);
+  }
+
+  @Override
+  public ModelMetadata validateExistModelMetadata(Long id) {
+    Optional<ModelMetadata> modelMetadata = modelMetadataRepository.findById(id);
+    if (!modelMetadata.isPresent()) {
+      throw new IllegalArgumentException(
+          String.format("잘못된 모델버전을 선택했습니다. (%s)", id));
+    }
+
+    return modelMetadata.get();
+  }
+
+  @Override
+  public DeploymentStrategy validateExistDeploymentStrategy(String name) {
+    Optional<DeploymentStrategy> deploymentStrategy = deploymentStrategyRepository.findByName(name);
+    if (!deploymentStrategy.isPresent()) {
+      throw new IllegalArgumentException(
+          String.format("잘못된 배포 전략을 선택하셨습니다. (%s)", name));
+    }
+
+    return deploymentStrategy.get();
   }
 }
