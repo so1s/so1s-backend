@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
+import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.global.utils.HashGenerator;
@@ -47,7 +48,9 @@ public class KubernetesServiceTest {
         .outputShape("float32")
         .model(Model.builder()
             .name("FinetunedModel")
-            .library("torch")
+            .library(Library.builder()
+                .name("torch")
+                .build())
             .build())
         .build();
 
@@ -132,7 +135,9 @@ public class KubernetesServiceTest {
             .outputDtype("float32")
             .model(Model.builder()
                 .name("testModel")
-                .library("torch")
+                .library(Library.builder()
+                    .name("torch")
+                    .build())
                 .build())
             .build())
         .resource(Resource.builder()

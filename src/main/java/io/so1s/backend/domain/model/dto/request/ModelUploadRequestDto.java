@@ -1,6 +1,5 @@
 package io.so1s.backend.domain.model.dto.request;
 
-import io.so1s.backend.domain.model.entity.Model;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -38,11 +37,4 @@ public class ModelUploadRequestDto {
 
   @NotBlank
   private String outputDtype;
-
-  public Model toModelEntity() {
-    return Model.builder()
-        .name(name)
-        .library(library)
-        .build();
-  }
 }

@@ -13,6 +13,7 @@ import io.so1s.backend.domain.aws.service.FileUploadService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.controller.ModelController;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
+import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
@@ -56,6 +57,7 @@ class ModelControllerTest {
   ModelUploadRequestDto modelUploadRequestDto;
   String requestDtoMapped;
   FileSaveResultForm saveResult;
+  Model model;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -73,6 +75,13 @@ class ModelControllerTest {
         .savedName("testFileName")
         .url("http://s3.test.com/")
         .build();
+    model = Model.builder()
+        .name(modelUploadRequestDto.getName())
+        .library(Library.builder()
+            .name(modelUploadRequestDto.getLibrary())
+            .build())
+        .build();
+
   }
 
   @Test
@@ -81,8 +90,7 @@ class ModelControllerTest {
     // given
     // setup()
     String version = HashGenerator.sha256();
-    when(modelService.createModel(any(ModelUploadRequestDto.class))).thenReturn(
-        modelUploadRequestDto.toModelEntity());
+    when(modelService.createModel(any(ModelUploadRequestDto.class))).thenReturn(model);
     when(fileUploadService.uploadFile(any())).thenReturn(saveResult);
     when(modelService.createModelMetadata(any(Model.class), any(ModelUploadRequestDto.class), any(
         FileSaveResultForm.class))).thenReturn(ModelMetadata.builder()
@@ -93,6 +101,39 @@ class ModelControllerTest {
     // when
     ResultActions result = mockMvc.perform(MockMvcRequestBuilders
             .post("/api/v1/models")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestDtoMapped)
+            .with(csrf()))
+        .andDo(print());
+
+    //then
+    result.andExpect(status().isOk())
+        .andExpect(jsonPath("$.success").value("true"))
+        .andExpect(jsonPath("$.modelName").value(modelUploadRequestDto.getName()))
+        .andExpect(jsonPath("$.version").value(version))
+        .andExpect(jsonPath("$.fileName").value(saveResult.getSavedName()))
+        .andExpect(jsonPath("$.savedUrl").value(saveResult.getUrl()));
+  }
+
+
+  @Test
+  @DisplayName("기존의 모델 버전을 업데이트 한다.")
+  public void updateTest() throws Exception {
+    // given
+    // setup()
+    String version = HashGenerator.sha256();
+    when(modelService.findModelByName(any())).thenReturn(model);
+    when(fileUploadService.uploadFile(any())).thenReturn(saveResult);
+    when(modelService.createModelMetadata(any(Model.class), any(ModelUploadRequestDto.class), any(
+        FileSaveResultForm.class))).thenReturn(ModelMetadata.builder()
+        .version(version)
+        .build());
+    when(kubernetesService.inferenceServerBuild(any(ModelMetadata.class))).thenReturn(Boolean.TRUE);
+
+    // when
+    ResultActions result = mockMvc.perform(MockMvcRequestBuilders
+            .put("/api/v1/models")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(requestDtoMapped)

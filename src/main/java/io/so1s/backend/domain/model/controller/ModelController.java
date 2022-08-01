@@ -9,11 +9,12 @@ import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.global.error.exception.DuplicateModelNameException;
+import io.so1s.backend.global.error.exception.ModelNotFoundException;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,6 +37,26 @@ public class ModelController {
         modelUploadRequestDto.getModelFile());
     ModelMetadata modelMetadata = modelService.createModelMetadata(
         model, modelUploadRequestDto, saveResult);
+
+    return ResponseEntity.ok(ModelUploadResponseDto.builder()
+        .success(kubernetesService.inferenceServerBuild(modelMetadata))
+        .modelName(model.getName())
+        .version(modelMetadata.getVersion())
+        .fileName(saveResult.getSavedName())
+        .savedUrl(saveResult.getUrl())
+        .build());
+  }
+
+  @PutMapping
+  public ResponseEntity<ModelUploadResponseDto> update(
+      @Valid ModelUploadRequestDto modelUploadRequestDto) throws IllegalAccessError,
+      IllegalArgumentException, ModelNotFoundException {
+
+    Model model = modelService.findModelByName(modelUploadRequestDto.getName());
+    FileSaveResultForm saveResult = fileUploadService.uploadFile(
+        modelUploadRequestDto.getModelFile());
+    ModelMetadata modelMetadata = modelService.createModelMetadata(model, modelUploadRequestDto,
+        saveResult);
 
     return ResponseEntity.ok(ModelUploadResponseDto.builder()
         .success(kubernetesService.inferenceServerBuild(modelMetadata))

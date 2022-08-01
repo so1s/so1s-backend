@@ -35,7 +35,7 @@ public class KubernetesService {
     String tag = HashGenerator.sha256();
     String jobName = (model.getName()
         + "-build-" + tag.substring(0, 6)).toLowerCase();
-    String library = model.getLibrary().toLowerCase();
+    String library = model.getLibrary().getName().toLowerCase();
     String version = modelMetadata.getVersion().toLowerCase();
 
     final Job job = new JobBuilder()

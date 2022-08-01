@@ -64,7 +64,6 @@ public class DeploymentControllerTest {
     deploymentRequestDto = DeploymentRequestDto.builder()
         .name(name)
         .modelMetadataId(1L)
-        .modelVersion(version)
         .strategy("rolling")
         .resources(ResourceRequestDto.builder()
             .cpu("1")

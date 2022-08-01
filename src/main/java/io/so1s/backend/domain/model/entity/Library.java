@@ -1,13 +1,16 @@
-package io.so1s.backend.domain.deployment.entity;
+package io.so1s.backend.domain.model.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,21 +19,23 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 @Entity
-@Table(name = "deplotment_strategy")
-@Getter
 @Builder
+@Getter
+@Table(name = "library")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@NoArgsConstructor
-public class DeploymentStrategy {
+public class Library {
 
   @Id
+  @Column(name = "library_id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @NotBlank
   private String name;
 
   @Builder.Default
-  @OneToMany(mappedBy = "deploymentStrategy")
+  @OneToMany(mappedBy = "library")
   @Fetch(FetchMode.SUBSELECT)
-  private List<Deployment> deployments = new ArrayList<>();
+  private List<Model> models = new ArrayList<>();
 }

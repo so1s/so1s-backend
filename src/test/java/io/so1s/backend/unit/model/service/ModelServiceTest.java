@@ -5,12 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
+import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
+import io.so1s.backend.domain.model.repository.LibraryRepository;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
 import io.so1s.backend.global.error.exception.DuplicateModelNameException;
+import io.so1s.backend.global.error.exception.LibraryNotFoundException;
 import io.so1s.backend.global.utils.HashGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +36,8 @@ class ModelServiceTest {
   @Autowired
   ModelRepository modelRepository;
   @Autowired
+  LibraryRepository libraryRepository;
+  @Autowired
   ModelMetadataRepository modelMetadataRepository;
 
   String name = "testModel";
@@ -43,7 +48,8 @@ class ModelServiceTest {
   @BeforeEach
   public void setup() {
     version = HashGenerator.sha256();
-    modelService = new ModelServiceImpl(modelRepository, modelMetadataRepository);
+    modelService = new ModelServiceImpl(modelRepository, libraryRepository,
+        modelMetadataRepository);
 
     modelUploadRequestDto = ModelUploadRequestDto.builder()
         .name(name)
@@ -69,13 +75,13 @@ class ModelServiceTest {
 
     // then
     assertThat(result.getName()).isEqualTo(modelUploadRequestDto.getName());
-    assertThat(result.getLibrary()).isEqualTo(modelUploadRequestDto.getLibrary());
+    assertThat(result.getLibrary().getName()).isEqualTo(modelUploadRequestDto.getLibrary());
   }
 
   @Test
   @Transactional
   @DisplayName("모델 이름이 중복되면 DuplicateModelNameException이 발생한다.")
-  public void createModelExceptionTest() throws Exception {
+  public void createModelDuplicateNameTest() throws Exception {
     // given
     // setup()
     ModelUploadRequestDto modelUploadRequestDto2 = ModelUploadRequestDto.builder()
@@ -108,8 +114,14 @@ class ModelServiceTest {
         .build();
 
     // when
+    Model model = Model.builder()
+        .name("testModel")
+        .library(Library.builder()
+            .name("testLibrary")
+            .build())
+        .build();
     ModelMetadata modelMetadata = modelService.createModelMetadata(
-        modelUploadRequestDto.toModelEntity(), modelUploadRequestDto,
+        model, modelUploadRequestDto,
         saveResult);
     ModelMetadata result = modelMetadataRepository.findById(modelMetadata.getId()).get();
 
@@ -117,5 +129,29 @@ class ModelServiceTest {
     assertThat(result.getModel().getName()).isEqualTo(modelUploadRequestDto.getName());
     assertThat(result.getUrl()).isEqualTo(saveResult.getUrl());
     assertThat(result.getFileName()).isEqualTo(saveResult.getSavedName());
+  }
+
+  @Test
+  @Transactional
+  @DisplayName("잘못된 라이브러리를 설정하면 LibraryNotFoundException이 발생한다.")
+  public void createModelWrongLibraryTest() throws Exception {
+    // given
+    // setup()
+    ModelUploadRequestDto modelUploadRequestDto2 = ModelUploadRequestDto.builder()
+        .name("testModel2")
+        .library("tonsorflow")
+        .inputShape("(10,)")
+        .inputDtype("float32")
+        .outputShape("(1,)")
+        .outputDtype("float32")
+        .build();
+
+    // when
+    modelService.createModel(modelUploadRequestDto);
+
+    // then
+    assertThrows(LibraryNotFoundException.class, () -> {
+      modelService.createModel(modelUploadRequestDto2);
+    });
   }
 }
