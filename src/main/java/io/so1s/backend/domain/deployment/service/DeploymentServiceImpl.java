@@ -10,6 +10,7 @@ import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository
 import io.so1s.backend.domain.deployment.repository.ResourceRepository;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
+import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -71,5 +72,15 @@ public class DeploymentServiceImpl implements DeploymentService {
     }
 
     return deploymentStrategy.get();
+  }
+
+  @Override
+  public Deployment validateExistDeployment(String name) throws DeploymentNotFoundException {
+    Optional<Deployment> result = deploymentRepository.findByName(name);
+    if (!result.isPresent()) {
+      throw new DeploymentNotFoundException(String.format("베포를 찾을 수 없습니다.(%s)", name));
+    }
+
+    return result.get();
   }
 }

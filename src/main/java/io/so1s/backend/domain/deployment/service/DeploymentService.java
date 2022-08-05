@@ -16,4 +16,6 @@ public interface DeploymentService {
   ModelMetadata validateExistModelMetadata(Long id);
 
   DeploymentStrategy validateExistDeploymentStrategy(String name);
+
+  Deployment validateExistDeployment(String name);
 }
