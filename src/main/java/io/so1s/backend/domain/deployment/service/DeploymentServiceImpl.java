@@ -9,7 +9,7 @@ import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository;
 import io.so1s.backend.domain.deployment.repository.ResourceRepository;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
-import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
+import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DeploymentServiceImpl implements DeploymentService {
 
-  private final ModelMetadataRepository modelMetadataRepository;
   private final DeploymentRepository deploymentRepository;
   private final DeploymentStrategyRepository deploymentStrategyRepository;
   private final ResourceRepository resourceRepository;
+  private final ModelService modelService;
 
   @Override
   @Transactional
@@ -31,12 +31,11 @@ public class DeploymentServiceImpl implements DeploymentService {
     return resourceRepository.save(resourceRequestDto.toEntity());
   }
 
-
   @Override
   @Transactional
   public Deployment createDeployment(Resource resource, DeploymentRequestDto deploymentRequestDto) {
 
-    ModelMetadata modelMetadata = validateExistModelMetadata(
+    ModelMetadata modelMetadata = modelService.validateExistModelMetadata(
         deploymentRequestDto.getModelMetadataId());
     DeploymentStrategy deploymentStrategy = validateExistDeploymentStrategy(
         deploymentRequestDto.getStrategy());
@@ -50,17 +49,6 @@ public class DeploymentServiceImpl implements DeploymentService {
     deployment.setResource(resource);
 
     return deploymentRepository.save(deployment);
-  }
-
-  @Override
-  public ModelMetadata validateExistModelMetadata(Long id) {
-    Optional<ModelMetadata> modelMetadata = modelMetadataRepository.findById(id);
-    if (!modelMetadata.isPresent()) {
-      throw new IllegalArgumentException(
-          String.format("잘못된 모델버전을 선택했습니다. (%s)", id));
-    }
-
-    return modelMetadata.get();
   }
 
   @Override
