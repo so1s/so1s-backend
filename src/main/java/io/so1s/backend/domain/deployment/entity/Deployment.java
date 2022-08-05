@@ -62,4 +62,11 @@ public class Deployment extends BaseTimeEntity {
     this.resource = resource;
     resource.getDeployment().add(this);
   }
+
+  public void update(ModelMetadata modelMetadata, DeploymentStrategy deploymentStrategy,
+      Resource resource) {
+    this.modelMetadata = modelMetadata;
+    this.deploymentStrategy = deploymentStrategy;
+    this.resource = resource;
+  }
 }
