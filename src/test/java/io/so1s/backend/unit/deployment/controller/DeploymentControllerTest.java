@@ -17,6 +17,7 @@ import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.deployment.service.DeploymentServiceImpl;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
+import io.so1s.backend.domain.model.service.ModelServiceImpl;
 import io.so1s.backend.global.config.SecurityConfig;
 import io.so1s.backend.global.utils.HashGenerator;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,6 +50,8 @@ public class DeploymentControllerTest {
   DeploymentServiceImpl deploymentService;
   @MockBean
   KubernetesService kubernetesService;
+  @MockBean
+  ModelServiceImpl modelService;
 
   ObjectMapper objectMapper;
   DeploymentRequestDto deploymentRequestDto;

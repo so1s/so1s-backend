@@ -15,10 +15,14 @@ import io.so1s.backend.domain.deployment.repository.ResourceRepository;
 import io.so1s.backend.domain.deployment.service.DeploymentServiceImpl;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
+import io.so1s.backend.domain.model.repository.LibraryRepository;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
+import io.so1s.backend.domain.model.repository.ModelRepository;
+import io.so1s.backend.domain.model.service.ModelServiceImpl;
+import io.so1s.backend.global.error.exception.DeploymentStrategyNotFoundException;
+import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.Optional;
-import org.junit.After;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,7 +31,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @DataJpaTest
 @EnableKubernetesMockClient(crud = true)
 @ExtendWith(MockitoExtension.class)
@@ -38,6 +44,12 @@ public class DeploymentServiceTest {
 
   KubernetesService kubernetesService;
   DeploymentServiceImpl deploymentService;
+  ModelServiceImpl modelService;
+
+  @Autowired
+  ModelRepository modelRepository;
+  @Autowired
+  LibraryRepository libraryRepository;
   @Autowired
   ModelMetadataRepository modelMetadataRepository;
   @Autowired
@@ -52,8 +64,10 @@ public class DeploymentServiceTest {
   @BeforeEach
   void setup() {
     kubernetesService = new KubernetesService(client);
-    deploymentService = new DeploymentServiceImpl(modelMetadataRepository, deploymentRepository,
-        deploymentStrategyRepository, resourceRepository);
+    modelService = new ModelServiceImpl(modelRepository, libraryRepository,
+        modelMetadataRepository);
+    deploymentService = new DeploymentServiceImpl(deploymentRepository,
+        deploymentStrategyRepository, resourceRepository, modelService);
 
     resourceRequestDto = ResourceRequestDto.builder()
         .cpu("1")
@@ -63,14 +77,6 @@ public class DeploymentServiceTest {
         .memoryLimit("2Gi")
         .gpuLimit("0")
         .build();
-  }
-
-  @After
-  void deleteData() {
-    modelMetadataRepository.deleteAll();
-    deploymentRepository.deleteAll();
-    deploymentStrategyRepository.deleteAll();
-    resourceRepository.deleteAll();
   }
 
   @Test
@@ -128,7 +134,7 @@ public class DeploymentServiceTest {
   }
 
   @Test
-  @DisplayName("잘못된 모델메타데이터를 선택했을경우 IllgalArgumentException이 발생한다.")
+  @DisplayName("잘못된 모델메타데이터를 선택했을경우 ModelMetadataNotFoundException이 발생한다.")
   public void createDeploymentWrongModelMetadataTest() throws Exception {
     // given
     Resource resource = resourceRequestDto.toEntity();
@@ -141,13 +147,13 @@ public class DeploymentServiceTest {
 
     // when
     // then
-    assertThrows(IllegalArgumentException.class, () -> {
+    assertThrows(ModelMetadataNotFoundException.class, () -> {
       deploymentService.createDeployment(resource, deploymentRequestDto);
     });
   }
 
   @Test
-  @DisplayName("잘못된 전략을 선택했을경우 IllegalArgumentException 발생한다.")
+  @DisplayName("잘못된 전략을 선택했을경우 DeploymentStrategyNotFoundException이 발생한다.")
   public void createDeploymentWrongStragegyTest() throws Exception {
     // given
     ModelMetadata modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
@@ -163,14 +169,14 @@ public class DeploymentServiceTest {
     Resource resource = resourceRequestDto.toEntity();
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
-        .modelMetadataId(1L)
+        .modelMetadataId(modelMetadata.getId())
         .strategy("not-exist-strategy")
         .resources(resourceRequestDto)
         .build();
 
     // when
     // then
-    assertThrows(IllegalArgumentException.class, () -> {
+    assertThrows(DeploymentStrategyNotFoundException.class, () -> {
       deploymentService.createDeployment(resource, deploymentRequestDto);
     });
   }

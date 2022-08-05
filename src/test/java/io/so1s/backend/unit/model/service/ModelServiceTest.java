@@ -26,6 +26,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @DataJpaTest
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles(profiles = {"test"})

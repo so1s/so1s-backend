@@ -11,6 +11,7 @@ import io.so1s.backend.domain.deployment.repository.ResourceRepository;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
+import io.so1s.backend.global.error.exception.DeploymentStrategyNotFoundException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class DeploymentServiceImpl implements DeploymentService {
   private final DeploymentRepository deploymentRepository;
   private final DeploymentStrategyRepository deploymentStrategyRepository;
   private final ResourceRepository resourceRepository;
+
   private final ModelService modelService;
 
   @Override
@@ -55,7 +57,7 @@ public class DeploymentServiceImpl implements DeploymentService {
   public DeploymentStrategy validateExistDeploymentStrategy(String name) {
     Optional<DeploymentStrategy> deploymentStrategy = deploymentStrategyRepository.findByName(name);
     if (!deploymentStrategy.isPresent()) {
-      throw new IllegalArgumentException(
+      throw new DeploymentStrategyNotFoundException(
           String.format("잘못된 배포 전략을 선택하셨습니다. (%s)", name));
     }
 
@@ -66,7 +68,7 @@ public class DeploymentServiceImpl implements DeploymentService {
   public Deployment validateExistDeployment(String name) throws DeploymentNotFoundException {
     Optional<Deployment> result = deploymentRepository.findByName(name);
     if (!result.isPresent()) {
-      throw new DeploymentNotFoundException(String.format("베포를 찾을 수 없습니다.(%s)", name));
+      throw new DeploymentNotFoundException(String.format("디플로이먼트를 찾을 수 없습니다.(%s)", name));
     }
 
     return result.get();
