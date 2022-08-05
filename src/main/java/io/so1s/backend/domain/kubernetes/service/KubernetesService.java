@@ -195,7 +195,7 @@ public class KubernetesService {
         .endSpec()
         .build();
 
-    client.apps().deployments().inNamespace(namespace).create(inferenceDeployment);
+    client.apps().deployments().inNamespace(namespace).createOrReplace(inferenceDeployment);
 
     return true;
   }
