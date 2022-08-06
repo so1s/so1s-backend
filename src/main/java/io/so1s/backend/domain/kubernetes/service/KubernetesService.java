@@ -148,9 +148,6 @@ public class KubernetesService {
 
     Map<String, String> labels = new HashMap<>();
     labels.put("apps", "inference");
-    labels.put("inference", deployName);
-    labels.put("model", modelName);
-    labels.put("version", modelVersion);
 
     Deployment inferenceDeployment = new DeploymentBuilder()
         .withNewMetadata()
