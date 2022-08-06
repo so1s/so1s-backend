@@ -3,11 +3,9 @@ package io.so1s.backend.domain.deployment.controller;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
-import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
 import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.deployment.service.DeploymentService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
-import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
 import javax.validation.Valid;
@@ -48,16 +46,7 @@ public class DeploymentController {
       @Valid @RequestBody DeploymentRequestDto deploymentRequestDto)
       throws DeploymentNotFoundException {
 
-    Deployment deployment = deploymentService.validateExistDeployment(
-        deploymentRequestDto.getName());
-    
-    DeploymentStrategy deploymentStrategy = deploymentService.validateExistDeploymentStrategy(
-        deploymentRequestDto.getStrategy());
-    ModelMetadata modelMetadata = modelService.validateExistModelMetadata(
-        deploymentRequestDto.getModelMetadataId());
-    Resource resource = deploymentService.createResource(deploymentRequestDto.getResources());
-
-    deployment.update(modelMetadata, deploymentStrategy, resource);
+    Deployment deployment = deploymentService.updateDeployment(deploymentRequestDto);
 
     return ResponseEntity.ok(
         DeploymentResponseDto.builder()

@@ -65,6 +65,21 @@ public class DeploymentServiceImpl implements DeploymentService {
   }
 
   @Override
+  public Deployment updateDeployment(DeploymentRequestDto deploymentRequestDto) {
+    Deployment deployment = validateExistDeployment(deploymentRequestDto.getName());
+
+    DeploymentStrategy deploymentStrategy = validateExistDeploymentStrategy(
+        deploymentRequestDto.getStrategy());
+    ModelMetadata modelMetadata = modelService.validateExistModelMetadata(
+        deploymentRequestDto.getModelMetadataId());
+    Resource resource = createResource(deploymentRequestDto.getResources());
+
+    deployment.update(modelMetadata, deploymentStrategy, resource);
+
+    return deployment;
+  }
+
+  @Override
   public Deployment validateExistDeployment(String name) throws DeploymentNotFoundException {
     Optional<Deployment> result = deploymentRepository.findByName(name);
     if (!result.isPresent()) {

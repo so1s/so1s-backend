@@ -14,5 +14,7 @@ public interface DeploymentService {
 
   DeploymentStrategy validateExistDeploymentStrategy(String name);
 
+  Deployment updateDeployment(DeploymentRequestDto deploymentRequestDto);
+
   Deployment validateExistDeployment(String name);
 }
