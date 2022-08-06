@@ -91,7 +91,7 @@ public class DeploymentControllerTest {
 
   @Test
   @DisplayName("배포가 정상적으로 이루어졌을때 200을 반환한다.")
-  public void deployTest() throws Exception {
+  public void createDeploymentTest() throws Exception {
     // given
     when(deploymentService.createResource(any(ResourceRequestDto.class))).thenReturn(resource);
     when(deploymentService.createDeployment(any(Resource.class), any(DeploymentRequestDto.class)))
@@ -105,6 +105,34 @@ public class DeploymentControllerTest {
     // when
     ResultActions result = mockMvc.perform(MockMvcRequestBuilders
         .post("/api/v1/deployments")
+        .accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(requestDtoMapped)
+        .with(csrf()));
+
+    // then
+    result.andExpect(status().isOk())
+        .andExpect(jsonPath("$.success").value("true"))
+        .andExpect(jsonPath("$.id").value("1"))
+        .andExpect(jsonPath("$.name").value(deploymentRequestDto.getName()))
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("기존 배포를 성공적으로 업데이트를 하면 200을 반환한다.")
+  public void updateDeploymentTest() throws Exception {
+    // given
+    when(deploymentService.updateDeployment(any(DeploymentRequestDto.class))).thenReturn(
+        Deployment.builder()
+            .id(1L)
+            .name(deploymentRequestDto.getName())
+            .resource(resource)
+            .build());
+    when(kubernetesService.deployInferenceServer(any(Deployment.class))).thenReturn(Boolean.TRUE);
+
+    // when
+    ResultActions result = mockMvc.perform(MockMvcRequestBuilders
+        .put("/api/v1/deployments")
         .accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON)
         .content(requestDtoMapped)

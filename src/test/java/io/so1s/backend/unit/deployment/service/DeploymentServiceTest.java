@@ -19,6 +19,7 @@ import io.so1s.backend.domain.model.repository.LibraryRepository;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
+import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
 import io.so1s.backend.global.error.exception.DeploymentStrategyNotFoundException;
 import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
 import io.so1s.backend.global.utils.HashGenerator;
@@ -178,6 +179,84 @@ public class DeploymentServiceTest {
     // then
     assertThrows(DeploymentStrategyNotFoundException.class, () -> {
       deploymentService.createDeployment(resource, deploymentRequestDto);
+    });
+  }
+
+  @Test
+  @DisplayName("디플로이먼트 업데이트를 한다.")
+  public void updateDeployment() throws Exception {
+    // given
+    ModelMetadata modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
+        .status("success")
+        .version(HashGenerator.sha256())
+        .fileName("firstFile")
+        .url("https://s3.test.com/")
+        .inputShape("(10,)")
+        .inputDtype("float32")
+        .outputShape("(1,)")
+        .outputDtype("float32")
+        .build());
+    Resource resource = deploymentService.createResource(resourceRequestDto);
+    DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
+        .name("testDeployment")
+        .modelMetadataId(modelMetadata.getId())
+        .strategy("rolling")
+        .resources(resourceRequestDto)
+        .build();
+    Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
+
+    ModelMetadata modelMetadata2 = modelMetadataRepository.save(ModelMetadata.builder()
+        .status("success")
+        .version(HashGenerator.sha256())
+        .fileName("secondFile")
+        .url("https://s3.test.com/")
+        .inputShape("(10,)")
+        .inputDtype("float32")
+        .outputShape("(1,)")
+        .outputDtype("float32")
+        .build());
+    DeploymentRequestDto deploymentRequestDto2 = DeploymentRequestDto.builder()
+        .name("testDeployment")
+        .modelMetadataId(2L)
+        .strategy("rolling")
+        .resources(resourceRequestDto)
+        .build();
+
+    // when
+    Deployment result = deploymentService.updateDeployment(deploymentRequestDto2);
+
+    // then
+    assertThat(result.getName()).isEqualTo(deployment.getName());
+    assertThat(result.getModelMetadata().getFileName()).isEqualTo(modelMetadata2.getFileName());
+    assertThat(result.getModelMetadata().getId()).isEqualTo(modelMetadata2.getId());
+  }
+
+  @Test
+  @DisplayName("존재하지않는 디플로이먼트를 선택하여 업데이트한 경우 DeploymentNotFoundException이 발생한다.")
+  public void updateDeploymentWrongNameTest() throws Exception {
+    // given
+    ModelMetadata modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
+        .status("success")
+        .version(HashGenerator.sha256())
+        .fileName("testFile")
+        .url("https://s3.test.com/")
+        .inputShape("(10,)")
+        .inputDtype("float32")
+        .outputShape("(1,)")
+        .outputDtype("float32")
+        .build());
+    Resource resource = resourceRequestDto.toEntity();
+    DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
+        .name("not-exist-deployment")
+        .modelMetadataId(modelMetadata.getId())
+        .strategy("rolling")
+        .resources(resourceRequestDto)
+        .build();
+
+    // when
+    // then
+    assertThrows(DeploymentNotFoundException.class, () -> {
+      deploymentService.updateDeployment(deploymentRequestDto);
     });
   }
 }
