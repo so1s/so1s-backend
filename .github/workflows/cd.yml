@@ -36,6 +36,8 @@ jobs:
           sdk use gradle 7.4.2
           gradle wrapper
           chmod +x gradlew
+        env:
+          sdkman_selfupdate_enable: false
       - name: Build Openapi3 json
         run: |
           mkdir -p ./src/main/resources/static/docs

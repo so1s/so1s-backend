@@ -29,6 +29,8 @@ jobs:
           sdk use gradle 7.4.2
           gradle wrapper
           chmod +x gradlew
+        env:
+          sdkman_selfupdate_enable: false
       - name: Run build
         run: ./gradlew build --stacktrace
         env:
