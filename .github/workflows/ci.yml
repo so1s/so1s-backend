@@ -26,12 +26,17 @@ jobs:
           apt update -y && apt install zip unzip -y
           curl -s "https://get.sdkman.io" | bash
           source ~/.sdkman/bin/sdkman-init.sh
+          sdk selfupdate
+          touch ~/.bashrc
+          source ~/.bashrc
           sdk install java 11.0.15.9.1-amzn
           sdk install gradle 7.4.2
           sdk use java 11.0.15.9.1-amzn
           sdk use gradle 7.4.2
           gradle wrapper
           chmod +x gradlew
+        env:
+          sdkman_selfupdate_enable: false
       - name: Run build
         run: ./gradlew build --stacktrace
         env:

@@ -10,6 +10,7 @@ import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.global.error.exception.DuplicateModelNameException;
 import io.so1s.backend.global.error.exception.LibraryNotFoundException;
+import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
 import io.so1s.backend.global.error.exception.ModelNotFoundException;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.Optional;
@@ -81,5 +82,17 @@ public class ModelServiceImpl implements ModelService {
     }
 
     return model.get();
+  }
+
+
+  @Override
+  public ModelMetadata validateExistModelMetadata(Long id) throws ModelMetadataNotFoundException {
+    Optional<ModelMetadata> modelMetadata = modelMetadataRepository.findById(id);
+    if (!modelMetadata.isPresent()) {
+      throw new ModelMetadataNotFoundException(
+          String.format("잘못된 모델버전을 선택했습니다. (%s)", id));
+    }
+
+    return modelMetadata.get();
   }
 }

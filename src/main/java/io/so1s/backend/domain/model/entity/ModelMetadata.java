@@ -40,10 +40,10 @@ public class ModelMetadata extends BaseTimeEntity {
   @Column(nullable = false)
   private String version;
 
-  @Column(unique = true)
+  @Column(nullable = false)
   private String fileName;
 
-  @Column(unique = true)
+  @Column(nullable = false)
   private String url;
 
   @Column(nullable = false)

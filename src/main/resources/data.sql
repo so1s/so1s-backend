@@ -1,5 +1,5 @@
-INSERT INTO DEPLOYMENT_STRATEGY (name) VALUES ('rolling')
+INSERT INTO DEPLOYMENT_STRATEGY (name) VALUES ('rolling');
 
-INSERT INTO LIBRARY (name) VALUES ('tensorflow')
-INSERT INTO LIBRARY (name) VALUES ('torch')
-INSERT INTO LIBRARY (name) VALUES ('sklearn')
+INSERT INTO LIBRARY (name) VALUES ('tensorflow');
+INSERT INTO LIBRARY (name) VALUES ('torch');
+INSERT INTO LIBRARY (name) VALUES ('sklearn');

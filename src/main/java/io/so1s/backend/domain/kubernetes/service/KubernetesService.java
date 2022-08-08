@@ -44,6 +44,7 @@ public class KubernetesService {
         .withName(jobName)
         .withNamespace(namespace)
         .addToLabels("job-name", jobName)
+        .addToLabels("sidecar.istio.io/inject", "false")
         .endMetadata()
         .withNewSpec()
         .withNewTemplate()
@@ -148,9 +149,6 @@ public class KubernetesService {
 
     Map<String, String> labels = new HashMap<>();
     labels.put("apps", "inference");
-    labels.put("inference", deployName);
-    labels.put("model", modelName);
-    labels.put("version", modelVersion);
 
     Deployment inferenceDeployment = new DeploymentBuilder()
         .withNewMetadata()
@@ -195,7 +193,7 @@ public class KubernetesService {
         .endSpec()
         .build();
 
-    client.apps().deployments().inNamespace(namespace).create(inferenceDeployment);
+    client.apps().deployments().inNamespace(namespace).createOrReplace(inferenceDeployment);
 
     return true;
   }
