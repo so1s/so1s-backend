@@ -9,7 +9,9 @@ import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository;
 import io.so1s.backend.domain.deployment.repository.ResourceRepository;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
-import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
+import io.so1s.backend.domain.model.service.ModelService;
+import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
+import io.so1s.backend.global.error.exception.DeploymentStrategyNotFoundException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,10 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DeploymentServiceImpl implements DeploymentService {
 
-  private final ModelMetadataRepository modelMetadataRepository;
   private final DeploymentRepository deploymentRepository;
   private final DeploymentStrategyRepository deploymentStrategyRepository;
   private final ResourceRepository resourceRepository;
+
+  private final ModelService modelService;
 
   @Override
   @Transactional
@@ -30,12 +33,11 @@ public class DeploymentServiceImpl implements DeploymentService {
     return resourceRepository.save(resourceRequestDto.toEntity());
   }
 
-
   @Override
   @Transactional
   public Deployment createDeployment(Resource resource, DeploymentRequestDto deploymentRequestDto) {
 
-    ModelMetadata modelMetadata = validateExistModelMetadata(
+    ModelMetadata modelMetadata = modelService.validateExistModelMetadata(
         deploymentRequestDto.getModelMetadataId());
     DeploymentStrategy deploymentStrategy = validateExistDeploymentStrategy(
         deploymentRequestDto.getStrategy());
@@ -52,24 +54,38 @@ public class DeploymentServiceImpl implements DeploymentService {
   }
 
   @Override
-  public ModelMetadata validateExistModelMetadata(Long id) {
-    Optional<ModelMetadata> modelMetadata = modelMetadataRepository.findById(id);
-    if (!modelMetadata.isPresent()) {
-      throw new IllegalArgumentException(
-          String.format("잘못된 모델버전을 선택했습니다. (%s)", id));
-    }
-
-    return modelMetadata.get();
-  }
-
-  @Override
   public DeploymentStrategy validateExistDeploymentStrategy(String name) {
     Optional<DeploymentStrategy> deploymentStrategy = deploymentStrategyRepository.findByName(name);
     if (!deploymentStrategy.isPresent()) {
-      throw new IllegalArgumentException(
+      throw new DeploymentStrategyNotFoundException(
           String.format("잘못된 배포 전략을 선택하셨습니다. (%s)", name));
     }
 
     return deploymentStrategy.get();
+  }
+
+  @Override
+  public Deployment updateDeployment(DeploymentRequestDto deploymentRequestDto) {
+    Deployment deployment = validateExistDeployment(deploymentRequestDto.getName());
+
+    DeploymentStrategy deploymentStrategy = validateExistDeploymentStrategy(
+        deploymentRequestDto.getStrategy());
+    ModelMetadata modelMetadata = modelService.validateExistModelMetadata(
+        deploymentRequestDto.getModelMetadataId());
+    Resource resource = createResource(deploymentRequestDto.getResources());
+
+    deployment.update(modelMetadata, deploymentStrategy, resource);
+
+    return deployment;
+  }
+
+  @Override
+  public Deployment validateExistDeployment(String name) throws DeploymentNotFoundException {
+    Optional<Deployment> result = deploymentRepository.findByName(name);
+    if (!result.isPresent()) {
+      throw new DeploymentNotFoundException(String.format("디플로이먼트를 찾을 수 없습니다.(%s)", name));
+    }
+
+    return result.get();
   }
 }

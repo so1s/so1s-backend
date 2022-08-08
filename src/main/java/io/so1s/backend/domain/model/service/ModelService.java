@@ -20,4 +20,6 @@ public interface ModelService {
   Library validateLibrary(String library) throws LibraryNotFoundException;
 
   Model findModelByName(String name) throws ModelNotFoundException;
+
+  ModelMetadata validateExistModelMetadata(Long id);
 }

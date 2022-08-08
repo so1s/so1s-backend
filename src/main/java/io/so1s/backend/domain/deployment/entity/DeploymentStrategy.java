@@ -16,7 +16,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 @Entity
-@Table(name = "deplotment_strategy")
+@Table(name = "deployment_strategy")
 @Getter
 @Builder
 @AllArgsConstructor

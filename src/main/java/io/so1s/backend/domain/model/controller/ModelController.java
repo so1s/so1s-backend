@@ -48,7 +48,7 @@ public class ModelController {
   }
 
   @PutMapping
-  public ResponseEntity<ModelUploadResponseDto> update(
+  public ResponseEntity<ModelUploadResponseDto> modelUpdate(
       @Valid ModelUploadRequestDto modelUploadRequestDto) throws IllegalAccessError,
       IllegalArgumentException, ModelNotFoundException {
 

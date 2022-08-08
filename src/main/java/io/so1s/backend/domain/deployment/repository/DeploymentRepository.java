@@ -13,4 +13,5 @@ public interface DeploymentRepository extends JpaRepository<Deployment, Long> {
 
   List<Deployment> findAll();
 
+  Optional<Deployment> findByName(String name);
 }
