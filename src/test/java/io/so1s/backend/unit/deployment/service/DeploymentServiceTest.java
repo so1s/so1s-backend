@@ -217,7 +217,7 @@ public class DeploymentServiceTest {
         .build());
     DeploymentRequestDto deploymentRequestDto2 = DeploymentRequestDto.builder()
         .name("testDeployment")
-        .modelMetadataId(2L)
+        .modelMetadataId(modelMetadata2.getId())
         .strategy("rolling")
         .resources(resourceRequestDto)
         .build();
