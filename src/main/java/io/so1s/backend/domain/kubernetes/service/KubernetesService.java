@@ -44,6 +44,7 @@ public class KubernetesService {
         .withName(jobName)
         .withNamespace(namespace)
         .addToLabels("job-name", jobName)
+        .addToLabels("sidecar.istio.io/inject", "false")
         .endMetadata()
         .withNewSpec()
         .withNewTemplate()
