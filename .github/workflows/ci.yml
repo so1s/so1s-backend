@@ -24,7 +24,9 @@ jobs:
           curl -s "https://get.sdkman.io" | bash
           source ~/.sdkman/bin/sdkman-init.sh
           sdk selfupdate
+          DIR=$(pwd)
           exec bash
+          cd $DIR
           sdk install java 11.0.15.9.1-amzn
           sdk install gradle 7.4.2
           sdk use java 11.0.15.9.1-amzn
