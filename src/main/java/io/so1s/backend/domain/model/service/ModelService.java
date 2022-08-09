@@ -2,6 +2,7 @@ package io.so1s.backend.domain.model.service;
 
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
+import io.so1s.backend.domain.model.dto.response.ModelDetailResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.entity.Library;
@@ -29,4 +30,6 @@ public interface ModelService {
   List<ModelFindResponseDto> findModels();
 
   List<ModelMetadataFindResponseDto> findModelMetadatasByModelId(Long id);
+
+  ModelDetailResponseDto findModelDetail(Long modelId, String version);
 }

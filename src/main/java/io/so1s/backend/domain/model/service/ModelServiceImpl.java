@@ -2,6 +2,7 @@ package io.so1s.backend.domain.model.service;
 
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
+import io.so1s.backend.domain.model.dto.response.ModelDetailResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.entity.Library;
@@ -138,5 +139,34 @@ public class ModelServiceImpl implements ModelService {
     }
 
     return res;
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public ModelDetailResponseDto findModelDetail(Long modelId, String version) {
+
+    Optional<Model> model = modelRepository.findById(modelId);
+    if (!model.isPresent()) {
+      throw new ModelNotFoundException(
+          String.format("모델을 찾을 수 없습니다. (%s, %s)", modelId, version));
+    }
+
+    Optional<ModelMetadata> modelMetadata = modelMetadataRepository.findByModelIdAndVersion(
+        modelId, version);
+    if (!modelMetadata.isPresent()) {
+      throw new ModelMetadataNotFoundException(
+          String.format("해당 버전의 모델을 찾을 수 없습니다. (%s, %s)", modelId, version));
+    }
+
+    return ModelDetailResponseDto.builder()
+        .name(model.get().getName())
+        .status(modelMetadata.get().getStatus())
+        .url(modelMetadata.get().getUrl())
+        .library(model.get().getLibrary().getName())
+        .inputShape(modelMetadata.get().getInputShape())
+        .inputDtype(modelMetadata.get().getInputDtype())
+        .outputShape(modelMetadata.get().getOutputShape())
+        .outputDtype(modelMetadata.get().getOutputDtype())
+        .build();
   }
 }

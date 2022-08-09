@@ -4,6 +4,7 @@ import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.aws.service.FileUploadService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
+import io.so1s.backend.domain.model.dto.response.ModelDetailResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelUploadResponseDto;
@@ -12,10 +13,8 @@ import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.global.error.exception.DuplicateModelNameException;
-import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
 import io.so1s.backend.global.error.exception.ModelNotFoundException;
 import java.util.List;
-import java.util.Optional;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -89,20 +88,8 @@ public class ModelController {
   }
 
   @GetMapping("/{modelId}/versions/{version}")
-  public ResponseEntity<ModelMetadataFindResponseDto> findModelMetadata(
+  public ResponseEntity<ModelDetailResponseDto> findModelMetadata(
       @PathVariable("modelId") Long modelId, @PathVariable("version") String version) {
-    Optional<ModelMetadata> find = modelMetadataRepository.findByModelIdAndVersion(
-        modelId, version);
-    if (!find.isPresent()) {
-      throw new ModelMetadataNotFoundException(
-          String.format("모델을 찾을 수 없습니다. (%s, %s)", modelId, version));
-    }
-
-    return ResponseEntity.ok(ModelMetadataFindResponseDto.builder()
-        .age(find.get().getCreatedOn())
-        .version(find.get().getStatus())
-        .status(find.get().getStatus())
-        .url(find.get().getUrl())
-        .build());
+    return ResponseEntity.ok(modelService.findModelDetail(modelId, version));
   }
 }
