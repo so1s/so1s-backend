@@ -13,6 +13,7 @@ import io.so1s.backend.global.error.exception.LibraryNotFoundException;
 import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
 import io.so1s.backend.global.error.exception.ModelNotFoundException;
 import io.so1s.backend.global.utils.HashGenerator;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -94,5 +95,10 @@ public class ModelServiceImpl implements ModelService {
     }
 
     return modelMetadata.get();
+  }
+
+  @Override
+  public List<Model> findModels() {
+    return modelRepository.findAll();
   }
 }

@@ -7,6 +7,7 @@ import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.global.error.exception.LibraryNotFoundException;
 import io.so1s.backend.global.error.exception.ModelNotFoundException;
+import java.util.List;
 
 public interface ModelService {
 
@@ -22,4 +23,6 @@ public interface ModelService {
   Model findModelByName(String name) throws ModelNotFoundException;
 
   ModelMetadata validateExistModelMetadata(Long id);
+
+  List<Model> findModels();
 }
