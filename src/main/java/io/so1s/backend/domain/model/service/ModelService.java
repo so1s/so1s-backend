@@ -2,6 +2,8 @@ package io.so1s.backend.domain.model.service;
 
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
+import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
+import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
@@ -24,5 +26,7 @@ public interface ModelService {
 
   ModelMetadata validateExistModelMetadata(Long id);
 
-  List<Model> findModels();
+  List<ModelFindResponseDto> findModels();
+
+  List<ModelMetadataFindResponseDto> findModelMetadatasByModelId(Long id);
 }

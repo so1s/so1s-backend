@@ -10,11 +10,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ModelFindResponseDto {
+public class ModelMetadataFindResponseDto {
 
   private LocalDateTime age;
-  private String name;
-  private String status;
   private String version;
-  private String library;
+  private String status;
+  private String url;
 }

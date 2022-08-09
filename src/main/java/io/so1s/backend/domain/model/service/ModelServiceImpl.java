@@ -2,6 +2,8 @@ package io.so1s.backend.domain.model.service;
 
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
+import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
+import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
@@ -13,6 +15,7 @@ import io.so1s.backend.global.error.exception.LibraryNotFoundException;
 import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
 import io.so1s.backend.global.error.exception.ModelNotFoundException;
 import io.so1s.backend.global.utils.HashGenerator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -97,8 +100,43 @@ public class ModelServiceImpl implements ModelService {
     return modelMetadata.get();
   }
 
+  @Transactional(readOnly = true)
   @Override
-  public List<Model> findModels() {
-    return modelRepository.findAll();
+  public List<ModelFindResponseDto> findModels() {
+    List<Model> models = modelRepository.findAll();
+    List<ModelFindResponseDto> res = new ArrayList<>();
+    for (Model m : models) {
+      Optional<ModelMetadata> modelMetadata = modelMetadataRepository.findFirstByModelIdOrderByIdDesc(
+          m.getId());
+
+      if (modelMetadata.isPresent()) {
+        res.add(ModelFindResponseDto.builder()
+            .age(m.getUpdatedOn())
+            .name(m.getName())
+            .status(modelMetadata.get().getStatus())
+            .version(modelMetadata.get().getVersion())
+            .library(m.getLibrary().getName())
+            .build());
+      }
+    }
+
+    return res;
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<ModelMetadataFindResponseDto> findModelMetadatasByModelId(Long id) {
+    List<ModelMetadata> modelMetadatas = modelMetadataRepository.findByModelId(id);
+    List<ModelMetadataFindResponseDto> res = new ArrayList<>();
+    for (ModelMetadata mm : modelMetadatas) {
+      res.add(ModelMetadataFindResponseDto.builder()
+          .age(mm.getUpdatedOn())
+          .version(mm.getVersion())
+          .status(mm.getStatus())
+          .url(mm.getUrl())
+          .build());
+    }
+
+    return res;
   }
 }
