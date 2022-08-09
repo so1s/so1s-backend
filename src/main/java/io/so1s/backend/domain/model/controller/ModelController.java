@@ -4,6 +4,7 @@ import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.aws.service.FileUploadService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
+import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelUploadResponseDto;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
@@ -13,6 +14,7 @@ import io.so1s.backend.global.error.exception.ModelNotFoundException;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,6 +66,13 @@ public class ModelController {
         .version(modelMetadata.getVersion())
         .fileName(saveResult.getSavedName())
         .savedUrl(saveResult.getUrl())
+        .build());
+  }
+
+  @GetMapping
+  public ResponseEntity<ModelFindResponseDto> findModels() {
+    return ResponseEntity.ok(ModelFindResponseDto.builder()
+        .models(modelService.findModels())
         .build());
   }
 }
