@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
+import io.so1s.backend.domain.model.dto.response.ModelDetailResponseDto;
+import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
+import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
@@ -14,7 +17,10 @@ import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
 import io.so1s.backend.global.error.exception.DuplicateModelNameException;
 import io.so1s.backend.global.error.exception.LibraryNotFoundException;
+import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
+import io.so1s.backend.global.error.exception.ModelNotFoundException;
 import io.so1s.backend.global.utils.HashGenerator;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -154,5 +160,129 @@ class ModelServiceTest {
     assertThrows(LibraryNotFoundException.class, () -> {
       modelService.createModel(modelUploadRequestDto2);
     });
+  }
+
+  @Test
+  @Transactional
+  @DisplayName("모델 조회 서비스를 테스트한다.")
+  public void findModelsTest() throws Exception {
+    // given
+    FileSaveResultForm saveResult = FileSaveResultForm.builder()
+        .savedName("fileName")
+        .url("http://test.com/")
+        .build();
+    Model model = modelService.createModel(modelUploadRequestDto);
+    ModelMetadata modelMetadata = modelService.createModelMetadata(
+        model, modelUploadRequestDto, saveResult);
+
+    // when
+    List<ModelFindResponseDto> findModels = modelService.findModels();
+
+    // then
+    assertThat(findModels.get(0).getAge()).isEqualTo(modelMetadata.getUpdatedOn());
+    assertThat(findModels.get(0).getName()).isEqualTo(model.getName());
+    assertThat(findModels.get(0).getStatus()).isEqualTo(modelMetadata.getStatus());
+    assertThat(findModels.get(0).getVersion()).isEqualTo(modelMetadata.getVersion());
+    assertThat(findModels.get(0).getLibrary()).isEqualTo(model.getLibrary().getName());
+  }
+
+  @Test
+  @Transactional
+  @DisplayName("특정 모델 버전 조회 서비스를 테스트한다.")
+  public void findModelMetadatasByModelIdTest() throws Exception {
+    // given
+    FileSaveResultForm saveResult = FileSaveResultForm.builder()
+        .savedName("fileName")
+        .url("http://test.com/")
+        .build();
+    Model model = modelService.createModel(modelUploadRequestDto);
+    ModelMetadata modelMetadata = modelService.createModelMetadata(
+        model, modelUploadRequestDto, saveResult);
+    ModelMetadata modelMetadata2 = modelService.createModelMetadata(
+        model, modelUploadRequestDto, saveResult);
+
+    // when
+    List<ModelMetadataFindResponseDto> find = modelService.findModelMetadatasByModelId(
+        model.getId());
+
+    // then
+    assertThat(find.get(0).getAge()).isEqualTo(modelMetadata.getUpdatedOn());
+    assertThat(find.get(0).getVersion()).isEqualTo(modelMetadata.getVersion());
+    assertThat(find.get(0).getStatus()).isEqualTo(modelMetadata.getStatus());
+    assertThat(find.get(0).getUrl()).isEqualTo(modelMetadata.getUrl());
+
+    assertThat(find.get(1).getAge()).isEqualTo(modelMetadata2.getUpdatedOn());
+    assertThat(find.get(1).getVersion()).isEqualTo(modelMetadata2.getVersion());
+    assertThat(find.get(1).getStatus()).isEqualTo(modelMetadata2.getStatus());
+    assertThat(find.get(1).getUrl()).isEqualTo(modelMetadata2.getUrl());
+  }
+
+  @Test
+  @Transactional
+  @DisplayName("특정 모델 특정 버전 조회 서비스를 테스트한다.")
+  public void findModelDetailTest() throws Exception {
+    // given
+    FileSaveResultForm saveResult = FileSaveResultForm.builder()
+        .savedName("fileName")
+        .url("http://test.com/")
+        .build();
+    Model model = modelService.createModel(modelUploadRequestDto);
+    ModelMetadata modelMetadata = modelService.createModelMetadata(
+        model, modelUploadRequestDto, saveResult);
+
+    // when
+    ModelDetailResponseDto find = modelService.findModelDetail(model.getId(),
+        modelMetadata.getVersion());
+
+    // then
+    assertThat(find.getAge()).isEqualTo(modelMetadata.getUpdatedOn());
+    assertThat(find.getName()).isEqualTo(model.getName());
+    assertThat(find.getVersion()).isEqualTo(modelMetadata.getVersion());
+    assertThat(find.getStatus()).isEqualTo(modelMetadata.getStatus());
+    assertThat(find.getUrl()).isEqualTo(modelMetadata.getUrl());
+    assertThat(find.getLibrary()).isEqualTo(model.getLibrary().getName());
+    assertThat(find.getInputShape()).isEqualTo(modelMetadata.getInputShape());
+    assertThat(find.getInputDtype()).isEqualTo(modelMetadata.getInputDtype());
+    assertThat(find.getOutputShape()).isEqualTo(modelMetadata.getOutputShape());
+    assertThat(find.getOutputDtype()).isEqualTo(modelMetadata.getOutputDtype());
+  }
+
+  @Test
+  @Transactional
+  @DisplayName("잘못된 모델 id를 기반으로 조회했을때 ModelNotFoundException을 발생시킨다.")
+  public void findModelDetailWrongModelIdTest() throws Exception {
+    // given
+    FileSaveResultForm saveResult = FileSaveResultForm.builder()
+        .savedName("fileName")
+        .url("http://test.com/")
+        .build();
+    Model model = modelService.createModel(modelUploadRequestDto);
+    ModelMetadata modelMetadata = modelService.createModelMetadata(
+        model, modelUploadRequestDto, saveResult);
+
+    // when
+    // then
+    assertThrows(ModelNotFoundException.class, () -> modelService.findModelDetail(model.getId() + 1,
+        modelMetadata.getVersion()));
+  }
+
+  @Test
+  @Transactional
+  @DisplayName("잘못된 모델 version을 기반으로 조회했을때 ModelMetadataNotFoundException을 발생시킨다.")
+  public void findModelDetailWrongVersionTest() throws Exception {
+    // given
+    FileSaveResultForm saveResult = FileSaveResultForm.builder()
+        .savedName("fileName")
+        .url("http://test.com/")
+        .build();
+    Model model = modelService.createModel(modelUploadRequestDto);
+    ModelMetadata modelMetadata = modelService.createModelMetadata(
+        model, modelUploadRequestDto, saveResult);
+
+    // when
+    // then
+    assertThrows(ModelMetadataNotFoundException.class,
+        () -> modelService.findModelDetail(model.getId(),
+            modelMetadata.getVersion() + "-not-exist"));
   }
 }
