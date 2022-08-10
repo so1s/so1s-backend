@@ -10,7 +10,6 @@ import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelUploadResponseDto;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
-import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.global.error.exception.DuplicateModelNameException;
 import io.so1s.backend.global.error.exception.ModelNotFoundException;
@@ -33,8 +32,6 @@ public class ModelController {
   private final ModelService modelService;
   private final FileUploadService fileUploadService;
   private final KubernetesService kubernetesService;
-
-  private final ModelMetadataRepository modelMetadataRepository;
 
   @PostMapping
   public ResponseEntity<ModelUploadResponseDto> modelUpload(
