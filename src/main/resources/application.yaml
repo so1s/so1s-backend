@@ -15,7 +15,7 @@ spring:
     properties:
       hibernate:
         # Print all SQL queries from Hibernate execution to console
-        show_sql: true
+        show_sql: false
         # Format JPA queries on console with readability
         format_sql: true
         # Print extra information besides SQL queries for debugging
@@ -23,10 +23,16 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
       generate-ddl: true
     defer-datasource-initialization: true
-
+    
   sql:
     init:
       mode: always
+      
+logging:
+  level:
+    org:
+      hibernate:
+        SQL=DEBUG:
 
 # jwt secret 임시값 사용
 jwt:
