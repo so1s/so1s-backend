@@ -10,6 +10,9 @@ env:
   aws-s3-secret-key: ${{ secrets.AWS_S3_SECRET_KEY }}
   aws-s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
   aws-region: ${{ secrets.AWS_REGION }}
+  aws-aurora-endpoint: ${{ secrets.AWS_AURORA_ENDPOINT }}
+  aws-aurora-username: ${{ secrets.AWS_AURORA_USERNAME }}
+  aws-aurora-password: ${{ secrets.AWS_AURORA_PASSWORD }}
 
 jobs:
   image-build-and-push:

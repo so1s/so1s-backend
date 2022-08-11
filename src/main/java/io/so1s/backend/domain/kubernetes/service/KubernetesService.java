@@ -143,7 +143,7 @@ public class KubernetesService {
       io.so1s.backend.domain.deployment.entity.Deployment deployment) {
 
     String namespace = "default";
-    String deployName = deployment.getName().toLowerCase();
+    String deployName = "inference-" + deployment.getName().toLowerCase();
     String modelName = deployment.getModelMetadata().getModel().getName().toLowerCase();
     String modelVersion = deployment.getModelMetadata().getVersion().toLowerCase();
 
