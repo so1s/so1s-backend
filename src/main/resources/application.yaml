@@ -2,22 +2,16 @@ spring:
   profiles:
     active: dev
 
-  h2:
-    console:
-      enabled: true
-      settings:
-        web-allow-others: true
-
   datasource:
-    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
-    driverClassName: org.h2.Driver
-    username: sos
-    password:
+    driver-class-name: org.postgresql.Driver
+    url: ${aws-aurora-endpoint}
+    username: ${aws-aurora-username}
+    password: ${aws-aurora-password}
 
   jpa:
-    hibernate.dialect: org.hibernate.dialect.MariaDBDialect
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate.ddl-auto: create
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create
     properties:
       hibernate:
         # Print all SQL queries from Hibernate execution to console
@@ -26,15 +20,19 @@ spring:
         format_sql: true
         # Print extra information besides SQL queries for debugging
         use_sql_comments: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
       generate-ddl: true
     defer-datasource-initialization: true
-
+    
+  sql:
+    init:
+      mode: always
+      
 logging:
   level:
     org:
       hibernate:
         SQL=DEBUG:
-
 
 # jwt secret 임시값 사용
 jwt:
