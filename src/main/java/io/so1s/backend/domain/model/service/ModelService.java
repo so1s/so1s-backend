@@ -2,11 +2,15 @@ package io.so1s.backend.domain.model.service;
 
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
+import io.so1s.backend.domain.model.dto.response.ModelDetailResponseDto;
+import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
+import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.global.error.exception.LibraryNotFoundException;
 import io.so1s.backend.global.error.exception.ModelNotFoundException;
+import java.util.List;
 
 public interface ModelService {
 
@@ -22,4 +26,10 @@ public interface ModelService {
   Model findModelByName(String name) throws ModelNotFoundException;
 
   ModelMetadata validateExistModelMetadata(Long id);
+
+  List<ModelFindResponseDto> findModels();
+
+  List<ModelMetadataFindResponseDto> findModelMetadatasByModelId(Long id);
+
+  ModelDetailResponseDto findModelDetail(Long modelId, String version);
 }

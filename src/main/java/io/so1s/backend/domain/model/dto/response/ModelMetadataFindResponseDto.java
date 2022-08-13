@@ -1,5 +1,6 @@
 package io.so1s.backend.domain.model.dto.response;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,13 +10,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ModelUploadResponseDto {
+public class ModelMetadataFindResponseDto {
 
-  @Builder.Default
-  private Boolean success = Boolean.TRUE;
-  private String modelName;
-  private String fileName;
+  private LocalDateTime age;
   private String version;
-  private String savedUrl;
-
+  private String status;
+  private String url;
 }

@@ -4,15 +4,21 @@ import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.aws.service.FileUploadService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
+import io.so1s.backend.domain.model.dto.response.ModelDetailResponseDto;
+import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
+import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelUploadResponseDto;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.global.error.exception.DuplicateModelNameException;
 import io.so1s.backend.global.error.exception.ModelNotFoundException;
+import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -65,5 +71,22 @@ public class ModelController {
         .fileName(saveResult.getSavedName())
         .savedUrl(saveResult.getUrl())
         .build());
+  }
+
+  @GetMapping
+  public ResponseEntity<List<ModelFindResponseDto>> findModels() {
+    return ResponseEntity.ok(modelService.findModels());
+  }
+
+  @GetMapping("/{modelId}")
+  public ResponseEntity<List<ModelMetadataFindResponseDto>> findModelMetadatas(
+      @PathVariable("modelId") Long modelId) {
+    return ResponseEntity.ok(modelService.findModelMetadatasByModelId(modelId));
+  }
+
+  @GetMapping("/{modelId}/versions/{version}")
+  public ResponseEntity<ModelDetailResponseDto> findModelMetadata(
+      @PathVariable("modelId") Long modelId, @PathVariable("version") String version) {
+    return ResponseEntity.ok(modelService.findModelDetail(modelId, version));
   }
 }

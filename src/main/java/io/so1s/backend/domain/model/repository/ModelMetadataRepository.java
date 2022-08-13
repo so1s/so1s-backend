@@ -12,4 +12,10 @@ public interface ModelMetadataRepository extends JpaRepository<ModelMetadata, Lo
   Optional<ModelMetadata> findById(Long id);
 
   List<ModelMetadata> findAll();
+
+  List<ModelMetadata> findByModelId(Long modelId);
+
+  Optional<ModelMetadata> findFirstByModelIdOrderByIdDesc(Long modelId);
+
+  Optional<ModelMetadata> findByModelIdAndVersion(Long modelId, String version);
 }
