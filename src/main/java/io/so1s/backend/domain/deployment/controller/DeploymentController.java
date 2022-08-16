@@ -65,7 +65,7 @@ public class DeploymentController {
     return ResponseEntity.ok(deploymentService.findDeployments());
   }
 
-  @GetMapping("/{deploymeny_id}")
+  @GetMapping("/{deployment_id}")
   public ResponseEntity<DeploymentFindResponseDto> findDeployment(
       @Valid @PathVariable("deployment_id") Long id
   ) throws DeploymentNotFoundException {
