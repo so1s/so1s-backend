@@ -177,13 +177,20 @@ class ModelServiceTest {
 
     // when
     List<ModelFindResponseDto> findModels = modelService.findModels();
+    ModelFindResponseDto responseDto = null;
+    for (ModelFindResponseDto findModel : findModels) {
+      if (findModel.getName().equals(model.getName())) {
+        responseDto = findModel;
+        break;
+      }
+    }
 
     // then
-    assertThat(findModels.get(0).getAge()).isEqualTo(modelMetadata.getUpdatedOn());
-    assertThat(findModels.get(0).getName()).isEqualTo(model.getName());
-    assertThat(findModels.get(0).getStatus()).isEqualTo(modelMetadata.getStatus());
-    assertThat(findModels.get(0).getVersion()).isEqualTo(modelMetadata.getVersion());
-    assertThat(findModels.get(0).getLibrary()).isEqualTo(model.getLibrary().getName());
+    assertThat(responseDto.getAge()).isEqualTo(modelMetadata.getUpdatedOn());
+    assertThat(responseDto.getName()).isEqualTo(model.getName());
+    assertThat(responseDto.getStatus()).isEqualTo(modelMetadata.getStatus());
+    assertThat(responseDto.getVersion()).isEqualTo(modelMetadata.getVersion());
+    assertThat(responseDto.getLibrary()).isEqualTo(model.getLibrary().getName());
   }
 
   @Test

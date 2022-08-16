@@ -141,7 +141,7 @@ public class DeploymentServiceTest {
     Resource resource = resourceRequestDto.toEntity();
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
-        .modelMetadataId(1L)
+        .modelMetadataId(-(1L))
         .strategy("rolling")
         .resources(resourceRequestDto)
         .build();
