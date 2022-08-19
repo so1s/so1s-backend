@@ -9,7 +9,7 @@ plugins {
 }
 
 ext {
-    applicationVersion = "0.1.3"
+    applicationVersion = "0.2.0"
     repo = System.getenv("REPO")
     set('snippetsDir', file("build/generated-snippets"))
 }
