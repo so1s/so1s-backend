@@ -172,6 +172,8 @@ class ModelControllerTest {
     // when
     ResultActions result = mockMvc.perform(MockMvcRequestBuilders
             .get("/api/v1/models")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
             .with(csrf()))
         .andDo(print());
 
@@ -200,6 +202,8 @@ class ModelControllerTest {
     // when
     ResultActions result = mockMvc.perform(MockMvcRequestBuilders
             .get("/api/v1/models/1")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
             .with(csrf()))
         .andDo(print());
 
