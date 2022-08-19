@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.so1s.backend.domain.deployment.controller.DeploymentController;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
+import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.Resource;
@@ -20,6 +21,9 @@ import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
 import io.so1s.backend.global.config.SecurityConfig;
 import io.so1s.backend.global.utils.HashGenerator;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -143,6 +147,61 @@ public class DeploymentControllerTest {
         .andExpect(jsonPath("$.success").value("true"))
         .andExpect(jsonPath("$.id").value("1"))
         .andExpect(jsonPath("$.name").value(deploymentRequestDto.getName()))
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("디플로이먼트들을 성공적으로 조회 하면 200을 반환한다.")
+  public void findDeployments() throws Exception {
+    // given
+    List<DeploymentFindResponseDto> list = new ArrayList<>();
+    list.add(DeploymentFindResponseDto.builder()
+        .age(LocalDateTime.now().toString())
+        .deploymentName("testDeploy")
+        .status("running")
+        .endPoint("http://test.endpoint.com/")
+        .build());
+    when(deploymentService.findDeployments()).thenReturn(list);
+
+    // when
+    ResultActions result = mockMvc.perform(MockMvcRequestBuilders
+        .get("/api/v1/deployments")
+        .accept(MediaType.APPLICATION_JSON)
+        .with(csrf()));
+
+    // then
+    result.andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].age").value(list.get(0).getAge()))
+        .andExpect(jsonPath("$[0].deploymentName").value(list.get(0).getDeploymentName()))
+        .andExpect(jsonPath("$[0].status").value(list.get(0).getStatus()))
+        .andExpect(jsonPath("$[0].endPoint").value(list.get(0).getEndPoint()))
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("디플로이먼트를 성공적으로 조회 하면 200을 반환한다.")
+  public void findDeployment() throws Exception {
+    // given
+    DeploymentFindResponseDto responseDto = DeploymentFindResponseDto.builder()
+        .age(LocalDateTime.now().toString())
+        .deploymentName("testDeploy")
+        .status("running")
+        .endPoint("http://test.endpoint.com/")
+        .build();
+    when(deploymentService.findDeployment(any())).thenReturn(responseDto);
+
+    // when
+    ResultActions result = mockMvc.perform(MockMvcRequestBuilders
+        .get("/api/v1/deployments/1")
+        .accept(MediaType.APPLICATION_JSON)
+        .with(csrf()));
+
+    // then
+    result.andExpect(status().isOk())
+        .andExpect(jsonPath("$.age").value(responseDto.getAge()))
+        .andExpect(jsonPath("$.deploymentName").value(responseDto.getDeploymentName()))
+        .andExpect(jsonPath("$.status").value(responseDto.getStatus()))
+        .andExpect(jsonPath("$.endPoint").value(responseDto.getEndPoint()))
         .andDo(print());
   }
 }

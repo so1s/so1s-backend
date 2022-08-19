@@ -15,6 +15,7 @@ import io.so1s.backend.domain.model.repository.LibraryRepository;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
+import io.so1s.backend.global.config.JpaConfig;
 import io.so1s.backend.global.error.exception.DuplicateModelNameException;
 import io.so1s.backend.global.error.exception.LibraryNotFoundException;
 import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
@@ -29,11 +30,13 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @DataJpaTest
+@Import(JpaConfig.class)
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles(profiles = {"test"})
 class ModelServiceTest {
@@ -177,13 +180,19 @@ class ModelServiceTest {
 
     // when
     List<ModelFindResponseDto> findModels = modelService.findModels();
+    ModelFindResponseDto responseDto = null;
+    for (ModelFindResponseDto findModel : findModels) {
+      if (findModel.getName().equals(model.getName())) {
+        responseDto = findModel;
+        break;
+      }
+    }
 
     // then
-    assertThat(findModels.get(0).getAge()).isEqualTo(modelMetadata.getUpdatedOn());
-    assertThat(findModels.get(0).getName()).isEqualTo(model.getName());
-    assertThat(findModels.get(0).getStatus()).isEqualTo(modelMetadata.getStatus());
-    assertThat(findModels.get(0).getVersion()).isEqualTo(modelMetadata.getVersion());
-    assertThat(findModels.get(0).getLibrary()).isEqualTo(model.getLibrary().getName());
+    assertThat(responseDto.getName()).isEqualTo(model.getName());
+    assertThat(responseDto.getStatus()).isEqualTo(modelMetadata.getStatus());
+    assertThat(responseDto.getVersion()).isEqualTo(modelMetadata.getVersion());
+    assertThat(responseDto.getLibrary()).isEqualTo(model.getLibrary().getName());
   }
 
   @Test
