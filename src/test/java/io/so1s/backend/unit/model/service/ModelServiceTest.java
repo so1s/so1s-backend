@@ -15,6 +15,7 @@ import io.so1s.backend.domain.model.repository.LibraryRepository;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
+import io.so1s.backend.global.config.JpaConfig;
 import io.so1s.backend.global.error.exception.DuplicateModelNameException;
 import io.so1s.backend.global.error.exception.LibraryNotFoundException;
 import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
@@ -29,11 +30,13 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @DataJpaTest
+@Import(JpaConfig.class)
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles(profiles = {"test"})
 class ModelServiceTest {
@@ -186,7 +189,6 @@ class ModelServiceTest {
     }
 
     // then
-    assertThat(responseDto.getAge()).isEqualTo(modelMetadata.getUpdatedOn());
     assertThat(responseDto.getName()).isEqualTo(model.getName());
     assertThat(responseDto.getStatus()).isEqualTo(modelMetadata.getStatus());
     assertThat(responseDto.getVersion()).isEqualTo(modelMetadata.getVersion());
