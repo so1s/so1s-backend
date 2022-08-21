@@ -2,11 +2,13 @@ package io.so1s.backend.unit.kubernetes.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
+import io.so1s.backend.domain.kubernetes.service.KubernetesServiceImpl;
 import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
@@ -27,10 +29,11 @@ public class KubernetesServiceTest {
 
   KubernetesClient client;
   KubernetesService kubernetesService;
+  IstioClient istioClient;
 
   @BeforeEach
   public void setup() {
-    kubernetesService = new KubernetesService(client);
+    kubernetesService = new KubernetesServiceImpl(client, istioClient);
   }
 
   @Test

@@ -1,8 +1,6 @@
 package io.so1s.backend.unit.deployment.service;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
+import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
@@ -15,6 +13,7 @@ import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository
 import io.so1s.backend.domain.deployment.repository.ResourceRepository;
 import io.so1s.backend.domain.deployment.service.DeploymentServiceImpl;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
+import io.so1s.backend.domain.kubernetes.service.KubernetesServiceImpl;
 import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
@@ -27,8 +26,6 @@ import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
 import io.so1s.backend.global.error.exception.DeploymentStrategyNotFoundException;
 import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
 import io.so1s.backend.global.utils.HashGenerator;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,6 +37,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @Transactional
 @DataJpaTest
 @Import(JpaConfig.class)
@@ -49,6 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DeploymentServiceTest {
 
   KubernetesClient client;
+  IstioClient istioClient;
 
   KubernetesService kubernetesService;
   DeploymentServiceImpl deploymentService;
@@ -71,7 +75,7 @@ public class DeploymentServiceTest {
 
   @BeforeEach
   void setup() {
-    kubernetesService = new KubernetesService(client);
+    kubernetesService = new KubernetesServiceImpl(client, istioClient);
     modelService = new ModelServiceImpl(modelRepository, libraryRepository,
         modelMetadataRepository);
     deploymentService = new DeploymentServiceImpl(deploymentRepository,
