@@ -40,10 +40,12 @@ public class ABTest extends BaseTimeEntity {
   private String name;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "model_metadata_id")
+  @JoinColumn(name = "a_id")
   @NotNull
   private Deployment a;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "b_id")
   @NotNull
   private Deployment b;
 
