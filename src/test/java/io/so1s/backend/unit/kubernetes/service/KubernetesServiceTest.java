@@ -2,6 +2,7 @@ package io.so1s.backend.unit.kubernetes.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import io.fabric8.istio.client.DefaultIstioClient;
 import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
@@ -33,6 +34,7 @@ public class KubernetesServiceTest {
 
   @BeforeEach
   public void setup() {
+    istioClient = new DefaultIstioClient();
     kubernetesService = new KubernetesServiceImpl(client, istioClient);
   }
 
