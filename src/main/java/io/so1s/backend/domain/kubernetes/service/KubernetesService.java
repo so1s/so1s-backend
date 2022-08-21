@@ -7,16 +7,16 @@ import io.so1s.backend.domain.test.entity.ABTest;
 
 public interface KubernetesService {
 
-    boolean inferenceServerBuild(ModelMetadata modelMetadata);
+  boolean inferenceServerBuild(ModelMetadata modelMetadata);
 
-    boolean createNamespace(String name);
+  boolean createNamespace(String name);
 
-    boolean createResourceQuota(Resource resource, String namespace);
+  boolean createResourceQuota(Resource resource, String namespace);
 
-    boolean createResourceQuotaWithGpu(Resource resource, String namespace);
+  boolean createResourceQuotaWithGpu(Resource resource, String namespace);
 
-    boolean deployInferenceServer(
-            Deployment deployment);
+  boolean deployInferenceServer(
+      Deployment deployment);
 
-    boolean deployABTest(ABTest abTest);
+  boolean deployABTest(ABTest abTest);
 }
