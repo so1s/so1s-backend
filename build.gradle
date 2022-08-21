@@ -111,6 +111,7 @@ dependencies {
     // https://mvnrepository.com/artifact/io.fabric8/kubernetes-client
     implementation 'io.fabric8:kubernetes-client:5.12.2'
     implementation 'io.fabric8:kubernetes-test:5.12.2'
+    implementation 'io.fabric8:istio-client:6.0.0'
     implementation 'io.fabric8:kubernetes-server-mock:5.12.2'
     testImplementation 'io.rest-assured:rest-assured:4.4.0'
 
