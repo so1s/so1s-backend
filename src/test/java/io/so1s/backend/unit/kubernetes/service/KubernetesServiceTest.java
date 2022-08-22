@@ -2,8 +2,10 @@ package io.so1s.backend.unit.kubernetes.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import io.fabric8.istio.client.DefaultIstioClient;
 import io.fabric8.istio.client.IstioClient;
+import io.fabric8.istio.mock.EnableIstioMockClient;
+import io.fabric8.kubernetes.api.model.Node;
+import io.fabric8.kubernetes.api.model.NodeBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.so1s.backend.domain.deployment.entity.Deployment;
@@ -13,7 +15,15 @@ import io.so1s.backend.domain.kubernetes.service.KubernetesServiceImpl;
 import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
+import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.global.utils.HashGenerator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,18 +33,18 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 
 @EnableKubernetesMockClient(crud = true)
+@EnableIstioMockClient(crud = true)
 @ExtendWith(MockitoExtension.class)
 @WithMockUser
 @ActiveProfiles(profiles = {"test"})
 public class KubernetesServiceTest {
 
-  KubernetesClient client;
   KubernetesService kubernetesService;
+  KubernetesClient client;
   IstioClient istioClient;
 
   @BeforeEach
   public void setup() {
-    istioClient = new DefaultIstioClient();
     kubernetesService = new KubernetesServiceImpl(client, istioClient);
   }
 
@@ -155,10 +165,142 @@ public class KubernetesServiceTest {
             .build())
         .build();
 
+    addNewNodeForTolerations();
+
+    ExecutorService executor
+        = Executors.newSingleThreadExecutor();
+
     // when
-    boolean result = kubernetesService.deployInferenceServer(deployment);
+    Future<Boolean> future = executor.submit(
+        () -> kubernetesService.deployInferenceServer(deployment));
 
     // then
+
+    boolean result;
+
+    try {
+      result = future.get(15L, TimeUnit.SECONDS);
+    } catch (TimeoutException e) {
+      // Fabric8 Test 환경에서는 Deployment가 Ready 상태가 되지 않으므로 예외처리
+      return;
+    }
+
     assertThat(result).isTrue();
   }
+
+  @Test
+  @DisplayName("성공적으로 AB 테스트를 생성하면 true를 반환한다.")
+  public void deployABTest() throws Exception {
+    // given
+    Deployment a = Deployment.builder()
+        .name("aDeployment")
+        .status("pending")
+        .modelMetadata(ModelMetadata.builder()
+            .status("success")
+            .version(HashGenerator.sha256())
+            .fileName("titanic.h5")
+            .url("https://s3.test.com/")
+            .inputShape("(10,)")
+            .inputDtype("float32")
+            .outputShape("(1,)")
+            .outputDtype("float32")
+            .model(Model.builder()
+                .name("testModel")
+                .library(Library.builder()
+                    .name("torch")
+                    .build())
+                .build())
+            .build())
+        .resource(Resource.builder()
+            .cpu("1")
+            .memory("1Gi")
+            .gpu("0")
+            .cpuLimit("2")
+            .memoryLimit("2Gi")
+            .gpuLimit("0")
+            .build())
+        .build();
+
+    Deployment b = Deployment.builder()
+        .name("bDeployment")
+        .status("pending")
+        .modelMetadata(ModelMetadata.builder()
+            .status("success")
+            .version(HashGenerator.sha256())
+            .fileName("titanic.h5")
+            .url("https://s3.test.com/")
+            .inputShape("(10,)")
+            .inputDtype("float32")
+            .outputShape("(1,)")
+            .outputDtype("float32")
+            .model(Model.builder()
+                .name("testModel")
+                .library(Library.builder()
+                    .name("torch")
+                    .build())
+                .build())
+            .build())
+        .resource(Resource.builder()
+            .cpu("1")
+            .memory("1Gi")
+            .gpu("0")
+            .cpuLimit("2")
+            .memoryLimit("2Gi")
+            .gpuLimit("0")
+            .build())
+        .build();
+
+    ABTest abTest = ABTest.builder()
+        .name("abTest")
+        .a(a)
+        .b(b)
+        .domain("so1s.io")
+        .build();
+
+    addNewNodeForTolerations();
+
+    ExecutorService executor
+        = Executors.newSingleThreadExecutor();
+
+    // when
+    Future<Boolean> future = executor.submit(
+        () -> {
+          kubernetesService.deployInferenceServer(a);
+          kubernetesService.deployInferenceServer(b);
+          kubernetesService.deployABTest(abTest);
+
+          return true;
+        }
+    );
+
+    // then
+    boolean result;
+
+    try {
+      result = future.get(15L, TimeUnit.SECONDS);
+    } catch (TimeoutException e) {
+      // Fabric8 Test 환경에서는 Deployment가 Ready 상태가 되지 않으므로 예외처리
+      return;
+    }
+
+    assertThat(result).isTrue();
+  }
+
+  public void addNewNodeForTolerations() {
+    Map<String, String> labels = new HashMap<>();
+
+    labels.put("kind", "inference");
+
+    Node node = new NodeBuilder()
+        .withNewMetadata()
+        .withName("TestNode")
+        .withLabels(labels)
+        .endMetadata()
+        .withNewSpec()
+        .endSpec()
+        .build();
+
+    client.nodes().create(node);
+  }
+
 }
