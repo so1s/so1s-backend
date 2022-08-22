@@ -17,20 +17,26 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
 import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class KubernetesServiceImpl implements KubernetesService {
 
   private final KubernetesClient client;
@@ -89,6 +95,7 @@ public class KubernetesServiceImpl implements KubernetesService {
             .withName("docker-sock")
             .withHostPath(new HostPathVolumeSourceBuilder()
                 .withPath("/var/run/docker.sock")
+                .withType("FileOrCreate")
                 .build())
             .build())
         .withRestartPolicy("Never")
@@ -229,6 +236,24 @@ public class KubernetesServiceImpl implements KubernetesService {
         .endSpec()
         .build();
 
+    Gateway inferenceGateway = new GatewayBuilder()
+        .withNewMetadata()
+        .withName(deployName)
+        .withNamespace(namespace)
+        .addToLabels(labels)
+        .endMetadata()
+        .withNewSpec()
+        .addNewServer()
+        .withNewPort()
+        .withNumber(80)
+        .withName("http")
+        .withProtocol("HTTP")
+        .endPort()
+        .withHosts(host)
+        .endServer()
+        .endSpec()
+        .build();
+
     VirtualService inferenceVirtualService = new VirtualServiceBuilder()
         .withNewMetadata()
         .withName(deployName)
@@ -256,29 +281,35 @@ public class KubernetesServiceImpl implements KubernetesService {
         .endSpec()
         .build();
 
-    Gateway inferenceGateway = new GatewayBuilder()
-        .withNewMetadata()
-        .withName(deployName)
-        .withNamespace(namespace)
-        .addToLabels(labels)
-        .endMetadata()
-        .withNewSpec()
-        .addNewServer()
-        .withNewPort()
-        .withNumber(80)
-        .withName("http")
-        .withProtocol("HTTP")
-        .endPort()
-        .withHosts(host)
-        .endServer()
-        .endSpec()
-        .build();
-
     client.apps().deployments().inNamespace(namespace).createOrReplace(inferenceDeployment);
     client.services().inNamespace(namespace).createOrReplace(inferenceService);
+    istioClient.v1beta1().gateways().inNamespace(namespace).createOrReplace(inferenceGateway);
     istioClient.v1beta1().virtualServices().inNamespace(namespace)
         .createOrReplace(inferenceVirtualService);
-    istioClient.v1beta1().gateways().inNamespace(namespace).createOrReplace(inferenceGateway);
+
+    var resources = List.of(
+        client.apps().deployments().inNamespace(namespace).withName(deployName),
+        client.services().inNamespace(namespace).withName(deployName),
+        istioClient.v1beta1().gateways().inNamespace(namespace).withName(deployName),
+        istioClient.v1beta1().virtualServices().inNamespace(namespace)
+            .withName(deployName)
+    );
+
+    if (client instanceof DefaultKubernetesClient)
+
+      while (resources.stream().anyMatch(resource -> {
+            try {
+              var result = resource.waitUntilReady(1L, TimeUnit.SECONDS);
+              return result == null;
+            } catch (KubernetesClientTimeoutException ignored) {
+              log.error(String.valueOf(resource.get()));
+              log.error(String.valueOf(resource.isReady()));
+              return true;
+            }
+          }
+      )) {
+
+      }
 
     return true;
   }
@@ -351,10 +382,30 @@ public class KubernetesServiceImpl implements KubernetesService {
         .endSpec()
         .build();
 
+    istioClient.v1beta1().gateways().inNamespace(namespace).createOrReplace(abTestGateway);
     istioClient.v1beta1().virtualServices().inNamespace(namespace)
         .createOrReplace(abTestVirtualService);
-    istioClient.v1beta1().gateways().inNamespace(namespace).createOrReplace(abTestGateway);
 
-    return false;
+    var resources = List.of(
+        istioClient.v1beta1().gateways().inNamespace(namespace).withName(abTestName),
+        istioClient.v1beta1().virtualServices().inNamespace(namespace)
+            .withName(abTestName)
+    );
+
+    while (resources.stream().anyMatch(resource -> {
+          try {
+            var result = resource.waitUntilReady(1L, TimeUnit.SECONDS);
+            return result == null;
+          } catch (KubernetesClientTimeoutException ignored) {
+            log.error(String.valueOf(resource.get()));
+            log.error(String.valueOf(resource.isReady()));
+            return true;
+          }
+        }
+    )) {
+
+    }
+
+    return true;
   }
 }
