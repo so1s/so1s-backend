@@ -166,7 +166,7 @@ public class KubernetesServiceImpl implements KubernetesService {
     Map<String, String> labels = new HashMap<>();
     labels.put("apps", deployName);
 
-    String host = deployName + "so1s.io"; // TODO: Fix hard-coded root domain
+    String host = deployName + ".so1s.io"; // TODO: Fix hard-coded root domain
 
     Deployment inferenceDeployment = new DeploymentBuilder()
         .withNewMetadata()
@@ -290,7 +290,7 @@ public class KubernetesServiceImpl implements KubernetesService {
     String namespace = "default";
     String abTestName = "ab-test-" + abTest.getName().toLowerCase();
 
-    String host = abTestName + "so1s.io"; // TODO: Fix hard-coded root domain
+    String host = abTestName + ".so1s.io"; // TODO: Fix hard-coded root domain
 
     String aName = "inference-" + abTest.getA().getName().toLowerCase();
     String bName = "inference-" + abTest.getB().getName().toLowerCase();
