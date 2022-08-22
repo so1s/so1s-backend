@@ -5,7 +5,14 @@ import io.fabric8.istio.api.networking.v1beta1.GatewayBuilder;
 import io.fabric8.istio.api.networking.v1beta1.VirtualService;
 import io.fabric8.istio.api.networking.v1beta1.VirtualServiceBuilder;
 import io.fabric8.istio.client.IstioClient;
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
+import io.fabric8.kubernetes.api.model.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.ResourceQuotaBuilder;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import io.fabric8.kubernetes.api.model.TolerationBuilder;
+import io.fabric8.kubernetes.api.model.VolumeBuilder;
+import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
@@ -16,11 +23,11 @@ import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.global.utils.HashGenerator;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.HashMap;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -276,6 +283,7 @@ public class KubernetesServiceImpl implements KubernetesService {
     return true;
   }
 
+  @Transactional(readOnly = true)
   @Override
   public boolean deployABTest(ABTest abTest) {
 
