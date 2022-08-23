@@ -21,9 +21,9 @@ public class ABTestMapperImpl implements ABTestMapper {
   @Override
   public ABTest toABTest(ABTestRequestDto dto)
       throws DeploymentNotFoundException, DataIntegrityViolationException {
-    Deployment a = deploymentService.findById(dto.getAId()).orElseThrow(
+    Deployment a = deploymentService.findById(dto.getA()).orElseThrow(
         () -> new DeploymentNotFoundException("주어진 Deployment A id와 일치하는 객체를 찾지 못했습니다."));
-    Deployment b = deploymentService.findById(dto.getBId()).orElseThrow(
+    Deployment b = deploymentService.findById(dto.getB()).orElseThrow(
         () -> new DeploymentNotFoundException("주어진 Deployment B id와 일치하는 객체를 찾지 못했습니다."));
 
     return ABTest.builder()

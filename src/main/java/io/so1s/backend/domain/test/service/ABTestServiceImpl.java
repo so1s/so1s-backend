@@ -21,10 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ABTestServiceImpl implements ABTestService {
 
-  private DeploymentService deploymentService;
-  private KubernetesService kubernetesService;
-  private ABTestRepository repository;
-  private ABTestMapper mapper;
+  private final DeploymentService deploymentService;
+  private final KubernetesService kubernetesService;
+  private final ABTestRepository repository;
+  private final ABTestMapper mapper;
 
   @Transactional
   @Override
@@ -40,9 +40,9 @@ public class ABTestServiceImpl implements ABTestService {
     ABTest entity = repository.findByName(dto.getName())
         .orElseThrow(() -> new ABTestNotFoundException("주어진 Name과 일치하는 AB Test 객체를 찾지 못했습니다."));
 
-    Deployment a = deploymentService.findById(dto.getAId()).orElseThrow(
+    Deployment a = deploymentService.findById(dto.getA()).orElseThrow(
         () -> new DeploymentNotFoundException("주어진 Deployment A id와 일치하는 객체를 찾지 못했습니다."));
-    Deployment b = deploymentService.findById(dto.getBId()).orElseThrow(
+    Deployment b = deploymentService.findById(dto.getB()).orElseThrow(
         () -> new DeploymentNotFoundException("주어진 Deployment A id와 일치하는 객체를 찾지 못했습니다."));
 
     entity.update(a, b, dto.getDomain());

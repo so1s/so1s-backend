@@ -1,13 +1,12 @@
 package io.so1s.backend.domain.test.dto.request;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 @Getter
 @Builder
@@ -20,10 +19,10 @@ public class ABTestRequestDto {
   private String name;
 
   @NotNull(message = "aId가 주어지지 않았습니다.")
-  private Long aId;
+  private Long a;
 
   @NotNull(message = "bId가 주어지지 않았습니다.")
-  private Long bId;
+  private Long b;
 
   @NotBlank(message = "domain이 주어지지 않았습니다.")
   private String domain;
