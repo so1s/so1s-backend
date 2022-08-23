@@ -38,7 +38,7 @@ jobs:
         env:
           sdkman_selfupdate_enable: false
       - name: Run build
-        run: ./gradlew build --stacktrace
+        run: ./gradlew build --stacktrace -x test
         env:
           JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: Run test
