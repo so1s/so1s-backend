@@ -67,6 +67,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         // token을 사용하는 방식이기 때문에 csrf disable
         .csrf().disable()
+        .formLogin().disable()
+        .httpBasic().disable()
 
         .exceptionHandling()
         .authenticationEntryPoint(jwtAuthenticationEntryPoint)

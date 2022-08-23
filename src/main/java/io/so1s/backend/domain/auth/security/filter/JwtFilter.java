@@ -6,8 +6,6 @@ import io.so1s.backend.global.utils.JsonMapper;
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.Getter;
@@ -17,11 +15,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
 @RequiredArgsConstructor
-public class JwtFilter extends GenericFilterBean {
+public class JwtFilter extends OncePerRequestFilter {
 
   @Getter
   private static final String AUTHORIZATION_HEADER = "Authorization";
@@ -33,9 +31,10 @@ public class JwtFilter extends GenericFilterBean {
 
 
   @Override
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
+  protected void doFilterInternal(HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse,
       FilterChain filterChain)
-      throws IOException, ServletException {
+      throws ServletException, IOException {
     HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
     String jwt = resolveToken(httpServletRequest);
     String requestURI = httpServletRequest.getRequestURI();
