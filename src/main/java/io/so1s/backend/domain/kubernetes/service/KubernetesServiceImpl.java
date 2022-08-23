@@ -17,7 +17,6 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
 import io.so1s.backend.domain.deployment.entity.Resource;
@@ -95,7 +94,6 @@ public class KubernetesServiceImpl implements KubernetesService {
             .withName("docker-sock")
             .withHostPath(new HostPathVolumeSourceBuilder()
                 .withPath("/var/run/docker.sock")
-                .withType("FileOrCreate")
                 .build())
             .build())
         .withRestartPolicy("Never")
@@ -295,21 +293,19 @@ public class KubernetesServiceImpl implements KubernetesService {
             .withName(deployName)
     );
 
-    if (client instanceof DefaultKubernetesClient)
-
-      while (resources.stream().anyMatch(resource -> {
-            try {
-              var result = resource.waitUntilReady(1L, TimeUnit.SECONDS);
-              return result == null;
-            } catch (KubernetesClientTimeoutException ignored) {
-              log.error(String.valueOf(resource.get()));
-              log.error(String.valueOf(resource.isReady()));
-              return true;
-            }
+    while (resources.stream().anyMatch(resource -> {
+          try {
+            var result = resource.waitUntilReady(1L, TimeUnit.SECONDS);
+            return result == null;
+          } catch (KubernetesClientTimeoutException ignored) {
+            log.error(String.valueOf(resource.get()));
+            log.error(String.valueOf(resource.isReady()));
+            return true;
           }
-      )) {
+        }
+    )) {
 
-      }
+    }
 
     return true;
   }
