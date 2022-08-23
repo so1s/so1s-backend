@@ -322,7 +322,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .withNewPort()
         .withNumber(3000)
         .endPort()
-        .endDestination()
+        .and()
         .withWeight(50)
         .withNewDestination()
         .withHost(bName)
