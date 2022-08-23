@@ -6,7 +6,9 @@ import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
 import io.so1s.backend.domain.deployment.entity.Resource;
+
 import java.util.List;
+import java.util.Optional;
 
 public interface DeploymentService {
 
@@ -25,4 +27,6 @@ public interface DeploymentService {
   List<DeploymentFindResponseDto> findDeployments();
 
   DeploymentFindResponseDto findDeployment(Long id);
+
+  Optional<Deployment> findById(Long id);
 }

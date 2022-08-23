@@ -13,12 +13,13 @@ import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
 import io.so1s.backend.global.error.exception.DeploymentStrategyNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -131,5 +132,10 @@ public class DeploymentServiceImpl implements DeploymentService {
     }
 
     return setDeploymentFindResponseDto(deployment.get());
+  }
+
+  @Override
+  public Optional<Deployment> findById(Long id) {
+    return deploymentRepository.findById(id);
   }
 }

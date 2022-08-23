@@ -23,11 +23,11 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
       generate-ddl: true
     defer-datasource-initialization: true
-    
+
   sql:
     init:
       mode: always
-      
+
 logging:
   level:
     org:

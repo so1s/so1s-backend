@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 public class HelloResponseDto {
 
   private String comment;
-  
+
 }
