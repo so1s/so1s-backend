@@ -1,6 +1,7 @@
 package io.so1s.backend.domain.test.controller;
 
 import io.so1s.backend.domain.deployment.service.DeploymentService;
+import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.test.dto.mapper.ABTestMapper;
 import io.so1s.backend.domain.test.dto.request.ABTestRequestDto;
 import io.so1s.backend.domain.test.dto.response.ABTestCreateResponseDto;
@@ -9,15 +10,19 @@ import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.service.ABTestService;
 import io.so1s.backend.global.error.exception.ABTestNotFoundException;
 import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
+import java.util.List;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/api/v1/tests/ab")
@@ -26,6 +31,7 @@ public class ABTestController {
 
   private final ABTestService abTestService;
   private final DeploymentService deploymentService;
+  private final KubernetesService kubernetesService;
   private final ABTestMapper mapper;
 
   @PostMapping
@@ -36,7 +42,8 @@ public class ABTestController {
     ABTest abTest = abTestService.createABTest(requestDto);
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(mapper.toCreateDto("AB Test 객체가 생성되었습니다.", abTest));
+        .body(mapper.toCreateDto(kubernetesService.deployABTest(abTest), "AB Test 객체가 생성되었습니다.",
+            abTest));
   }
 
   @PutMapping
@@ -46,7 +53,8 @@ public class ABTestController {
 
     ABTest abTest = abTestService.updateABTest(abTestRequestDto);
 
-    return ResponseEntity.ok(mapper.toCreateDto("AB Test 객체가 변경되었습니다.", abTest));
+    return ResponseEntity.ok(
+        mapper.toCreateDto(kubernetesService.deployABTest(abTest), "AB Test 객체가 변경되었습니다.", abTest));
   }
 
   @GetMapping

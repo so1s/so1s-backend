@@ -10,13 +10,12 @@ import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
 import io.so1s.backend.global.error.exception.ABTestNotFoundException;
 import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,11 +30,7 @@ public class ABTestServiceImpl implements ABTestService {
   @Override
   public ABTest createABTest(ABTestRequestDto dto) throws DeploymentNotFoundException {
     // TODO: Manage wildcard subdomain ingress programmatically using route 53 & external-dns & fabric8 kubernetes client
-    ABTest entity = repository.save(mapper.toABTest(dto));
-
-    kubernetesService.deployABTest(entity);
-
-    return entity;
+    return repository.save(mapper.toABTest(dto));
   }
 
   @Transactional
@@ -51,8 +46,6 @@ public class ABTestServiceImpl implements ABTestService {
         () -> new DeploymentNotFoundException("주어진 Deployment A id와 일치하는 객체를 찾지 못했습니다."));
 
     entity.update(a, b, dto.getDomain());
-
-    kubernetesService.deployABTest(entity);
 
     return entity;
   }

@@ -46,8 +46,9 @@ public class ABTestMapperImpl implements ABTestMapper {
   }
 
   @Override
-  public ABTestCreateResponseDto toCreateDto(String message, ABTest entity) {
+  public ABTestCreateResponseDto toCreateDto(Boolean success, String message, ABTest entity) {
     return ABTestCreateResponseDto.builder()
+        .success(success)
         .message(message)
         .data(toReadDto(entity))
         .build();

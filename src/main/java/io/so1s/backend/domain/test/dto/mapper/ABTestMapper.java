@@ -14,5 +14,5 @@ public interface ABTestMapper {
 
   ABTestReadResponseDto toReadDto(ABTest entity);
 
-  ABTestCreateResponseDto toCreateDto(String message, ABTest entity);
+  ABTestCreateResponseDto toCreateDto(Boolean success, String message, ABTest entity);
 }

@@ -18,16 +18,13 @@ import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
 import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -285,28 +282,6 @@ public class KubernetesServiceImpl implements KubernetesService {
     istioClient.v1beta1().virtualServices().inNamespace(namespace)
         .createOrReplace(inferenceVirtualService);
 
-    var resources = List.of(
-        client.apps().deployments().inNamespace(namespace).withName(deployName),
-        client.services().inNamespace(namespace).withName(deployName),
-        istioClient.v1beta1().gateways().inNamespace(namespace).withName(deployName),
-        istioClient.v1beta1().virtualServices().inNamespace(namespace)
-            .withName(deployName)
-    );
-
-    while (resources.stream().anyMatch(resource -> {
-          try {
-            var result = resource.waitUntilReady(1L, TimeUnit.SECONDS);
-            return result == null;
-          } catch (KubernetesClientTimeoutException ignored) {
-            log.error(String.valueOf(resource.get()));
-            log.error(String.valueOf(resource.isReady()));
-            return true;
-          }
-        }
-    )) {
-
-    }
-
     return true;
   }
 
@@ -381,26 +356,6 @@ public class KubernetesServiceImpl implements KubernetesService {
     istioClient.v1beta1().gateways().inNamespace(namespace).createOrReplace(abTestGateway);
     istioClient.v1beta1().virtualServices().inNamespace(namespace)
         .createOrReplace(abTestVirtualService);
-
-    var resources = List.of(
-        istioClient.v1beta1().gateways().inNamespace(namespace).withName(abTestName),
-        istioClient.v1beta1().virtualServices().inNamespace(namespace)
-            .withName(abTestName)
-    );
-
-    while (resources.stream().anyMatch(resource -> {
-          try {
-            var result = resource.waitUntilReady(1L, TimeUnit.SECONDS);
-            return result == null;
-          } catch (KubernetesClientTimeoutException ignored) {
-            log.error(String.valueOf(resource.get()));
-            log.error(String.valueOf(resource.isReady()));
-            return true;
-          }
-        }
-    )) {
-
-    }
 
     return true;
   }
