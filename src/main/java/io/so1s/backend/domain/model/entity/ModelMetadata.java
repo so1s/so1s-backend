@@ -2,10 +2,13 @@ package io.so1s.backend.domain.model.entity;
 
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.global.entity.BaseTimeEntity;
+import io.so1s.backend.global.entity.Status;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -35,7 +38,9 @@ public class ModelMetadata extends BaseTimeEntity {
   private Long id;
 
   @Column(nullable = false)
-  private String status;
+  @Enumerated(EnumType.STRING)
+  private Status status;
+//  private String status;
 
   @Column(nullable = false)
   private String version;
@@ -70,5 +75,9 @@ public class ModelMetadata extends BaseTimeEntity {
   public void setModel(Model model) {
     this.model = model;
     model.getModelMetadatas().add(this);
+  }
+
+  public void changeStatus(Status status) {
+    this.status = status;
   }
 }
