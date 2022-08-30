@@ -23,6 +23,7 @@ import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.test.entity.ABTest;
+import io.so1s.backend.global.error.exception.TooManyThreadRequestException;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.HashMap;
 import java.util.Map;
@@ -109,7 +110,7 @@ public class KubernetesServiceImpl implements KubernetesService {
       jobStatusChecker.checkJobStatus(
           job.getMetadata().getName(), namespace, modelMetadata);
     } catch (TaskRejectedException e) { // QueueCapacity 초과 요청 방어 코드 작성
-      new IllegalThreadStateException(
+      throw new TooManyThreadRequestException(
           "Too many jobs are currently running. Please run it after the other work is completed.");
     }
 
