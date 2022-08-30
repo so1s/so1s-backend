@@ -28,7 +28,6 @@ public class JobStatusChecker {
           .list().getItems().get(0);
 
       if (job.getStatus().getActive() == null) {
-        log.info("Status :: " + job.getStatus().getConditions().get(0).getType());
         if (job.getStatus().getSucceeded() == 1) {
           changeModelMetadataStatus(Status.SUCCEEDED, modelMetadata);
           break;
