@@ -28,10 +28,10 @@ public class JobStatusChecker {
           .list().getItems().get(0);
 
       if (job.getStatus().getActive() == null) {
-        if (job.getStatus().getSucceeded() == 1) {
+        if (job.getStatus().getSucceeded() != null && job.getStatus().getSucceeded() == 1) {
           changeModelMetadataStatus(Status.SUCCEEDED, modelMetadata);
           break;
-        } else if (job.getStatus().getFailed() == 1) {
+        } else if (job.getStatus().getFailed() != null && job.getStatus().getFailed() == 1) {
           changeModelMetadataStatus(Status.FAILED, modelMetadata);
           break;
         }
