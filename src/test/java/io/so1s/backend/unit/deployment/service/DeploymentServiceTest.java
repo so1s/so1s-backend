@@ -17,6 +17,7 @@ import io.so1s.backend.domain.deployment.repository.ResourceRepository;
 import io.so1s.backend.domain.deployment.service.DeploymentServiceImpl;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesServiceImpl;
+import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
 import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
@@ -39,6 +40,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,12 +72,14 @@ public class DeploymentServiceTest {
   DeploymentStrategyRepository deploymentStrategyRepository;
   @Autowired
   ResourceRepository resourceRepository;
+  @MockBean
+  JobStatusChecker jobStatusChecker;
 
   ResourceRequestDto resourceRequestDto;
 
   @BeforeEach
   void setup() {
-    kubernetesService = new KubernetesServiceImpl(client, istioClient);
+    kubernetesService = new KubernetesServiceImpl(client, istioClient, jobStatusChecker);
     modelService = new ModelServiceImpl(modelRepository, libraryRepository,
         modelMetadataRepository);
     deploymentService = new DeploymentServiceImpl(deploymentRepository,
