@@ -1,6 +1,8 @@
 package io.so1s.backend.unit.kubernetes.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 
 import io.fabric8.istio.client.IstioClient;
 import io.fabric8.istio.mock.EnableIstioMockClient;
@@ -33,8 +35,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -49,11 +51,11 @@ public class KubernetesServiceTest {
   KubernetesClient client;
   IstioClient istioClient;
 
-  @MockBean
   JobStatusChecker jobStatusChecker;
 
   @BeforeEach
   public void setup() {
+    jobStatusChecker = Mockito.mock(JobStatusChecker.class);
     kubernetesService = new KubernetesServiceImpl(client, istioClient, jobStatusChecker);
   }
 
@@ -77,6 +79,7 @@ public class KubernetesServiceTest {
                 .build())
             .build())
         .build();
+    doNothing().when(jobStatusChecker).checkJobStatus(any(), any(), any());
 
     // when
     boolean result = kubernetesService.inferenceServerBuild(modelMetadata);
