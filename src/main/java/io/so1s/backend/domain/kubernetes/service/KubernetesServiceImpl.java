@@ -104,7 +104,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .build();
 
     client.batch().v1().jobs().inNamespace(namespace).createOrReplace(job);
-    
+
     try {
       log.info("Run jobStatusChecker " + job.getMetadata().getName());
       jobStatusChecker.checkJobStatusAsyncThread(
