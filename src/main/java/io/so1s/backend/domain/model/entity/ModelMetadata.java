@@ -40,7 +40,6 @@ public class ModelMetadata extends BaseTimeEntity {
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private Status status;
-//  private String status;
 
   @Column(nullable = false)
   private String version;
