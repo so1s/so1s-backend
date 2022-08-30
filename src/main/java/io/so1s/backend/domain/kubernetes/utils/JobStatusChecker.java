@@ -21,7 +21,7 @@ public class JobStatusChecker {
   @Async
   public void checkJobStatus(String jobName, String namespace, ModelMetadata modelMetadata)
       throws InterruptedException {
-    int interval = 10;
+    long interval = 10;
 
     while (true) {
       Job job = client.batch().v1().jobs().inNamespace(namespace).withLabel("job-name", jobName)
