@@ -21,6 +21,7 @@ import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
 import io.so1s.backend.global.config.SecurityConfig;
+import io.so1s.backend.global.entity.Status;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -163,7 +164,7 @@ class ModelControllerTest {
     findModels.add(ModelFindResponseDto.builder()
         .age(LocalDateTime.now())
         .name("testModel")
-        .status("usable")
+        .status(Status.SUCCEEDED)
         .version(HashGenerator.sha256())
         .library("tensorflow")
         .build());
@@ -193,7 +194,7 @@ class ModelControllerTest {
     findModelMetadatas.add(ModelMetadataFindResponseDto.builder()
         .age(LocalDateTime.now())
         .version(HashGenerator.sha256())
-        .status("usable")
+        .status(Status.SUCCEEDED)
         .url("http://s3.test.com/")
         .build());
     when(modelService.findModelMetadatasByModelId(any())).thenReturn(findModelMetadatas);
@@ -221,7 +222,7 @@ class ModelControllerTest {
         .age(LocalDateTime.now())
         .name("testModel")
         .version(HashGenerator.sha256())
-        .status("usable")
+        .status(Status.SUCCEEDED)
         .url("http://s3.test.com/")
         .library("tensorflow")
         .inputShape("(10,)")
