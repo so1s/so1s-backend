@@ -106,7 +106,7 @@ public class KubernetesServiceImpl implements KubernetesService {
     client.batch().v1().jobs().inNamespace(namespace).createOrReplace(job);
 
     try {
-      jobStatusChecker.checkJobStatusAsyncThread(
+      jobStatusChecker.checkJobStatus(
           job.getMetadata().getName(), namespace, modelMetadata);
     } catch (TaskRejectedException e) { // QueueCapacity 초과 요청 방어 코드 작성
       new IllegalThreadStateException(

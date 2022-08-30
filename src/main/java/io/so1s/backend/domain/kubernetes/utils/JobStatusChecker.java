@@ -19,8 +19,8 @@ public class JobStatusChecker {
   private final ModelMetadataRepository modelMetadataRepository;
 
   @Async
-  public void checkJobStatusAsyncThread(String jobName, String namespace,
-      ModelMetadata modelMetadata) throws InterruptedException {
+  public void checkJobStatus(String jobName, String namespace, ModelMetadata modelMetadata)
+      throws InterruptedException {
     int interval = 10;
 
     while (true) {
