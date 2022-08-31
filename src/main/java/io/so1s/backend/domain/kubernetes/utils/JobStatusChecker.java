@@ -37,20 +37,6 @@ public class JobStatusChecker {
         }
       }
 
-//      // 만약 ImagePullBackOff에러가 나는 경우가 발생한다면 필요한 구문
-//      else {
-//        Optional<ContainerStateWaiting> waiting = Optional.ofNullable(
-//            client.pods().inNamespace(namespace).withLabel("job-name", jobName).list().getItems()
-//                .get(0).getStatus().getContainerStatuses().get(0).getState().getWaiting());
-//
-//        if (waiting.isPresent()) {
-//          if (waiting.get().getReason().equals("ImagePullBackOff")) {
-//            changeModelMetadataStatus(Status.FAILED, modelMetadata);
-//            break;
-//          }
-//        }
-//      }
-
       Thread.sleep(interval * 1000);
     }
   }
