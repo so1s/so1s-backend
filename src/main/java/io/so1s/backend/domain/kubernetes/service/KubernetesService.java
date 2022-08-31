@@ -7,7 +7,7 @@ import io.so1s.backend.domain.test.entity.ABTest;
 
 public interface KubernetesService {
 
-  boolean inferenceServerBuild(ModelMetadata modelMetadata);
+  boolean inferenceServerBuild(ModelMetadata modelMetadata) throws InterruptedException;
 
   boolean createNamespace(String name);
 

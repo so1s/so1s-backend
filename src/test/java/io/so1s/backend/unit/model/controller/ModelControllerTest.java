@@ -21,6 +21,7 @@ import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
 import io.so1s.backend.global.config.SecurityConfig;
+import io.so1s.backend.global.entity.Status;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -163,7 +164,7 @@ class ModelControllerTest {
     findModels.add(ModelFindResponseDto.builder()
         .age(LocalDateTime.now())
         .name("testModel")
-        .status("usable")
+        .status(Status.SUCCEEDED)
         .version(HashGenerator.sha256())
         .library("tensorflow")
         .build());
@@ -180,7 +181,7 @@ class ModelControllerTest {
     result.andExpect(status().isOk())
         .andExpect(jsonPath("$[0].age").exists()) // TimeStamp 불일치 문제로 임시 수정
         .andExpect(jsonPath("$[0].name").value(findModels.get(0).getName()))
-        .andExpect(jsonPath("$[0].status").value(findModels.get(0).getStatus()))
+        .andExpect(jsonPath("$[0].status").value(findModels.get(0).getStatus().toString()))
         .andExpect(jsonPath("$[0].version").value(findModels.get(0).getVersion()))
         .andExpect(jsonPath("$[0].library").value(findModels.get(0).getLibrary()));
   }
@@ -193,7 +194,7 @@ class ModelControllerTest {
     findModelMetadatas.add(ModelMetadataFindResponseDto.builder()
         .age(LocalDateTime.now())
         .version(HashGenerator.sha256())
-        .status("usable")
+        .status(Status.SUCCEEDED)
         .url("http://s3.test.com/")
         .build());
     when(modelService.findModelMetadatasByModelId(any())).thenReturn(findModelMetadatas);
@@ -209,7 +210,7 @@ class ModelControllerTest {
     result.andExpect(status().isOk())
         .andExpect(jsonPath("$[0].age").exists()) // TimeStamp 불일치 문제로 임시 수정
         .andExpect(jsonPath("$[0].version").value(findModelMetadatas.get(0).getVersion()))
-        .andExpect(jsonPath("$[0].status").value(findModelMetadatas.get(0).getStatus()))
+        .andExpect(jsonPath("$[0].status").value(findModelMetadatas.get(0).getStatus().toString()))
         .andExpect(jsonPath("$[0].url").value(findModelMetadatas.get(0).getUrl()));
   }
 
@@ -221,7 +222,7 @@ class ModelControllerTest {
         .age(LocalDateTime.now())
         .name("testModel")
         .version(HashGenerator.sha256())
-        .status("usable")
+        .status(Status.SUCCEEDED)
         .url("http://s3.test.com/")
         .library("tensorflow")
         .inputShape("(10,)")
@@ -243,7 +244,7 @@ class ModelControllerTest {
         .andExpect(jsonPath("$.age").exists()) // TimeStamp 불일치 문제로 임시 수정
         .andExpect(jsonPath("$.name").value(findModelMetadata.getName()))
         .andExpect(jsonPath("$.version").value(findModelMetadata.getVersion()))
-        .andExpect(jsonPath("$.status").value(findModelMetadata.getStatus()))
+        .andExpect(jsonPath("$.status").value(findModelMetadata.getStatus().toString()))
         .andExpect(jsonPath("$.url").value(findModelMetadata.getUrl()))
         .andExpect(jsonPath("$.library").value(findModelMetadata.getLibrary()))
         .andExpect(jsonPath("$.inputShape").value(findModelMetadata.getInputShape()))

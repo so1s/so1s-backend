@@ -11,6 +11,7 @@ import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.repository.LibraryRepository;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
+import io.so1s.backend.global.entity.Status;
 import io.so1s.backend.global.error.exception.DuplicateModelNameException;
 import io.so1s.backend.global.error.exception.LibraryNotFoundException;
 import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
@@ -56,7 +57,7 @@ public class ModelServiceImpl implements ModelService {
   public ModelMetadata createModelMetadata(Model model,
       ModelUploadRequestDto modelUploadRequestDto, FileSaveResultForm fileSaveResultForm) {
     return modelMetadataRepository.save(ModelMetadata.builder()
-        .status("pending")
+        .status(Status.PENDING)
         .version(HashGenerator.sha256())
         .fileName(fileSaveResultForm.getSavedName())
         .url(fileSaveResultForm.getUrl())

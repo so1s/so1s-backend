@@ -19,14 +19,17 @@ import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.so1s.backend.domain.deployment.entity.Resource;
+import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.test.entity.ABTest;
+import io.so1s.backend.global.error.exception.TooManyThreadRequestException;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.task.TaskRejectedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,9 +40,10 @@ public class KubernetesServiceImpl implements KubernetesService {
 
   private final KubernetesClient client;
   private final IstioClient istioClient;
+  private final JobStatusChecker jobStatusChecker;
 
   @Override
-  public boolean inferenceServerBuild(ModelMetadata modelMetadata) {
+  public boolean inferenceServerBuild(ModelMetadata modelMetadata) throws InterruptedException {
     Model model = modelMetadata.getModel();
 
     String namespace = "default";
@@ -101,6 +105,14 @@ public class KubernetesServiceImpl implements KubernetesService {
         .build();
 
     client.batch().v1().jobs().inNamespace(namespace).createOrReplace(job);
+
+    try {
+      jobStatusChecker.checkJobStatus(
+          job.getMetadata().getName(), namespace, modelMetadata);
+    } catch (TaskRejectedException e) { // QueueCapacity 초과 요청 방어 코드 작성
+      throw new TooManyThreadRequestException(
+          "Too many jobs are currently running. Please run it after the other work is completed.");
+    }
 
     return true;
   }

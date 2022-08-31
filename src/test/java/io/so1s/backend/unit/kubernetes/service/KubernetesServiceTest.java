@@ -1,23 +1,30 @@
 package io.so1s.backend.unit.kubernetes.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 
 import io.fabric8.istio.client.IstioClient;
 import io.fabric8.istio.mock.EnableIstioMockClient;
 import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.NodeBuilder;
+import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
+import io.fabric8.kubernetes.api.model.apps.DeploymentList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesServiceImpl;
+import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
 import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.test.entity.ABTest;
+import io.so1s.backend.global.entity.Status;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +35,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -43,9 +51,12 @@ public class KubernetesServiceTest {
   KubernetesClient client;
   IstioClient istioClient;
 
+  JobStatusChecker jobStatusChecker;
+
   @BeforeEach
   public void setup() {
-    kubernetesService = new KubernetesServiceImpl(client, istioClient);
+    jobStatusChecker = Mockito.mock(JobStatusChecker.class);
+    kubernetesService = new KubernetesServiceImpl(client, istioClient, jobStatusChecker);
   }
 
   @Test
@@ -53,7 +64,7 @@ public class KubernetesServiceTest {
   public void inferenceServerBuild() throws Exception {
     // given
     ModelMetadata modelMetadata = ModelMetadata.builder()
-        .status("running")
+        .status(Status.RUNNING)
         .version(HashGenerator.sha256())
         .fileName("e8eb72cd-1ef4-45f4-8105-2f4c5357e4a8.h5")
         .url("https://so1s.s3.ap-northeast-2.amazonaws.com/13df693e-bb11-404c-9cfd-c5b1a1ecdc43.h5")
@@ -68,6 +79,7 @@ public class KubernetesServiceTest {
                 .build())
             .build())
         .build();
+    doNothing().when(jobStatusChecker).checkJobStatus(any(), any(), any());
 
     // when
     boolean result = kubernetesService.inferenceServerBuild(modelMetadata);
@@ -140,7 +152,7 @@ public class KubernetesServiceTest {
         .name("testDeployment")
         .status("pending")
         .modelMetadata(ModelMetadata.builder()
-            .status("success")
+            .status(Status.SUCCEEDED)
             .version(HashGenerator.sha256())
             .fileName("titanic.h5")
             .url("https://s3.test.com/")
@@ -196,7 +208,7 @@ public class KubernetesServiceTest {
         .name("aDeployment")
         .status("pending")
         .modelMetadata(ModelMetadata.builder()
-            .status("success")
+            .status(Status.SUCCEEDED)
             .version(HashGenerator.sha256())
             .fileName("titanic.h5")
             .url("https://s3.test.com/")
@@ -225,7 +237,7 @@ public class KubernetesServiceTest {
         .name("bDeployment")
         .status("pending")
         .modelMetadata(ModelMetadata.builder()
-            .status("success")
+            .status(Status.SUCCEEDED)
             .version(HashGenerator.sha256())
             .fileName("titanic.h5")
             .url("https://s3.test.com/")
@@ -303,4 +315,43 @@ public class KubernetesServiceTest {
     client.nodes().create(node);
   }
 
+  @Test
+  public void deployTest() throws Exception {
+    io.fabric8.kubernetes.api.model.apps.Deployment deployment = new DeploymentBuilder()
+        .withNewMetadata()
+        .withName("nginx")
+        .endMetadata()
+        .withNewSpec()
+        .withReplicas(1)
+        .withNewTemplate()
+        .withNewMetadata()
+        .addToLabels("app", "nginx")
+        .endMetadata()
+        .withNewSpec()
+        .addNewContainer()
+        .withName("nginx")
+        .withImage("nginx")
+        .addNewPort()
+        .withContainerPort(80)
+        .endPort()
+        .endContainer()
+        .endSpec()
+        .endTemplate()
+        .withNewSelector()
+        .addToMatchLabels("app", "nginx")
+        .endSelector()
+        .endSpec()
+        .build();
+
+    deployment = client.apps().deployments().inNamespace("default").create(deployment);
+    System.out.println("Created deployment: " + deployment);
+
+    DeploymentList list = client.apps().deployments().inNamespace("default").list();
+    List<io.fabric8.kubernetes.api.model.apps.Deployment> deployments = list.getItems();
+
+    System.out.println("---name---");
+    for (io.fabric8.kubernetes.api.model.apps.Deployment d : deployments) {
+      System.out.println(d.getMetadata().getName());
+    }
+  }
 }

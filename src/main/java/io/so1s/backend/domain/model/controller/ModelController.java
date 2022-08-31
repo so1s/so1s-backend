@@ -36,7 +36,7 @@ public class ModelController {
   @PostMapping
   public ResponseEntity<ModelUploadResponseDto> modelUpload(
       @Valid ModelUploadRequestDto modelUploadRequestDto)
-      throws IllegalAccessError, IllegalArgumentException, DuplicateModelNameException {
+      throws IllegalAccessError, IllegalArgumentException, DuplicateModelNameException, InterruptedException {
 
     Model model = modelService.createModel(modelUploadRequestDto);
     FileSaveResultForm saveResult = fileUploadService.uploadFile(
@@ -56,7 +56,7 @@ public class ModelController {
   @PutMapping
   public ResponseEntity<ModelUploadResponseDto> modelUpdate(
       @Valid ModelUploadRequestDto modelUploadRequestDto) throws IllegalAccessError,
-      IllegalArgumentException, ModelNotFoundException {
+      IllegalArgumentException, ModelNotFoundException, InterruptedException {
 
     Model model = modelService.findModelByName(modelUploadRequestDto.getName());
     FileSaveResultForm saveResult = fileUploadService.uploadFile(

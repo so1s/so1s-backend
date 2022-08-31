@@ -1,6 +1,7 @@
 package io.so1s.backend.domain.model.dto.response;
 
 
+import io.so1s.backend.global.entity.Status;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +17,7 @@ public class ModelDetailResponseDto {
   private LocalDateTime age;
   private String name;
   private String version;
-  private String status;
+  private Status status;
   private String url;
   private String library;
   private String inputShape;
