@@ -54,12 +54,16 @@ public class KubernetesServiceImpl implements KubernetesService {
     String library = model.getLibrary().getName().toLowerCase();
     String version = modelMetadata.getVersion().toLowerCase();
 
+    Map<String, String> labels = new HashMap<>();
+    labels.put("app", "inference-build");
+    labels.put("name", jobName);
+
     final Job job = new JobBuilder()
         .withApiVersion("batch/v1")
         .withNewMetadata()
         .withName(jobName)
         .withNamespace(namespace)
-        .addToLabels("job-name", jobName)
+        .addToLabels(labels)
         .endMetadata()
         .withNewSpec()
         .withNewTemplate()
@@ -178,7 +182,8 @@ public class KubernetesServiceImpl implements KubernetesService {
     String modelVersion = deployment.getModelMetadata().getVersion().toLowerCase();
 
     Map<String, String> labels = new HashMap<>();
-    labels.put("apps", deployName);
+    labels.put("apps", "inference");
+    labels.put("name", deployName);
 
     String host = deployName + ".so1s.io"; // TODO: Fix hard-coded root domain
 
@@ -310,7 +315,8 @@ public class KubernetesServiceImpl implements KubernetesService {
     String bName = "inference-" + abTest.getB().getName().toLowerCase();
 
     Map<String, String> labels = new HashMap<>();
-    labels.put("apps", abTestName);
+    labels.put("apps", "ab-test");
+    labels.put("name", abTestName);
 
     VirtualService abTestVirtualService = new VirtualServiceBuilder()
         .withNewMetadata()
