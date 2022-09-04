@@ -11,15 +11,15 @@ import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository
 import io.so1s.backend.domain.deployment.repository.ResourceRepository;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelService;
+import io.so1s.backend.global.entity.Status;
 import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
 import io.so1s.backend.global.error.exception.DeploymentStrategyNotFoundException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +48,8 @@ public class DeploymentServiceImpl implements DeploymentService {
 
     Deployment deployment = Deployment.builder()
         .name(deploymentRequestDto.getName())
-        .status("pending")
+        .status(Status.PENDING)
+        .endPoint(deploymentRequestDto.getName() + "so1s.io")
         .build();
     deployment.setModelMetadata(modelMetadata);
     deployment.setDeploymentStrategy(deploymentStrategy);
@@ -78,7 +79,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         deploymentRequestDto.getModelMetadataId());
     Resource resource = createResource(deploymentRequestDto.getResources());
 
-    deployment.update(modelMetadata, deploymentStrategy, resource);
+    deployment.updateModel(modelMetadata, deploymentStrategy, resource);
 
     return deployment;
   }
