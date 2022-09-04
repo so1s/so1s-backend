@@ -16,13 +16,14 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class DeploymentStatusChecker {
+public class DeploymentStatusCheckScheduler {
 
   private final DeploymentRepository deploymentRepository;
   private final KubernetesClient client;
 
   @Scheduled(fixedDelay = 1000L * 60)
-  public void deploymentStatusChecker() {
+  public void checkDeploymentStatus() {
+    log.info("DeploymentStatusCheckScheduler.deploymentStatusChecker is Run.");
     List<Deployment> deployments = deploymentRepository.findAll();
 
     List<io.fabric8.kubernetes.api.model.apps.Deployment> k8sDeployments = client.apps()
@@ -33,7 +34,7 @@ public class DeploymentStatusChecker {
           .parallel().filter(d -> d.getMetadata().getName().equals(deployment.getName())).findAny();
       if (find.isPresent()) {
         if (find.get().getStatus().getConditions().get(0).getStatus().equals("True")) {
-          if (applicationHealthCheck(deployment.getEndPoint())) {
+          if (checkApplicationHealth(deployment.getEndPoint())) {
             setDeploymentStatus(deployment, Status.RUNNING);
             continue;
           }
@@ -45,7 +46,7 @@ public class DeploymentStatusChecker {
     }
   }
 
-  public boolean applicationHealthCheck(String url) {
+  public boolean checkApplicationHealth(String url) {
     try {
       new RestTemplate().getForObject(url + "/healthz", String.class);
     } catch (Exception e) {
