@@ -49,7 +49,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     Deployment deployment = Deployment.builder()
         .name(deploymentRequestDto.getName())
         .status(Status.PENDING)
-        .endPoint(deploymentRequestDto.getName() + "so1s.io")
+        .endPoint("inference-" + deploymentRequestDto.getName() + "so1s.io")
         .build();
     deployment.setModelMetadata(modelMetadata);
     deployment.setDeploymentStrategy(deploymentStrategy);
@@ -100,7 +100,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         .age(deployment.getUpdatedOn().toString())
         .deploymentName(deployment.getName())
         .status(deployment.getStatus())
-        .endPoint("need-modify")
+        .endPoint(deployment.getEndPoint())
         .strategy(deployment.getDeploymentStrategy().getName())
         .modelName(deployment.getModelMetadata().getModel().getName())
         .modelVersion(deployment.getModelMetadata().getVersion())
