@@ -182,7 +182,7 @@ public class KubernetesServiceImpl implements KubernetesService {
     String modelVersion = deployment.getModelMetadata().getVersion().toLowerCase();
 
     Map<String, String> labels = new HashMap<>();
-    labels.put("apps", "inference");
+    labels.put("app", "inference");
     labels.put("name", deployName);
 
     String host = deployName + ".so1s.io"; // TODO: Fix hard-coded root domain
@@ -301,7 +301,7 @@ public class KubernetesServiceImpl implements KubernetesService {
 
     return true;
   }
-
+  
   @Transactional(readOnly = true)
   @Override
   public boolean deployABTest(ABTest abTest) {
@@ -315,7 +315,7 @@ public class KubernetesServiceImpl implements KubernetesService {
     String bName = "inference-" + abTest.getB().getName().toLowerCase();
 
     Map<String, String> labels = new HashMap<>();
-    labels.put("apps", "ab-test");
+    labels.put("app", "ab-test");
     labels.put("name", abTestName);
 
     VirtualService abTestVirtualService = new VirtualServiceBuilder()
