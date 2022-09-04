@@ -185,7 +185,7 @@ public class KubernetesServiceImpl implements KubernetesService {
     labels.put("app", "inference");
     labels.put("name", deployName);
 
-    String host = deployName + ".so1s.io"; // TODO: Fix hard-coded root domain
+    String host = deployment.getEndPoint();
 
     Deployment inferenceDeployment = new DeploymentBuilder()
         .withNewMetadata()
@@ -301,7 +301,7 @@ public class KubernetesServiceImpl implements KubernetesService {
 
     return true;
   }
-  
+
   @Transactional(readOnly = true)
   @Override
   public boolean deployABTest(ABTest abTest) {
