@@ -2,7 +2,6 @@ package io.so1s.backend.unit.kubernetes.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.fabric8.istio.mock.EnableIstioMockClient;
 import io.fabric8.kubernetes.api.model.TolerationBuilder;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.apps.DeploymentCondition;
@@ -39,9 +38,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 @Slf4j
-@EnableIstioMockClient(crud = true)
 @EnableKubernetesMockClient(crud = true)
-@Import({JpaConfig.class})
+@Import(JpaConfig.class)
 @DataJpaTest
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles(profiles = {"test"})
@@ -101,7 +99,7 @@ public class DeploymentStatusCheckSchedulerTest {
         .build());
     Deployment deployment = deploymentRepository.save(Deployment.builder()
         .name("test-deployment")
-        .endPoint("https://www.google.com/")
+        .endPoint("argo.so1s.io")
         .status(Status.PENDING)
         .modelMetadata(modelMetadata)
         .deploymentStrategy(deploymentStrategy)
@@ -165,7 +163,7 @@ public class DeploymentStatusCheckSchedulerTest {
     // then
     Optional<Deployment> findDeployment = deploymentRepository.findById(deployment.getId());
     if (findDeployment.isPresent()) {
-      assertThat(findDeployment.get().getStatus()).isEqualTo(Status.SUCCEEDED);
+      assertThat(findDeployment.get().getStatus()).isEqualTo(Status.RUNNING);
       return;
     }
   }
