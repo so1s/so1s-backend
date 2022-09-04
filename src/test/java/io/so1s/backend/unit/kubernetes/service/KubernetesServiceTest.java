@@ -150,7 +150,7 @@ public class KubernetesServiceTest {
     // given
     Deployment deployment = Deployment.builder()
         .name("testDeployment")
-        .status("pending")
+        .status(Status.PENDING)
         .modelMetadata(ModelMetadata.builder()
             .status(Status.SUCCEEDED)
             .version(HashGenerator.sha256())
@@ -206,7 +206,7 @@ public class KubernetesServiceTest {
     // given
     Deployment a = Deployment.builder()
         .name("aDeployment")
-        .status("pending")
+        .status(Status.PENDING)
         .modelMetadata(ModelMetadata.builder()
             .status(Status.SUCCEEDED)
             .version(HashGenerator.sha256())
@@ -235,7 +235,7 @@ public class KubernetesServiceTest {
 
     Deployment b = Deployment.builder()
         .name("bDeployment")
-        .status("pending")
+        .status(Status.PENDING)
         .modelMetadata(ModelMetadata.builder()
             .status(Status.SUCCEEDED)
             .version(HashGenerator.sha256())
