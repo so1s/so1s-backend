@@ -167,30 +167,4 @@ public class DeploymentStatusCheckSchedulerTest {
       return;
     }
   }
-
-//  @TestConfiguration
-//  static class SchedulingTestConfig implements SchedulingConfigurer {
-//
-//    @Override
-//    public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-//      log.info("TEST CONFIGURE");
-//
-//      List<IntervalTask> taskList = taskRegistrar.getFixedDelayTaskList();
-//      List<IntervalTask> newTaskList = new ArrayList<>();
-//
-//      for (IntervalTask task : taskList) {
-//        ScheduledMethodRunnable runnable = (ScheduledMethodRunnable) task.getRunnable();
-//        String methodName = runnable.getMethod().getName();
-//        Object target = runnable.getTarget();
-//
-//        if (target instanceof DeploymentStatusCheckScheduler) {
-//          if (methodName.equals("checkDeploymentStatus")) {
-//            newTaskList.add(new IntervalTask(runnable, task.getInterval(), task.getInitialDelay()));
-//          }
-//        }
-//      }
-//
-//      taskRegistrar.setFixedDelayTasksList(newTaskList);
-//    }
-//  }
 }
