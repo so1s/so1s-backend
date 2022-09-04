@@ -7,23 +7,20 @@ import io.so1s.backend.global.entity.Status;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-@Slf4j
 @RequiredArgsConstructor
 @Component
 public class DeploymentStatusCheckScheduler {
 
-  private final DeploymentRepository deploymentRepository;
   private final KubernetesClient client;
+  private final DeploymentRepository deploymentRepository;
 
   @Scheduled(fixedDelay = 1000L * 60)
   public void checkDeploymentStatus() {
-    log.info("DeploymentStatusCheckScheduler.deploymentStatusChecker is Run.");
     List<Deployment> deployments = deploymentRepository.findAll();
 
     List<io.fabric8.kubernetes.api.model.apps.Deployment> k8sDeployments = client.apps()
@@ -31,7 +28,8 @@ public class DeploymentStatusCheckScheduler {
 
     for (Deployment deployment : deployments) {
       Optional<io.fabric8.kubernetes.api.model.apps.Deployment> find = k8sDeployments.stream()
-          .parallel().filter(d -> d.getMetadata().getName().equals(deployment.getName())).findAny();
+          .parallel().filter(d -> d.getMetadata().getName().equalsIgnoreCase(deployment.getName()))
+          .findAny();
       if (find.isPresent()) {
         if (find.get().getStatus().getConditions().get(0).getStatus().equals("True")) {
           if (checkApplicationHealth(deployment.getEndPoint())) {
@@ -48,8 +46,9 @@ public class DeploymentStatusCheckScheduler {
 
   public boolean checkApplicationHealth(String url) {
     try {
-      new RestTemplate().getForObject(url + "/healthz", String.class);
+      new RestTemplate().getForObject("https://" + url + "/healthz", String.class);
     } catch (Exception e) {
+      e.printStackTrace();
       return false;
     }
     return true;
