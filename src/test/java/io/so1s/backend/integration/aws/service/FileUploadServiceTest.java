@@ -19,11 +19,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
 
 @Import(S3MockConfig.class)
 @ActiveProfiles(profiles = "test")
 @SpringBootTest
+// Flush S3Mock Server After Test
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class FileUploadServiceTest {
 
   private static String bucketName;
@@ -34,7 +38,6 @@ public class FileUploadServiceTest {
   static void setUp(@Autowired S3Config s3Config, @Autowired S3Mock s3Mock,
       @Autowired AmazonS3 amazonS3) {
     bucketName = s3Config.getBucket();
-    s3Mock.start();
     amazonS3.createBucket(bucketName);
     awsS3UploadService = new AwsS3UploadService(amazonS3, s3Config);
     fileUploadService = new FileUploadService(awsS3UploadService);
@@ -43,7 +46,6 @@ public class FileUploadServiceTest {
   @AfterAll
   static void tearDown(@Autowired S3Mock s3Mock, @Autowired AmazonS3 amazonS3) {
     amazonS3.shutdown();
-    s3Mock.stop();
   }
 
   @Test
