@@ -48,7 +48,6 @@ public class DeploymentStatusCheckScheduler {
     try {
       new RestTemplate().getForObject("https://" + url + "/healthz", String.class);
     } catch (Exception e) {
-      e.printStackTrace();
       return false;
     }
     return true;
