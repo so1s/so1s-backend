@@ -468,7 +468,7 @@ public class DeploymentServiceTest {
 
     abTestRepository.save(abTest);
 
-    // when
+    // when & then
     assertThrowsExactly(ABTestExistsException.class, () -> deploymentService.deleteDeployment(
         deployment.getId()));
 
