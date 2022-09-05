@@ -379,4 +379,18 @@ public class KubernetesServiceImpl implements KubernetesService {
 
     return true;
   }
+
+  @Override
+  public boolean deleteDeployment(io.so1s.backend.domain.deployment.entity.Deployment deployment) {
+    String namespace = "default";
+
+    client.apps().deployments().inNamespace(namespace).withName(deployment.getName())
+        .delete();
+    client.services().inNamespace(namespace).withName(deployment.getName()).delete();
+    istioClient.v1beta1().gateways().inNamespace(namespace).withName(deployment.getName()).delete();
+    istioClient.v1beta1().virtualServices().inNamespace(namespace)
+        .withName(deployment.getName()).delete();
+
+    return true;
+  }
 }
