@@ -1,6 +1,8 @@
 package io.so1s.backend.unit.kubernetes.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 import io.fabric8.kubernetes.api.model.TolerationBuilder;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
@@ -14,6 +16,7 @@ import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository;
 import io.so1s.backend.domain.deployment.repository.ResourceRepository;
+import io.so1s.backend.domain.kubernetes.utils.ApplicationHealthChecker;
 import io.so1s.backend.domain.kubernetes.utils.DeploymentStatusCheckScheduler;
 import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
@@ -32,6 +35,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -63,10 +67,13 @@ public class DeploymentStatusCheckSchedulerTest {
   @Autowired
   ModelRepository modelRepository;
 
+  @Mock
+  ApplicationHealthChecker applicationHealthChecker;
+
   @BeforeEach
   public void setup() {
     deploymentStatusCheckScheduler = new DeploymentStatusCheckScheduler(client,
-        deploymentRepository);
+        deploymentRepository, applicationHealthChecker);
   }
 
   @Test
@@ -101,7 +108,7 @@ public class DeploymentStatusCheckSchedulerTest {
         .build());
     Deployment deployment = deploymentRepository.save(Deployment.builder()
         .name("test-deployment")
-        .endPoint("argo.so1s.io")
+        .endPoint("www.test.io")
         .status(Status.PENDING)
         .modelMetadata(modelMetadata)
         .deploymentStrategy(deploymentStrategy)
@@ -158,6 +165,8 @@ public class DeploymentStatusCheckSchedulerTest {
     inferenceDeployment.setStatus(deploymentStatus);
 
     client.apps().deployments().inNamespace(namespace).createOrReplace(inferenceDeployment);
+
+    when(applicationHealthChecker.checkApplicationHealth(anyString())).thenReturn(true);
 
     // when
     deploymentStatusCheckScheduler.checkDeploymentStatus();
