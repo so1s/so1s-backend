@@ -20,6 +20,7 @@ import io.so1s.backend.domain.deployment.service.DeploymentServiceImpl;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
 import io.so1s.backend.global.config.SecurityConfig;
+import io.so1s.backend.global.entity.Status;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -158,7 +159,7 @@ public class DeploymentControllerTest {
     list.add(DeploymentFindResponseDto.builder()
         .age(LocalDateTime.now().toString())
         .deploymentName("testDeploy")
-        .status("running")
+        .status(Status.RUNNING)
         .endPoint("http://test.endpoint.com/")
         .build());
     when(deploymentService.findDeployments()).thenReturn(list);
@@ -173,7 +174,7 @@ public class DeploymentControllerTest {
     result.andExpect(status().isOk())
         .andExpect(jsonPath("$[0].age").exists()) // TimeStamp 불일치 문제로 임시 수정
         .andExpect(jsonPath("$[0].deploymentName").value(list.get(0).getDeploymentName()))
-        .andExpect(jsonPath("$[0].status").value(list.get(0).getStatus()))
+        .andExpect(jsonPath("$[0].status").value(list.get(0).getStatus().toString()))
         .andExpect(jsonPath("$[0].endPoint").value(list.get(0).getEndPoint()))
         .andDo(print());
   }
@@ -185,7 +186,7 @@ public class DeploymentControllerTest {
     DeploymentFindResponseDto responseDto = DeploymentFindResponseDto.builder()
         .age(LocalDateTime.now().toString())
         .deploymentName("testDeploy")
-        .status("running")
+        .status(Status.RUNNING)
         .endPoint("http://test.endpoint.com/")
         .build();
     when(deploymentService.findDeployment(any())).thenReturn(responseDto);
@@ -200,7 +201,7 @@ public class DeploymentControllerTest {
     result.andExpect(status().isOk())
         .andExpect(jsonPath("$.age").exists()) // TimeStamp 불일치 문제로 임시 수정
         .andExpect(jsonPath("$.deploymentName").value(responseDto.getDeploymentName()))
-        .andExpect(jsonPath("$.status").value(responseDto.getStatus()))
+        .andExpect(jsonPath("$.status").value(responseDto.getStatus().toString()))
         .andExpect(jsonPath("$.endPoint").value(responseDto.getEndPoint()))
         .andDo(print());
   }

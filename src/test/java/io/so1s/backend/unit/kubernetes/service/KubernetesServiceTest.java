@@ -8,8 +8,6 @@ import io.fabric8.istio.client.IstioClient;
 import io.fabric8.istio.mock.EnableIstioMockClient;
 import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.NodeBuilder;
-import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
-import io.fabric8.kubernetes.api.model.apps.DeploymentList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.so1s.backend.domain.deployment.entity.Deployment;
@@ -24,7 +22,6 @@ import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.global.entity.Status;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -150,7 +147,7 @@ public class KubernetesServiceTest {
     // given
     Deployment deployment = Deployment.builder()
         .name("testDeployment")
-        .status("pending")
+        .status(Status.PENDING)
         .modelMetadata(ModelMetadata.builder()
             .status(Status.SUCCEEDED)
             .version(HashGenerator.sha256())
@@ -206,7 +203,7 @@ public class KubernetesServiceTest {
     // given
     Deployment a = Deployment.builder()
         .name("aDeployment")
-        .status("pending")
+        .status(Status.PENDING)
         .modelMetadata(ModelMetadata.builder()
             .status(Status.SUCCEEDED)
             .version(HashGenerator.sha256())
@@ -235,7 +232,7 @@ public class KubernetesServiceTest {
 
     Deployment b = Deployment.builder()
         .name("bDeployment")
-        .status("pending")
+        .status(Status.PENDING)
         .modelMetadata(ModelMetadata.builder()
             .status(Status.SUCCEEDED)
             .version(HashGenerator.sha256())
@@ -313,45 +310,5 @@ public class KubernetesServiceTest {
         .build();
 
     client.nodes().create(node);
-  }
-
-  @Test
-  public void deployTest() throws Exception {
-    io.fabric8.kubernetes.api.model.apps.Deployment deployment = new DeploymentBuilder()
-        .withNewMetadata()
-        .withName("nginx")
-        .endMetadata()
-        .withNewSpec()
-        .withReplicas(1)
-        .withNewTemplate()
-        .withNewMetadata()
-        .addToLabels("app", "nginx")
-        .endMetadata()
-        .withNewSpec()
-        .addNewContainer()
-        .withName("nginx")
-        .withImage("nginx")
-        .addNewPort()
-        .withContainerPort(80)
-        .endPort()
-        .endContainer()
-        .endSpec()
-        .endTemplate()
-        .withNewSelector()
-        .addToMatchLabels("app", "nginx")
-        .endSelector()
-        .endSpec()
-        .build();
-
-    deployment = client.apps().deployments().inNamespace("default").create(deployment);
-    System.out.println("Created deployment: " + deployment);
-
-    DeploymentList list = client.apps().deployments().inNamespace("default").list();
-    List<io.fabric8.kubernetes.api.model.apps.Deployment> deployments = list.getItems();
-
-    System.out.println("---name---");
-    for (io.fabric8.kubernetes.api.model.apps.Deployment d : deployments) {
-      System.out.println(d.getMetadata().getName());
-    }
   }
 }

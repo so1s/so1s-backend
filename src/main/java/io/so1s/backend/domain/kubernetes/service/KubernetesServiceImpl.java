@@ -54,12 +54,16 @@ public class KubernetesServiceImpl implements KubernetesService {
     String library = model.getLibrary().getName().toLowerCase();
     String version = modelMetadata.getVersion().toLowerCase();
 
+    Map<String, String> labels = new HashMap<>();
+    labels.put("app", "inference-build");
+    labels.put("name", jobName);
+
     final Job job = new JobBuilder()
         .withApiVersion("batch/v1")
         .withNewMetadata()
         .withName(jobName)
         .withNamespace(namespace)
-        .addToLabels("job-name", jobName)
+        .addToLabels(labels)
         .endMetadata()
         .withNewSpec()
         .withNewTemplate()
@@ -173,14 +177,15 @@ public class KubernetesServiceImpl implements KubernetesService {
       io.so1s.backend.domain.deployment.entity.Deployment deployment) {
 
     String namespace = "default";
-    String deployName = "inference-" + deployment.getName().toLowerCase();
+    String deployName = deployment.getName().toLowerCase();
     String modelName = deployment.getModelMetadata().getModel().getName().toLowerCase();
     String modelVersion = deployment.getModelMetadata().getVersion().toLowerCase();
 
     Map<String, String> labels = new HashMap<>();
-    labels.put("apps", deployName);
+    labels.put("app", "inference");
+    labels.put("name", deployName);
 
-    String host = deployName + ".so1s.io"; // TODO: Fix hard-coded root domain
+    String host = deployment.getEndPoint();
 
     Deployment inferenceDeployment = new DeploymentBuilder()
         .withNewMetadata()
@@ -310,7 +315,8 @@ public class KubernetesServiceImpl implements KubernetesService {
     String bName = "inference-" + abTest.getB().getName().toLowerCase();
 
     Map<String, String> labels = new HashMap<>();
-    labels.put("apps", abTestName);
+    labels.put("app", "ab-test");
+    labels.put("name", abTestName);
 
     VirtualService abTestVirtualService = new VirtualServiceBuilder()
         .withNewMetadata()

@@ -3,8 +3,11 @@ package io.so1s.backend.domain.deployment.entity;
 
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.global.entity.BaseTimeEntity;
+import io.so1s.backend.global.entity.Status;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -34,7 +37,11 @@ public class Deployment extends BaseTimeEntity {
   private String name;
 
   @Column(nullable = false)
-  private String status;
+  private String endPoint;
+
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  private Status status;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "model_metadata_id")
@@ -63,10 +70,14 @@ public class Deployment extends BaseTimeEntity {
     resource.getDeployment().add(this);
   }
 
-  public void update(ModelMetadata modelMetadata, DeploymentStrategy deploymentStrategy,
+  public void updateModel(ModelMetadata modelMetadata, DeploymentStrategy deploymentStrategy,
       Resource resource) {
     this.modelMetadata = modelMetadata;
     this.deploymentStrategy = deploymentStrategy;
     this.resource = resource;
+  }
+
+  public void changeStatus(Status status) {
+    this.status = status;
   }
 }

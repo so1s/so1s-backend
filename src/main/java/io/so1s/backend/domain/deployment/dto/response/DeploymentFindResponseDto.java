@@ -1,5 +1,6 @@
 package io.so1s.backend.domain.deployment.dto.response;
 
+import io.so1s.backend.global.entity.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +14,7 @@ public class DeploymentFindResponseDto {
 
   private String age;
   private String deploymentName;
-  private String status;
+  private Status status;
   private String endPoint;
   private String strategy;
 

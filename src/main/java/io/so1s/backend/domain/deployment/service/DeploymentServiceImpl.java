@@ -15,6 +15,7 @@ import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
+import io.so1s.backend.global.entity.Status;
 import io.so1s.backend.global.error.exception.ABTestExistsException;
 import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
 import io.so1s.backend.global.error.exception.DeploymentStrategyNotFoundException;
@@ -54,7 +55,8 @@ public class DeploymentServiceImpl implements DeploymentService {
 
     Deployment deployment = Deployment.builder()
         .name(deploymentRequestDto.getName())
-        .status("pending")
+        .status(Status.PENDING)
+        .endPoint("inference-" + deploymentRequestDto.getName() + "so1s.io")
         .build();
     deployment.setModelMetadata(modelMetadata);
     deployment.setDeploymentStrategy(deploymentStrategy);
@@ -112,7 +114,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         deploymentRequestDto.getModelMetadataId());
     Resource resource = createResource(deploymentRequestDto.getResources());
 
-    deployment.update(modelMetadata, deploymentStrategy, resource);
+    deployment.updateModel(modelMetadata, deploymentStrategy, resource);
 
     return deployment;
   }
@@ -133,7 +135,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         .age(deployment.getUpdatedOn().toString())
         .deploymentName(deployment.getName())
         .status(deployment.getStatus())
-        .endPoint("need-modify")
+        .endPoint(deployment.getEndPoint())
         .strategy(deployment.getDeploymentStrategy().getName())
         .modelName(deployment.getModelMetadata().getModel().getName())
         .modelVersion(deployment.getModelMetadata().getVersion())
