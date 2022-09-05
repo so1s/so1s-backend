@@ -32,6 +32,7 @@ import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
 import io.so1s.backend.global.config.JpaConfig;
 import io.so1s.backend.global.entity.Status;
+import io.so1s.backend.global.error.exception.ABTestExistsException;
 import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
 import io.so1s.backend.global.error.exception.DeploymentStrategyNotFoundException;
 import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
@@ -468,12 +469,8 @@ public class DeploymentServiceTest {
     abTestRepository.save(abTest);
 
     // when
-    DeploymentDeleteResponseDto responseDto = deploymentService.deleteDeployment(
-        deployment.getId());
-
-    // then
-    assertThat(responseDto.getSuccess()).isEqualTo(false);
-    assertThat(responseDto.getMessage()).isNotEmpty();
+    assertThrowsExactly(ABTestExistsException.class, () -> deploymentService.deleteDeployment(
+        deployment.getId()));
 
   }
 }
