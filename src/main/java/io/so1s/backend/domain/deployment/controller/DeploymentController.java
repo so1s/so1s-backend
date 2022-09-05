@@ -1,6 +1,7 @@
 package io.so1s.backend.domain.deployment.controller;
 
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
+import io.so1s.backend.domain.deployment.dto.response.DeploymentDeleteResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
@@ -12,8 +13,10 @@ import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,6 +46,16 @@ public class DeploymentController {
             .id(deployment.getId())
             .name(deployment.getName())
             .build());
+  }
+
+  @DeleteMapping("/{deployment_id}")
+  public ResponseEntity<DeploymentDeleteResponseDto> deleteDeployment(
+      @Valid @PathVariable("deployment_id") Long id)
+      throws DeploymentNotFoundException {
+    DeploymentDeleteResponseDto responseDto = deploymentService.deleteDeployment(id);
+
+    return ResponseEntity.status(responseDto.getSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
+        .body(responseDto);
   }
 
   @PutMapping
