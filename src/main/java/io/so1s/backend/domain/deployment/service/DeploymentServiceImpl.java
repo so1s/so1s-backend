@@ -15,6 +15,7 @@ import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
+import io.so1s.backend.global.error.exception.ABTestExistsException;
 import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
 import io.so1s.backend.global.error.exception.DeploymentStrategyNotFoundException;
 import java.util.ArrayList;
@@ -63,7 +64,8 @@ public class DeploymentServiceImpl implements DeploymentService {
   }
 
   @Override
-  public DeploymentDeleteResponseDto deleteDeployment(Long id) throws DeploymentNotFoundException {
+  public DeploymentDeleteResponseDto deleteDeployment(Long id)
+      throws DeploymentNotFoundException, ABTestExistsException {
     Deployment deployment = deploymentRepository.findById(id).orElseThrow(
         () -> new DeploymentNotFoundException(String.format("디플로이먼트 %s를 찾을 수 없습니다.", id)));
 
@@ -71,9 +73,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     List<ABTest> bTests = abTestRepository.findAllByB_Id(deployment.getId());
 
     if (!aTests.isEmpty() || !bTests.isEmpty()) {
-      return DeploymentDeleteResponseDto.builder()
-          .success(false)
-          .message("해당 디플로이먼트를 사용하고 있는 AB 테스트가 존재합니다.\nAB 테스트를 먼저 삭제해 주세요.").build();
+      throw new ABTestExistsException("해당 디플로이먼트를 사용하고 있는 AB 테스트가 존재합니다.\nAB 테스트를 먼저 삭제해 주세요.");
     }
 
     boolean result = kubernetesService.deleteDeployment(deployment);
