@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -69,6 +70,7 @@ public class DeploymentStatusCheckSchedulerTest {
   }
 
   @Test
+  @DisplayName("디플로이먼트의 상태를 성공적으로 감지하면 RUNNING으로 변경한다.")
   public void schdulingTest() throws Exception {
     // given
     Library lib = libraryRepository.findByName("tensorflow").get();
