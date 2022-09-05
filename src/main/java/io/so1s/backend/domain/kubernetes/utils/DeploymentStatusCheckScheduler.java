@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 @RequiredArgsConstructor
 @Component
@@ -18,6 +17,7 @@ public class DeploymentStatusCheckScheduler {
 
   private final KubernetesClient client;
   private final DeploymentRepository deploymentRepository;
+  private final ApplicationHealthChecker applicationHealthChecker;
 
   @Scheduled(fixedDelay = 1000L * 60)
   public void checkDeploymentStatus() {
@@ -32,7 +32,7 @@ public class DeploymentStatusCheckScheduler {
           .findAny();
       if (find.isPresent()) {
         if (find.get().getStatus().getConditions().get(0).getStatus().equals("True")) {
-          if (checkApplicationHealth(deployment.getEndPoint())) {
+          if (applicationHealthChecker.checkApplicationHealth(deployment.getEndPoint())) {
             setDeploymentStatus(deployment, Status.RUNNING);
             continue;
           }
@@ -42,15 +42,6 @@ public class DeploymentStatusCheckScheduler {
         setDeploymentStatus(deployment, Status.UNKNOWN);
       }
     }
-  }
-
-  public boolean checkApplicationHealth(String url) {
-    try {
-      new RestTemplate().getForObject("https://" + url + "/healthz", String.class);
-    } catch (Exception e) {
-      return false;
-    }
-    return true;
   }
 
   @Transactional
