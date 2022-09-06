@@ -132,7 +132,7 @@ public class ABTestServiceTest {
   }
 
   @Test
-  @DisplayName("AB Test를 생성한다.")
+  @DisplayName("AB Test를 생성한 뒤 삭제한다.")
   public void createABTest() throws Exception {
     // given
 
@@ -149,6 +149,16 @@ public class ABTestServiceTest {
     assertThat(abTest.getB().getId()).isEqualTo(abTestRequestDto.getB());
     assertThat(abTest.getName()).isEqualTo(abTestRequestDto.getName());
     assertThat(abTest.getDomain()).isEqualTo(abTestRequestDto.getDomain());
+
+    // Clean up
+
+    // when
+    ABTestDeleteResponseDto deleteResponseDto = abTestService.deleteABTest(abTest.getId());
+
+    // then
+    assertThat(deleteResponseDto).isNotNull();
+    assertThat(deleteResponseDto.getSuccess()).isTrue();
+    assertThat(deleteResponseDto.getMessage()).isNotEmpty();
   }
 
   @Test
@@ -158,25 +168,5 @@ public class ABTestServiceTest {
 
     // when & then
     assertThrowsExactly(ABTestNotFoundException.class, () -> abTestService.deleteABTest(42L));
-  }
-
-  @Test
-  @DisplayName("AB Test를 삭제한다.")
-  public void deleteABTest() throws Exception {
-    // given
-    ABTest abTest = abTestRepository.save(ABTest.builder()
-        .a(a)
-        .b(b)
-        .name(baseRequestDto.getName())
-        .domain(baseRequestDto.getDomain())
-        .build());
-
-    // when
-    ABTestDeleteResponseDto deleteResponseDto = abTestService.deleteABTest(abTest.getId());
-
-    // then
-    assertThat(deleteResponseDto).isNotNull();
-    assertThat(deleteResponseDto.getSuccess()).isTrue();
-    assertThat(deleteResponseDto.getMessage()).isNotEmpty();
   }
 }
