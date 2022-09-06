@@ -1,0 +1,59 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  jwt-secret: ${{ secrets.JWT_SECRET }}
+  aws-s3-access-key: ${{ secrets.AWS_S3_ACCESS_KEY }}
+  aws-s3-secret-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+  aws-s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
+  aws-region: ${{ secrets.AWS_REGION }}
+  aws-aurora-endpoint: ${{ secrets.AWS_AURORA_ENDPOINT }}
+  aws-aurora-username: ${{ secrets.AWS_AURORA_USERNAME }}
+  aws-aurora-password: ${{ secrets.AWS_AURORA_PASSWORD }}
+
+jobs:
+  image-build-and-push:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Docker Build
+        uses: docker/setup-buildx-action@v1
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.REPO }}
+          password: ${{ secrets.GHCR_TOKEN }}
+      - name: Install dependencies
+        run: |
+          apt update -y && apt install zip unzip -y
+          curl -s "https://get.sdkman.io" | bash
+          source ~/.sdkman/bin/sdkman-init.sh
+          sdk selfupdate
+          touch ~/.bashrc
+          source ~/.bashrc
+          sdk install java 11.0.15.9.1-amzn
+          sdk install gradle 7.4.2
+          sdk use java 11.0.15.9.1-amzn
+          sdk use gradle 7.4.2
+          gradle wrapper
+          chmod +x gradlew
+        env:
+          sdkman_selfupdate_enable: false
+      - name: Build Openapi3 json
+        run: |
+          mkdir -p ./src/main/resources/static/docs
+          touch ./src/main/resources/static/docs/openapi3.json
+          ./gradlew openapi3
+        env:
+          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
+      - name: Build with Gradle
+        run: ./gradlew clean jib -x test -Djib.to.tags=$(echo $GITHUB_REF_NAME | sed 's/v//g')
+        env:
+          REPO: ${{ secrets.REPO }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
