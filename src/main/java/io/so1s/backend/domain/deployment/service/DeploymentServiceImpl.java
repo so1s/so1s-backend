@@ -56,7 +56,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     Deployment deployment = Deployment.builder()
         .name(deploymentRequestDto.getName())
         .status(Status.PENDING)
-        .endPoint("inference-" + deploymentRequestDto.getName() + "so1s.io")
+        .endPoint("inference-" + deploymentRequestDto.getName() + ".so1s.io")
         .build();
     deployment.setModelMetadata(modelMetadata);
     deployment.setDeploymentStrategy(deploymentStrategy);
