@@ -393,4 +393,16 @@ public class KubernetesServiceImpl implements KubernetesService {
 
     return true;
   }
+
+  @Override
+  public boolean deleteABTest(ABTest abTest) {
+    String namespace = "default";
+    String abTestName = "ab-test-" + abTest.getName().toLowerCase();
+
+    istioClient.v1beta1().gateways().inNamespace(namespace).withName(abTestName).delete();
+    istioClient.v1beta1().virtualServices().inNamespace(namespace)
+        .withName(abTestName).delete();
+
+    return true;
+  }
 }
