@@ -7,6 +7,7 @@ import io.so1s.backend.domain.test.dto.request.ABTestRequestDto;
 import io.so1s.backend.domain.test.dto.response.ABTestCreateResponseDto;
 import io.so1s.backend.domain.test.dto.response.ABTestDeleteResponseDto;
 import io.so1s.backend.domain.test.dto.response.ABTestReadResponseDto;
+import io.so1s.backend.domain.test.dto.service.ABTestCreateDto;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.service.ABTestService;
 import io.so1s.backend.global.error.exception.ABTestNotFoundException;
@@ -41,10 +42,12 @@ public class ABTestController {
       @Valid @RequestBody ABTestRequestDto requestDto)
       throws DeploymentNotFoundException, DataIntegrityViolationException {
 
-    ABTest abTest = abTestService.createABTest(requestDto);
+    ABTestCreateDto createDto = abTestService.createABTest(requestDto);
+    ABTest abTest = createDto.getEntity();
+    boolean success = createDto.getSuccess();
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(mapper.toCreateDto(kubernetesService.deployABTest(abTest), "AB Test 객체가 생성되었습니다.",
+        .body(mapper.toCreateDto(success, "AB Test 객체가 생성되었습니다.",
             abTest));
   }
 
