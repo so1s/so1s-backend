@@ -9,7 +9,7 @@ import io.fabric8.istio.mock.EnableIstioMockClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.so1s.backend.domain.aws.config.S3Config;
-import io.so1s.backend.domain.aws.service.AwsS3UploadService;
+import io.so1s.backend.domain.aws.service.AwsS3Service;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentDeleteResponseDto;
@@ -90,7 +90,7 @@ public class DeploymentServiceTest {
   @MockBean
   S3Config s3Config;
   @MockBean
-  AwsS3UploadService awsS3UploadService;
+  AwsS3Service awsS3UploadService;
 
   ResourceRequestDto resourceRequestDto;
 

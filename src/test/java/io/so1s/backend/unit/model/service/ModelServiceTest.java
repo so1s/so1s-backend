@@ -8,7 +8,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import io.findify.s3mock.S3Mock;
 import io.so1s.backend.domain.aws.config.S3Config;
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
-import io.so1s.backend.domain.aws.service.AwsS3UploadService;
+import io.so1s.backend.domain.aws.service.AwsS3Service;
 import io.so1s.backend.domain.aws.service.FileUploadService;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
@@ -65,7 +65,7 @@ class ModelServiceTest {
   @Autowired
   ModelService modelService;
   @Autowired
-  AwsS3UploadService awsS3UploadService;
+  AwsS3Service awsS3UploadService;
   @Autowired
   FileUploadService fileUploadService;
   @Autowired

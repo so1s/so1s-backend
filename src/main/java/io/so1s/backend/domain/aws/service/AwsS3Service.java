@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-public class AwsS3UploadService implements UploadService {
+public class AwsS3Service implements ExternalFileService {
 
   private final AmazonS3 amazonS3;
 

@@ -8,7 +8,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import io.findify.s3mock.S3Mock;
 import io.so1s.backend.domain.aws.config.S3Config;
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
-import io.so1s.backend.domain.aws.service.AwsS3UploadService;
+import io.so1s.backend.domain.aws.service.AwsS3Service;
 import io.so1s.backend.domain.aws.service.FileUploadService;
 import java.io.FileInputStream;
 import org.junit.jupiter.api.AfterAll;
@@ -31,7 +31,7 @@ import org.springframework.test.context.ActiveProfiles;
 public class FileUploadServiceTest {
 
   private static String bucketName;
-  private static AwsS3UploadService awsS3UploadService;
+  private static AwsS3Service awsS3Service;
   private static FileUploadService fileUploadService;
 
   @BeforeAll
@@ -39,8 +39,8 @@ public class FileUploadServiceTest {
       @Autowired AmazonS3 amazonS3) {
     bucketName = s3Config.getBucket();
     amazonS3.createBucket(bucketName);
-    awsS3UploadService = new AwsS3UploadService(amazonS3, s3Config);
-    fileUploadService = new FileUploadService(awsS3UploadService);
+    awsS3Service = new AwsS3Service(amazonS3, s3Config);
+    fileUploadService = new FileUploadService(awsS3Service);
   }
 
   @AfterAll

@@ -1,7 +1,7 @@
 package io.so1s.backend.domain.model.service;
 
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
-import io.so1s.backend.domain.aws.service.AwsS3UploadService;
+import io.so1s.backend.domain.aws.service.AwsS3Service;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
@@ -39,7 +39,7 @@ public class ModelServiceImpl implements ModelService {
   private final LibraryRepository libraryRepository;
   private final ModelMetadataRepository modelMetadataRepository;
   private final DeploymentRepository deploymentRepository;
-  private final AwsS3UploadService awsS3UploadService;
+  private final AwsS3Service awsS3Service;
 
   @Transactional(readOnly = true)
   public void validateDuplicateModelName(String name) {
@@ -212,7 +212,7 @@ public class ModelServiceImpl implements ModelService {
       throw new DeploymentExistsException("모델 메타데이터를 사용하는 Deployment가 존재합니다.");
     }
 
-    awsS3UploadService.deleteFile(modelMetadata.getUrl());
+    awsS3Service.deleteFile(modelMetadata.getUrl());
 
     modelMetadataRepository.delete(modelMetadata);
 
