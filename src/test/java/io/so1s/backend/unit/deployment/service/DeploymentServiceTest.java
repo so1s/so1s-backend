@@ -8,6 +8,8 @@ import io.fabric8.istio.client.IstioClient;
 import io.fabric8.istio.mock.EnableIstioMockClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
+import io.so1s.backend.domain.aws.config.S3Config;
+import io.so1s.backend.domain.aws.service.AwsS3Service;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentDeleteResponseDto;
@@ -17,6 +19,7 @@ import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository;
 import io.so1s.backend.domain.deployment.repository.ResourceRepository;
+import io.so1s.backend.domain.deployment.service.DeploymentService;
 import io.so1s.backend.domain.deployment.service.DeploymentServiceImpl;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesServiceImpl;
@@ -27,6 +30,7 @@ import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.repository.LibraryRepository;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
+import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
@@ -64,8 +68,8 @@ public class DeploymentServiceTest {
   IstioClient istioClient;
 
   KubernetesService kubernetesService;
-  DeploymentServiceImpl deploymentService;
-  ModelServiceImpl modelService;
+  DeploymentService deploymentService;
+  ModelService modelService;
 
   @Autowired
   ModelRepository modelRepository;
@@ -83,6 +87,10 @@ public class DeploymentServiceTest {
   ABTestRepository abTestRepository;
   @MockBean
   JobStatusChecker jobStatusChecker;
+  @MockBean
+  S3Config s3Config;
+  @MockBean
+  AwsS3Service awsS3UploadService;
 
   ResourceRequestDto resourceRequestDto;
 
@@ -90,11 +98,10 @@ public class DeploymentServiceTest {
   void setup() {
     kubernetesService = new KubernetesServiceImpl(client, istioClient, jobStatusChecker);
     modelService = new ModelServiceImpl(modelRepository, libraryRepository,
-        modelMetadataRepository);
+        modelMetadataRepository, deploymentRepository, awsS3UploadService);
     deploymentService = new DeploymentServiceImpl(deploymentRepository,
         deploymentStrategyRepository, resourceRepository, abTestRepository, kubernetesService,
         modelService);
-
     resourceRequestDto = ResourceRequestDto.builder()
         .cpu("1")
         .memory("1Gi")

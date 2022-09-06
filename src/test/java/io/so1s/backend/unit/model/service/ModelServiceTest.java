@@ -2,11 +2,25 @@ package io.so1s.backend.unit.model.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
+import com.amazonaws.services.s3.AmazonS3;
+import io.findify.s3mock.S3Mock;
+import io.so1s.backend.domain.aws.config.S3Config;
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
+import io.so1s.backend.domain.aws.service.AwsS3Service;
+import io.so1s.backend.domain.aws.service.FileUploadService;
+import io.so1s.backend.domain.deployment.entity.Deployment;
+import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
+import io.so1s.backend.domain.deployment.entity.Resource;
+import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
+import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository;
+import io.so1s.backend.domain.deployment.repository.ResourceRepository;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
+import io.so1s.backend.domain.model.dto.response.ModelDeleteResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelDetailResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
+import io.so1s.backend.domain.model.dto.response.ModelMetadataDeleteResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
@@ -14,52 +28,70 @@ import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.repository.LibraryRepository;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
-import io.so1s.backend.domain.model.service.ModelServiceImpl;
-import io.so1s.backend.global.config.JpaConfig;
+import io.so1s.backend.domain.model.service.ModelService;
+import io.so1s.backend.global.entity.Status;
+import io.so1s.backend.global.error.exception.DeploymentExistsException;
 import io.so1s.backend.global.error.exception.DuplicateModelNameException;
 import io.so1s.backend.global.error.exception.LibraryNotFoundException;
+import io.so1s.backend.global.error.exception.ModelMetadataExistsException;
 import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
 import io.so1s.backend.global.error.exception.ModelNotFoundException;
 import io.so1s.backend.global.utils.HashGenerator;
+import io.so1s.backend.integration.aws.service.S3MockConfig;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@DataJpaTest
-@Import(JpaConfig.class)
-@ExtendWith(MockitoExtension.class)
+@Import(S3MockConfig.class)
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
 @ActiveProfiles(profiles = {"test"})
+// Flush S3Mock Server After Test
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 class ModelServiceTest {
 
-  @InjectMocks
-  ModelServiceImpl modelService;
+  @Autowired
+  ModelService modelService;
+  @Autowired
+  AwsS3Service awsS3UploadService;
+  @Autowired
+  FileUploadService fileUploadService;
   @Autowired
   ModelRepository modelRepository;
   @Autowired
   LibraryRepository libraryRepository;
   @Autowired
   ModelMetadataRepository modelMetadataRepository;
+  @Autowired
+  DeploymentRepository deploymentRepository;
+  @Autowired
+  ResourceRepository resourceRepository;
+  @Autowired
+  DeploymentStrategyRepository deploymentStrategyRepository;
 
-  String name = "testModel";
-  String library = "tensorflow";
-  String version;
-  ModelUploadRequestDto modelUploadRequestDto;
+  static String name = "testModel";
+  static String library = "tensorflow";
+  static String version;
+  static ModelUploadRequestDto modelUploadRequestDto;
 
-  @BeforeEach
-  public void setup() {
+  @BeforeAll
+  static void setup(@Autowired S3Config s3Config, @Autowired S3Mock s3Mock,
+      @Autowired AmazonS3 amazonS3) {
     version = HashGenerator.sha256();
-    modelService = new ModelServiceImpl(modelRepository, libraryRepository,
-        modelMetadataRepository);
+
+    amazonS3.createBucket(s3Config.getBucket());
 
     modelUploadRequestDto = ModelUploadRequestDto.builder()
         .name(name)
@@ -69,6 +101,11 @@ class ModelServiceTest {
         .outputShape("(1,)")
         .outputDtype("float32")
         .build();
+  }
+
+  @AfterAll
+  static void tearDown(@Autowired S3Mock s3Mock, @Autowired AmazonS3 amazonS3) {
+    amazonS3.shutdown();
   }
 
 
@@ -293,5 +330,105 @@ class ModelServiceTest {
     assertThrows(ModelMetadataNotFoundException.class,
         () -> modelService.findModelDetail(model.getId(),
             modelMetadata.getVersion() + "-not-exist"));
+  }
+
+  @Test
+  @DisplayName("Model을 삭제한다.")
+  public void deleteModel() throws Exception {
+    // given
+    FileSaveResultForm saveResult = FileSaveResultForm.builder()
+        .savedName("fileName")
+        .url("http://test.com/")
+        .build();
+    Model model = modelService.createModel(modelUploadRequestDto);
+
+    // when
+    ModelDeleteResponseDto responseDto = modelService.deleteModel(model.getId());
+
+    // then
+    assertThat(responseDto.getSuccess()).isTrue();
+    assertThat(responseDto.getMessage()).isNotEmpty();
+  }
+
+  @Test
+  @DisplayName("ModelMetadata가 존재하는 상태로 Model을 삭제하면 ModelMetadataExistsException이 발생한다.")
+  public void deleteModelWithModelMetadata() throws Exception {
+    // given
+    FileSaveResultForm saveResult = FileSaveResultForm.builder()
+        .savedName("fileName")
+        .url("http://test.com/")
+        .build();
+    Model model = modelService.createModel(modelUploadRequestDto);
+    ModelMetadata modelMetadata = modelService.createModelMetadata(
+        model, modelUploadRequestDto, saveResult);
+
+    // when & then
+    assertThrowsExactly(ModelMetadataExistsException.class,
+        () -> modelService.deleteModel(model.getId()));
+  }
+
+  @Test
+  @DisplayName("ModelMetadata를 삭제한 뒤, Model도 삭제한다.")
+  public void deleteModelMetadataAndModel() throws Exception {
+    // given
+    FileSaveResultForm saveResult = FileSaveResultForm.builder()
+        .savedName("fileName")
+        .url("http://test.com/")
+        .build();
+    Model model = modelService.createModel(modelUploadRequestDto);
+    ModelMetadata modelMetadata = modelService.createModelMetadata(
+        model, modelUploadRequestDto, saveResult);
+
+    // when
+    ModelMetadataDeleteResponseDto metadataResponseDto = modelService.deleteModelMetadata(
+        model.getId(),
+        modelMetadata.getVersion());
+    ModelDeleteResponseDto responseDto = modelService.deleteModel(model.getId());
+
+    // then
+    assertThat(metadataResponseDto.getSuccess()).isTrue();
+    assertThat(metadataResponseDto.getMessage()).isNotEmpty();
+
+    assertThat(responseDto.getSuccess()).isTrue();
+    assertThat(responseDto.getMessage()).isNotEmpty();
+  }
+
+  @Test
+  @DisplayName("Deployment가 존재하는 상태로 ModelMetadata를 삭제하면 DeploymentExistsException이 발생한다.")
+  public void deleteModelMetadataWithDeployment() throws Exception {
+    // given
+    FileSaveResultForm saveResult = FileSaveResultForm.builder()
+        .savedName("fileName")
+        .url("http://test.com/")
+        .build();
+    Model model = modelService.createModel(modelUploadRequestDto);
+    ModelMetadata modelMetadata = modelService.createModelMetadata(
+        model, modelUploadRequestDto, saveResult);
+
+    Resource resource = resourceRepository.save(Resource.builder()
+        .cpu("1")
+        .memory("1Gi")
+        .gpu("0")
+        .cpuLimit("2")
+        .memoryLimit("2Gi")
+        .gpuLimit("0")
+        .build());
+
+    DeploymentStrategy deploymentStrategy = deploymentStrategyRepository.save(
+        DeploymentStrategy.builder().name("rolling-update").build());
+
+    Deployment deployment = deploymentRepository.save(Deployment.builder()
+        .name("test-deployment")
+        .endPoint("www.test.io")
+        .status(Status.PENDING)
+        .modelMetadata(modelMetadata)
+        .deploymentStrategy(deploymentStrategy)
+        .resource(resource)
+        .build());
+
+    // when & then
+    assertThrowsExactly(DeploymentExistsException.class, () -> modelService.deleteModelMetadata(
+        model.getId(),
+        modelMetadata.getVersion()));
   }
 }
