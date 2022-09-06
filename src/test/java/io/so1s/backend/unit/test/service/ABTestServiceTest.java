@@ -3,7 +3,7 @@ package io.so1s.backend.unit.test.service;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doReturn;
 
 import io.fabric8.istio.mock.EnableIstioMockClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
@@ -36,7 +36,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,7 +64,7 @@ public class ABTestServiceTest {
   ABTestService abTestService;
   @Autowired
   LibraryRepository libraryRepository;
-  @MockBean
+  @SpyBean
   KubernetesService kubernetesService;
 
   Library library;
@@ -162,8 +162,6 @@ public class ABTestServiceTest {
         .name(baseRequestDto.getName())
         .domain(baseRequestDto.getDomain()).build();
 
-    given(kubernetesService.deployABTest(any())).willReturn(true);
-
     // when
     ABTestCreateDto createDto = abTestService.createABTest(abTestRequestDto);
 
@@ -183,8 +181,6 @@ public class ABTestServiceTest {
     // Clean up
 
     // given
-
-    given(kubernetesService.deleteABTest(any())).willReturn(true);
 
     // when
     ABTestDeleteResponseDto deleteResponseDto = abTestService.deleteABTest(abTest.getId());
@@ -206,7 +202,7 @@ public class ABTestServiceTest {
         .domain(baseRequestDto.getDomain())
         .build();
 
-    given(kubernetesService.deployABTest(any())).willReturn(false);
+    doReturn(false).when(kubernetesService).deployABTest(any());
 
     // when
     ABTestCreateDto createDto = abTestService.createABTest(abTestRequestDto);
@@ -227,7 +223,7 @@ public class ABTestServiceTest {
     // Clean up
 
     // given
-    given(kubernetesService.deleteABTest(any())).willReturn(false);
+    doReturn(false).when(kubernetesService).deleteABTest(any());
 
     // when
     ABTestDeleteResponseDto deleteResponseDto = abTestService.deleteABTest(abTest.getId());
@@ -319,7 +315,7 @@ public class ABTestServiceTest {
     ABTest abTest = updateDto.getEntity();
     boolean success = updateDto.getSuccess();
 
-    assertThat(success).isFalse();
+    assertThat(success).isTrue();
     assertThat(abTest).isNotNull();
     assertThat(abTest.getA().getId()).isEqualTo(a.getId());
     assertThat(abTest.getB().getId()).isEqualTo(b.getId());
