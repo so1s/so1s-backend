@@ -7,6 +7,7 @@ import io.so1s.backend.domain.test.dto.mapper.ABTestMapper;
 import io.so1s.backend.domain.test.dto.request.ABTestRequestDto;
 import io.so1s.backend.domain.test.dto.response.ABTestDeleteResponseDto;
 import io.so1s.backend.domain.test.dto.response.ABTestReadResponseDto;
+import io.so1s.backend.domain.test.dto.service.ABTestCreateDto;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
 import io.so1s.backend.global.error.exception.ABTestNotFoundException;
@@ -29,9 +30,15 @@ public class ABTestServiceImpl implements ABTestService {
 
   @Transactional
   @Override
-  public ABTest createABTest(ABTestRequestDto dto) throws DeploymentNotFoundException {
+  public ABTestCreateDto createABTest(ABTestRequestDto dto) throws DeploymentNotFoundException {
     // TODO: Manage wildcard subdomain ingress programmatically using route 53 & external-dns & fabric8 kubernetes client
-    return repository.save(mapper.toABTest(dto));
+    ABTest entity = repository.save(mapper.toABTest(dto));
+    boolean success = kubernetesService.deployABTest(entity);
+
+    return ABTestCreateDto.builder()
+        .entity(entity)
+        .success(success)
+        .build();
   }
 
   @Transactional
@@ -44,7 +51,7 @@ public class ABTestServiceImpl implements ABTestService {
     Deployment a = deploymentService.findById(dto.getA()).orElseThrow(
         () -> new DeploymentNotFoundException("주어진 Deployment A id와 일치하는 객체를 찾지 못했습니다."));
     Deployment b = deploymentService.findById(dto.getB()).orElseThrow(
-        () -> new DeploymentNotFoundException("주어진 Deployment A id와 일치하는 객체를 찾지 못했습니다."));
+        () -> new DeploymentNotFoundException("주어진 Deployment B id와 일치하는 객체를 찾지 못했습니다."));
 
     entity.update(a, b, dto.getDomain());
 
