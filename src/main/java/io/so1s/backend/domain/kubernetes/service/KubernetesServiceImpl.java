@@ -19,11 +19,11 @@ import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.so1s.backend.domain.deployment.entity.Resource;
+import io.so1s.backend.domain.kubernetes.exception.TooManyBuildRequestException;
 import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.test.entity.ABTest;
-import io.so1s.backend.global.error.exception.TooManyThreadRequestException;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,14 +49,15 @@ public class KubernetesServiceImpl implements KubernetesService {
     String namespace = "default";
 
     String tag = HashGenerator.sha256();
-    String jobName = (model.getName()
-        + "-build-" + tag.substring(0, 6)).toLowerCase();
+    String jobName = "build-" + tag.substring(0, 12).toLowerCase();
+    String modelName = model.getName().toLowerCase();
     String library = model.getLibrary().getName().toLowerCase();
     String version = modelMetadata.getVersion().toLowerCase();
 
     Map<String, String> labels = new HashMap<>();
     labels.put("app", "inference-build");
-    labels.put("name", jobName);
+    labels.put("name", modelName);
+    labels.put("version", version);
 
     final Job job = new JobBuilder()
         .withApiVersion("batch/v1")
@@ -111,10 +112,9 @@ public class KubernetesServiceImpl implements KubernetesService {
     client.batch().v1().jobs().inNamespace(namespace).createOrReplace(job);
 
     try {
-      jobStatusChecker.checkJobStatus(
-          job.getMetadata().getName(), namespace, modelMetadata);
+      jobStatusChecker.checkJobStatus(jobName, namespace, modelMetadata);
     } catch (TaskRejectedException e) { // QueueCapacity 초과 요청 방어 코드 작성
-      throw new TooManyThreadRequestException(
+      throw new TooManyBuildRequestException(
           "Too many jobs are currently running. Please run it after the other work is completed.");
     }
 

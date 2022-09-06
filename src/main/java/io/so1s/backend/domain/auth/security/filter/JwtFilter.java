@@ -1,7 +1,7 @@
 package io.so1s.backend.domain.auth.security.filter;
 
 import io.so1s.backend.domain.auth.security.provider.TokenProvider;
-import io.so1s.backend.global.error.dto.response.ErrorResponseDto;
+import io.so1s.backend.global.error.ErrorResponseDto;
 import io.so1s.backend.global.utils.JsonMapper;
 import java.io.IOException;
 import javax.servlet.FilterChain;
@@ -70,7 +70,7 @@ public class JwtFilter extends OncePerRequestFilter {
     ErrorResponseDto errorResponseDto = ErrorResponseDto.builder().message(ex.getMessage()).build();
     try {
       String result = jsonMapper.asJsonString(errorResponseDto);
-      log.info(result);
+      log.info("!!" + result);
       response.getWriter().write(result);
     } catch (IOException ignored) {
       log.error("Failed to set error response because of IOException");

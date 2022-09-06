@@ -1,15 +1,15 @@
 package io.so1s.backend.domain.test.service;
 
 import io.so1s.backend.domain.deployment.entity.Deployment;
+import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
 import io.so1s.backend.domain.deployment.service.DeploymentService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.test.dto.mapper.ABTestMapper;
 import io.so1s.backend.domain.test.dto.request.ABTestRequestDto;
 import io.so1s.backend.domain.test.dto.response.ABTestReadResponseDto;
 import io.so1s.backend.domain.test.entity.ABTest;
+import io.so1s.backend.domain.test.exception.ABTestNotFoundException;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
-import io.so1s.backend.global.error.exception.ABTestNotFoundException;
-import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

@@ -2,11 +2,11 @@ package io.so1s.backend.domain.auth.service;
 
 import io.so1s.backend.domain.auth.entity.User;
 import io.so1s.backend.domain.auth.entity.UserToRole;
+import io.so1s.backend.domain.auth.exception.DuplicateUserException;
+import io.so1s.backend.domain.auth.exception.UnableToCreateUserException;
 import io.so1s.backend.domain.auth.repository.UserRepository;
 import io.so1s.backend.domain.auth.repository.UserToRoleRepository;
 import io.so1s.backend.domain.auth.vo.UserRole;
-import io.so1s.backend.global.error.exception.DuplicateUserException;
-import io.so1s.backend.global.error.exception.UnableToCreateUserException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;

@@ -1,8 +1,8 @@
 package io.so1s.backend.domain.auth.bean;
 
+import io.so1s.backend.domain.auth.exception.DuplicateUserException;
 import io.so1s.backend.domain.auth.service.UserService;
 import io.so1s.backend.domain.auth.vo.UserRole;
-import io.so1s.backend.global.error.exception.DuplicateUserException;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

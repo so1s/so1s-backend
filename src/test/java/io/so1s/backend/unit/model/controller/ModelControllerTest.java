@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.so1s.backend.domain.auth.vo.Status;
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.aws.service.FileUploadService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
@@ -21,7 +22,6 @@ import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
 import io.so1s.backend.global.config.SecurityConfig;
-import io.so1s.backend.global.entity.Status;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

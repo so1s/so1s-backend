@@ -1,19 +1,19 @@
 package io.so1s.backend.domain.deployment.service;
 
+import io.so1s.backend.domain.auth.vo.Status;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
 import io.so1s.backend.domain.deployment.entity.Resource;
+import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
+import io.so1s.backend.domain.deployment.exception.DeploymentStrategyNotFoundException;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository;
 import io.so1s.backend.domain.deployment.repository.ResourceRepository;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelService;
-import io.so1s.backend.global.entity.Status;
-import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
-import io.so1s.backend.global.error.exception.DeploymentStrategyNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

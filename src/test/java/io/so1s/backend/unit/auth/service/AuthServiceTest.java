@@ -2,9 +2,9 @@ package io.so1s.backend.unit.auth.service;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import io.so1s.backend.domain.auth.exception.DuplicateUserException;
 import io.so1s.backend.domain.auth.service.UserService;
 import io.so1s.backend.domain.auth.vo.UserRole;
-import io.so1s.backend.global.error.exception.DuplicateUserException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

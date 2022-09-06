@@ -1,6 +1,8 @@
 package io.so1s.backend.domain.model.service;
 
+import io.so1s.backend.domain.auth.vo.Status;
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
+import io.so1s.backend.domain.deployment.exception.LibraryNotFoundException;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
 import io.so1s.backend.domain.model.dto.response.ModelDetailResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
@@ -8,14 +10,12 @@ import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
+import io.so1s.backend.domain.model.exception.DuplicateModelNameException;
+import io.so1s.backend.domain.model.exception.ModelMetadataNotFoundException;
+import io.so1s.backend.domain.model.exception.ModelNotFoundException;
 import io.so1s.backend.domain.model.repository.LibraryRepository;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
-import io.so1s.backend.global.entity.Status;
-import io.so1s.backend.global.error.exception.DuplicateModelNameException;
-import io.so1s.backend.global.error.exception.LibraryNotFoundException;
-import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
-import io.so1s.backend.global.error.exception.ModelNotFoundException;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.ArrayList;
 import java.util.List;
