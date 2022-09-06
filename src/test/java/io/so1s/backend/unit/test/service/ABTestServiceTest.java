@@ -2,6 +2,8 @@ package io.so1s.backend.unit.test.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 import io.fabric8.istio.mock.EnableIstioMockClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
@@ -9,6 +11,7 @@ import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.deployment.repository.ResourceRepository;
+import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
@@ -30,6 +33,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +59,8 @@ public class ABTestServiceTest {
   ResourceRepository resourceRepository;
   @Autowired
   ABTestService abTestService;
+  @MockBean
+  KubernetesService kubernetesService;
 
   Model model;
   ModelMetadata modelMetadata;
@@ -142,8 +148,12 @@ public class ABTestServiceTest {
         .name(baseRequestDto.getName())
         .domain(baseRequestDto.getDomain()).build();
 
+    given(kubernetesService.deployABTest(any())).willReturn(true);
+
+    // when
     ABTest abTest = abTestService.createABTest(abTestRequestDto);
 
+    // then
     assertThat(abTest).isNotNull();
     assertThat(abTest.getA().getId()).isEqualTo(abTestRequestDto.getA());
     assertThat(abTest.getB().getId()).isEqualTo(abTestRequestDto.getB());
@@ -151,6 +161,10 @@ public class ABTestServiceTest {
     assertThat(abTest.getDomain()).isEqualTo(abTestRequestDto.getDomain());
 
     // Clean up
+
+    // given
+
+    given(kubernetesService.deleteABTest(any())).willReturn(true);
 
     // when
     ABTestDeleteResponseDto deleteResponseDto = abTestService.deleteABTest(abTest.getId());
