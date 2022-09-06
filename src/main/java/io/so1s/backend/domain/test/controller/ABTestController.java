@@ -8,6 +8,7 @@ import io.so1s.backend.domain.test.dto.response.ABTestCreateResponseDto;
 import io.so1s.backend.domain.test.dto.response.ABTestDeleteResponseDto;
 import io.so1s.backend.domain.test.dto.response.ABTestReadResponseDto;
 import io.so1s.backend.domain.test.dto.service.ABTestCreateDto;
+import io.so1s.backend.domain.test.dto.service.ABTestUpdateDto;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.service.ABTestService;
 import io.so1s.backend.global.error.exception.ABTestNotFoundException;
@@ -56,10 +57,12 @@ public class ABTestController {
       @Valid @RequestBody ABTestRequestDto abTestRequestDto)
       throws ABTestNotFoundException, DeploymentNotFoundException {
 
-    ABTest abTest = abTestService.updateABTest(abTestRequestDto);
+    ABTestUpdateDto updateDto = abTestService.updateABTest(abTestRequestDto);
+    ABTest abTest = updateDto.getEntity();
+    boolean success = updateDto.getSuccess();
 
     return ResponseEntity.ok(
-        mapper.toCreateDto(kubernetesService.deployABTest(abTest), "AB Test 객체가 변경되었습니다.", abTest));
+        mapper.toCreateDto(success, "AB Test 객체가 변경되었습니다.", abTest));
   }
 
   @DeleteMapping("/{id}")

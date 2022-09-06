@@ -8,6 +8,7 @@ import io.so1s.backend.domain.test.dto.request.ABTestRequestDto;
 import io.so1s.backend.domain.test.dto.response.ABTestDeleteResponseDto;
 import io.so1s.backend.domain.test.dto.response.ABTestReadResponseDto;
 import io.so1s.backend.domain.test.dto.service.ABTestCreateDto;
+import io.so1s.backend.domain.test.dto.service.ABTestUpdateDto;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
 import io.so1s.backend.global.error.exception.ABTestNotFoundException;
@@ -43,7 +44,7 @@ public class ABTestServiceImpl implements ABTestService {
 
   @Transactional
   @Override
-  public ABTest updateABTest(ABTestRequestDto dto)
+  public ABTestUpdateDto updateABTest(ABTestRequestDto dto)
       throws ABTestNotFoundException, DeploymentNotFoundException {
     ABTest entity = repository.findByName(dto.getName())
         .orElseThrow(() -> new ABTestNotFoundException("주어진 Name과 일치하는 AB Test 객체를 찾지 못했습니다."));
@@ -54,8 +55,12 @@ public class ABTestServiceImpl implements ABTestService {
         () -> new DeploymentNotFoundException("주어진 Deployment B id와 일치하는 객체를 찾지 못했습니다."));
 
     entity.update(a, b, dto.getDomain());
+    boolean success = kubernetesService.deployABTest(entity);
 
-    return entity;
+    return ABTestUpdateDto.builder()
+        .entity(entity)
+        .success(success)
+        .build();
   }
 
   @Override

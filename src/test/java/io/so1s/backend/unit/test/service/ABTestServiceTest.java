@@ -21,6 +21,7 @@ import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.domain.test.dto.request.ABTestRequestDto;
 import io.so1s.backend.domain.test.dto.response.ABTestDeleteResponseDto;
 import io.so1s.backend.domain.test.dto.service.ABTestCreateDto;
+import io.so1s.backend.domain.test.dto.service.ABTestUpdateDto;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
 import io.so1s.backend.domain.test.service.ABTestService;
@@ -311,13 +312,18 @@ public class ABTestServiceTest {
         .build();
 
     // when
-    ABTest updated = abTestService.updateABTest(abTestRequestDto);
+    ABTestUpdateDto updateDto = abTestService.updateABTest(abTestRequestDto);
 
     // then
-    assertThat(updated).isNotNull();
-    assertThat(updated.getA().getId()).isEqualTo(a.getId());
-    assertThat(updated.getB().getId()).isEqualTo(b.getId());
-    assertThat(updated.getName()).isEqualTo(abTestRequestDto.getName());
-    assertThat(updated.getDomain()).isEqualTo("updated.so1s.io");
+    assertThat(updateDto).isNotNull();
+    ABTest abTest = updateDto.getEntity();
+    boolean success = updateDto.getSuccess();
+
+    assertThat(success).isFalse();
+    assertThat(abTest).isNotNull();
+    assertThat(abTest.getA().getId()).isEqualTo(a.getId());
+    assertThat(abTest.getB().getId()).isEqualTo(b.getId());
+    assertThat(abTest.getName()).isEqualTo(abTestRequestDto.getName());
+    assertThat(abTest.getDomain()).isEqualTo("updated.so1s.io");
   }
 }
