@@ -15,10 +15,12 @@ import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
+import io.so1s.backend.domain.model.repository.LibraryRepository;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.domain.test.dto.request.ABTestRequestDto;
 import io.so1s.backend.domain.test.dto.response.ABTestDeleteResponseDto;
+import io.so1s.backend.domain.test.dto.service.ABTestCreateDto;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
 import io.so1s.backend.domain.test.service.ABTestService;
@@ -59,12 +61,14 @@ public class ABTestServiceTest {
   ResourceRepository resourceRepository;
   @Autowired
   ABTestService abTestService;
+  @Autowired
+  LibraryRepository libraryRepository;
   @MockBean
   KubernetesService kubernetesService;
 
+  Library library;
   Model model;
   ModelMetadata modelMetadata;
-
   Resource resource;
 
   Deployment a;
@@ -78,13 +82,15 @@ public class ABTestServiceTest {
       .name("abTest")
       .build();
 
+  ABTest baseABTestEntity;
+
   @BeforeEach
   public void setUp() {
+    library = libraryRepository.save(Library.builder().name("torch").build());
+
     model = modelRepository.save(Model.builder()
         .name("testModel")
-        .library(Library.builder()
-            .name("torch")
-            .build())
+        .library(library)
         .build());
 
     modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
@@ -123,6 +129,13 @@ public class ABTestServiceTest {
         .endPoint("b.so1s.io")
         .resource(resource)
         .build());
+
+    baseABTestEntity = ABTest.builder()
+        .a(a)
+        .b(b)
+        .name(baseRequestDto.getName())
+        .domain(baseRequestDto.getDomain())
+        .build();
   }
 
   @Test
@@ -151,9 +164,15 @@ public class ABTestServiceTest {
     given(kubernetesService.deployABTest(any())).willReturn(true);
 
     // when
-    ABTest abTest = abTestService.createABTest(abTestRequestDto);
+    ABTestCreateDto createDto = abTestService.createABTest(abTestRequestDto);
 
     // then
+    assertThat(createDto).isNotNull();
+
+    ABTest abTest = createDto.getEntity();
+    boolean success = createDto.getSuccess();
+
+    assertThat(success).isTrue();
     assertThat(abTest).isNotNull();
     assertThat(abTest.getA().getId()).isEqualTo(abTestRequestDto.getA());
     assertThat(abTest.getB().getId()).isEqualTo(abTestRequestDto.getB());
@@ -176,11 +195,129 @@ public class ABTestServiceTest {
   }
 
   @Test
+  @DisplayName("AB Test를 생성한 뒤 삭제하려고 하지만, KubernetesClientException 문제로 두 케이스 모두 실패 처리된다.")
+  public void createABTestFailed() throws Exception {
+    // given
+    ABTestRequestDto abTestRequestDto = ABTestRequestDto.builder()
+        .a(a.getId())
+        .b(b.getId())
+        .name(baseRequestDto.getName())
+        .domain(baseRequestDto.getDomain())
+        .build();
+
+    given(kubernetesService.deployABTest(any())).willReturn(false);
+
+    // when
+    ABTestCreateDto createDto = abTestService.createABTest(abTestRequestDto);
+
+    // then
+    assertThat(createDto).isNotNull();
+
+    ABTest abTest = createDto.getEntity();
+    boolean success = createDto.getSuccess();
+
+    assertThat(success).isFalse();
+    assertThat(abTest).isNotNull();
+    assertThat(abTest.getA().getId()).isEqualTo(abTestRequestDto.getA());
+    assertThat(abTest.getB().getId()).isEqualTo(abTestRequestDto.getB());
+    assertThat(abTest.getName()).isEqualTo(abTestRequestDto.getName());
+    assertThat(abTest.getDomain()).isEqualTo(abTestRequestDto.getDomain());
+
+    // Clean up
+
+    // given
+    given(kubernetesService.deleteABTest(any())).willReturn(false);
+
+    // when
+    ABTestDeleteResponseDto deleteResponseDto = abTestService.deleteABTest(abTest.getId());
+
+    // then
+    assertThat(deleteResponseDto).isNotNull();
+    assertThat(deleteResponseDto.getSuccess()).isFalse();
+    assertThat(deleteResponseDto.getMessage()).isNotEmpty();
+  }
+
+  @Test
   @DisplayName("잘못된 ID로 AB Test를 삭제하면 오류가 발생한다.")
   public void deleteABTestWithWrongId() throws Exception {
     // given
 
     // when & then
     assertThrowsExactly(ABTestNotFoundException.class, () -> abTestService.deleteABTest(42L));
+  }
+
+  @Test
+  @DisplayName("잘못된 Name으로 AB Test를 업데이트하면 오류가 발생한다.")
+  public void updateABTestWithWrongName() throws Exception {
+    // given
+    ABTestRequestDto abTestRequestDto = ABTestRequestDto.builder()
+        .a(a.getId())
+        .b(b.getId())
+        .name("wrong")
+        .domain(baseRequestDto.getDomain())
+        .build();
+
+    // when & then
+    assertThrowsExactly(ABTestNotFoundException.class,
+        () -> abTestService.updateABTest(abTestRequestDto));
+  }
+
+  @Test
+  @DisplayName("잘못된 A Id로 AB Test를 업데이트하면 오류가 발생한다.")
+  public void updateABTestWithWrongA() throws Exception {
+    // given
+    abTestRepository.save(baseABTestEntity);
+
+    ABTestRequestDto abTestRequestDto = ABTestRequestDto.builder()
+        .a(42L)
+        .b(b.getId())
+        .name(baseRequestDto.getName())
+        .domain(baseRequestDto.getDomain())
+        .build();
+
+    // when & then
+    assertThrowsExactly(DeploymentNotFoundException.class,
+        () -> abTestService.updateABTest(abTestRequestDto));
+  }
+
+  @Test
+  @DisplayName("잘못된 B Id로 AB Test를 업데이트하면 오류가 발생한다.")
+  public void updateABTestWithWrongB() throws Exception {
+    // given
+    abTestRepository.save(baseABTestEntity);
+
+    ABTestRequestDto abTestRequestDto = ABTestRequestDto.builder()
+        .a(a.getId())
+        .b(43L)
+        .name(baseRequestDto.getName())
+        .domain(baseRequestDto.getDomain()).build();
+
+    // when & then
+    assertThrowsExactly(DeploymentNotFoundException.class,
+        () -> abTestService.updateABTest(abTestRequestDto));
+  }
+
+  @Test
+  @DisplayName("AB Test를 업데이트한다.")
+  public void updateABTest() throws Exception {
+    // given
+    abTestRepository.save(baseABTestEntity);
+
+    ABTestRequestDto abTestRequestDto = ABTestRequestDto.builder()
+        .a(a.getId())
+        .b(b.getId())
+        .name(baseRequestDto.getName())
+        .domain("updated.so1s.io")
+        .build();
+
+    // when
+    ABTest updated = abTestService.updateABTest(abTestRequestDto);
+
+    // then
+    assertThat(updated).isNotNull();
+    assertThat(updated.getA().getId()).isEqualTo(a.getId());
+    assertThat(updated.getB().getId()).isEqualTo(b.getId());
+    assertThat(updated.getName()).isEqualTo(abTestRequestDto.getName());
+    assertThat(updated.getDomain()).isEqualTo("updated.so1s.io");
   }
 }
