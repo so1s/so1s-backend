@@ -61,7 +61,7 @@ public class ABTestServiceImpl implements ABTestService {
     if (!result) {
       return ABTestDeleteResponseDto.builder()
           .success(false)
-          .message("AB Test 실패했습니다.")
+          .message("AB Test 삭제에 실패했습니다.")
           .build();
     }
 
