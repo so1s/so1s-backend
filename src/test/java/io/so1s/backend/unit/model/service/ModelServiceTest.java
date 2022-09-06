@@ -351,7 +351,7 @@ class ModelServiceTest {
   }
 
   @Test
-  @DisplayName("ModelMetadata가 존재하는 상태로 Model을 삭제한다.")
+  @DisplayName("ModelMetadata가 존재하는 상태로 Model을 삭제하면 ModelMetadataExistsException이 발생한다.")
   public void deleteModelWithModelMetadata() throws Exception {
     // given
     FileSaveResultForm saveResult = FileSaveResultForm.builder()
@@ -394,7 +394,7 @@ class ModelServiceTest {
   }
 
   @Test
-  @DisplayName("Deployment가 존재하는 상태로 ModelMetadata를 삭제한다.")
+  @DisplayName("Deployment가 존재하는 상태로 ModelMetadata를 삭제하면 DeploymentExistsException이 발생한다.")
   public void deleteModelMetadataWithDeployment() throws Exception {
     // given
     FileSaveResultForm saveResult = FileSaveResultForm.builder()
