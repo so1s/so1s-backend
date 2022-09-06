@@ -298,9 +298,19 @@ public class ABTestServiceTest {
   @DisplayName("AB Test를 업데이트한다.")
   public void updateABTest() throws Exception {
     // given
-    abTestRepository.save(baseABTestEntity);
+    a = deploymentRepository.save(a);
+    b = deploymentRepository.save(b);
 
-    ABTestRequestDto abTestRequestDto = ABTestRequestDto.builder()
+    ABTestRequestDto abTestCreateRequestDto = ABTestRequestDto.builder()
+        .a(a.getId())
+        .b(b.getId())
+        .name(baseRequestDto.getName())
+        .domain(baseRequestDto.getDomain())
+        .build();
+
+    abTestService.createABTest(abTestCreateRequestDto);
+
+    ABTestRequestDto abTestUpdateRequestDto = ABTestRequestDto.builder()
         .a(a.getId())
         .b(b.getId())
         .name(baseRequestDto.getName())
@@ -308,7 +318,7 @@ public class ABTestServiceTest {
         .build();
 
     // when
-    ABTestUpdateDto updateDto = abTestService.updateABTest(abTestRequestDto);
+    ABTestUpdateDto updateDto = abTestService.updateABTest(abTestUpdateRequestDto);
 
     // then
     assertThat(updateDto).isNotNull();
@@ -319,7 +329,7 @@ public class ABTestServiceTest {
     assertThat(abTest).isNotNull();
     assertThat(abTest.getA().getId()).isEqualTo(a.getId());
     assertThat(abTest.getB().getId()).isEqualTo(b.getId());
-    assertThat(abTest.getName()).isEqualTo(abTestRequestDto.getName());
+    assertThat(abTest.getName()).isEqualTo(abTestUpdateRequestDto.getName());
     assertThat(abTest.getDomain()).isEqualTo("updated.so1s.io");
   }
 }
