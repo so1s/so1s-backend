@@ -5,6 +5,7 @@ import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.test.dto.mapper.ABTestMapper;
 import io.so1s.backend.domain.test.dto.request.ABTestRequestDto;
 import io.so1s.backend.domain.test.dto.response.ABTestCreateResponseDto;
+import io.so1s.backend.domain.test.dto.response.ABTestDeleteResponseDto;
 import io.so1s.backend.domain.test.dto.response.ABTestReadResponseDto;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.service.ABTestService;
@@ -17,6 +18,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,6 +57,12 @@ public class ABTestController {
 
     return ResponseEntity.ok(
         mapper.toCreateDto(kubernetesService.deployABTest(abTest), "AB Test 객체가 변경되었습니다.", abTest));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<ABTestDeleteResponseDto> deleteABTest(@Valid @PathVariable("id") Long id)
+      throws ABTestNotFoundException {
+    return ResponseEntity.ok(abTestService.deleteABTest(id));
   }
 
   @GetMapping
