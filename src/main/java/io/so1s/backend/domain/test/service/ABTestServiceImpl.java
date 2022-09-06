@@ -5,6 +5,7 @@ import io.so1s.backend.domain.deployment.service.DeploymentService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.test.dto.mapper.ABTestMapper;
 import io.so1s.backend.domain.test.dto.request.ABTestRequestDto;
+import io.so1s.backend.domain.test.dto.response.ABTestDeleteResponseDto;
 import io.so1s.backend.domain.test.dto.response.ABTestReadResponseDto;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
@@ -48,6 +49,28 @@ public class ABTestServiceImpl implements ABTestService {
     entity.update(a, b, dto.getDomain());
 
     return entity;
+  }
+
+  @Override
+  public ABTestDeleteResponseDto deleteABTest(Long id) throws ABTestNotFoundException {
+    ABTest entity = repository.findById(id)
+        .orElseThrow(() -> new ABTestNotFoundException("주어진 ID와 일치하는 AB Test 객체를 찾지 못했습니다."));
+
+    boolean result = kubernetesService.deleteABTest(entity);
+
+    if (!result) {
+      return ABTestDeleteResponseDto.builder()
+          .success(false)
+          .message("AB Test 실패했습니다.")
+          .build();
+    }
+
+    repository.delete(entity);
+
+    return ABTestDeleteResponseDto.builder()
+        .success(true)
+        .message("AB Test 삭제에 성공했습니다.")
+        .build();
   }
 
   @Override

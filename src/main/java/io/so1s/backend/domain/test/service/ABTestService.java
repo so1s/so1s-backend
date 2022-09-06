@@ -1,6 +1,7 @@
 package io.so1s.backend.domain.test.service;
 
 import io.so1s.backend.domain.test.dto.request.ABTestRequestDto;
+import io.so1s.backend.domain.test.dto.response.ABTestDeleteResponseDto;
 import io.so1s.backend.domain.test.dto.response.ABTestReadResponseDto;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.global.error.exception.ABTestNotFoundException;
@@ -14,6 +15,8 @@ public interface ABTestService {
 
   ABTest updateABTest(ABTestRequestDto abTestRequestDto)
       throws ABTestNotFoundException, DeploymentNotFoundException;
+
+  ABTestDeleteResponseDto deleteABTest(Long id) throws ABTestNotFoundException;
 
   List<ABTestReadResponseDto> findAll();
 
