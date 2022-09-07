@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class ModelUploadRequestDto {
 
-  @NotNull
+  @NotNull(message = "Please upload model file.")
   private MultipartFile modelFile;
 
   @NotBlank
