@@ -27,6 +27,8 @@ spring:
   sql:
     init:
       mode: always
+  application:
+    name: so1s-api-server
 
 logging:
   level:
@@ -53,3 +55,12 @@ cloud:
       static: ${aws-region}
     stack:
       auto: false # aws 배포할때 기본으로 CloudFormation 구성을 시작해서 기능을 끔
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health, info
+  metrics:
+    tags:
+      application: ${spring.application.name}    # 서비스 단위의 식별자. Prometheus label에 추가됨.

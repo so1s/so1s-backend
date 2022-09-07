@@ -2,6 +2,7 @@ package io.so1s.backend.domain.deployment.service;
 
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
+import io.so1s.backend.domain.deployment.dto.response.DeploymentDeleteResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
@@ -11,9 +12,15 @@ import io.so1s.backend.domain.deployment.exception.DeploymentStrategyNotFoundExc
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository;
 import io.so1s.backend.domain.deployment.repository.ResourceRepository;
+import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.global.vo.Status;
+import io.so1s.backend.domain.test.entity.ABTest;
+import io.so1s.backend.domain.test.repository.ABTestRepository;
+import io.so1s.backend.global.error.exception.ABTestExistsException;
+import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
+import io.so1s.backend.global.error.exception.DeploymentStrategyNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +35,8 @@ public class DeploymentServiceImpl implements DeploymentService {
   private final DeploymentRepository deploymentRepository;
   private final DeploymentStrategyRepository deploymentStrategyRepository;
   private final ResourceRepository resourceRepository;
+  private final ABTestRepository abTestRepository;
+  private final KubernetesService kubernetesService;
 
   private final ModelService modelService;
 
@@ -49,13 +58,41 @@ public class DeploymentServiceImpl implements DeploymentService {
     Deployment deployment = Deployment.builder()
         .name(deploymentRequestDto.getName())
         .status(Status.PENDING)
-        .endPoint("inference-" + deploymentRequestDto.getName() + "so1s.io")
+        .endPoint("inference-" + deploymentRequestDto.getName() + ".so1s.io")
         .build();
     deployment.setModelMetadata(modelMetadata);
     deployment.setDeploymentStrategy(deploymentStrategy);
     deployment.setResource(resource);
 
     return deploymentRepository.save(deployment);
+  }
+
+  @Override
+  public DeploymentDeleteResponseDto deleteDeployment(Long id)
+      throws DeploymentNotFoundException, ABTestExistsException {
+    Deployment deployment = deploymentRepository.findById(id).orElseThrow(
+        () -> new DeploymentNotFoundException(String.format("디플로이먼트 %s를 찾을 수 없습니다.", id)));
+
+    List<ABTest> aTests = abTestRepository.findAllByA_Id(deployment.getId());
+    List<ABTest> bTests = abTestRepository.findAllByB_Id(deployment.getId());
+
+    if (!aTests.isEmpty() || !bTests.isEmpty()) {
+      throw new ABTestExistsException("해당 디플로이먼트를 사용하고 있는 AB 테스트가 존재합니다.\nAB 테스트를 먼저 삭제해 주세요.");
+    }
+
+    boolean result = kubernetesService.deleteDeployment(deployment);
+
+    if (!result) {
+      return DeploymentDeleteResponseDto.builder()
+          .success(false)
+          .message("디플로이먼트 삭제에 실패했습니다.").build();
+    }
+
+    deploymentRepository.deleteById(deployment.getId());
+
+    return DeploymentDeleteResponseDto.builder()
+        .success(true)
+        .message("디플로이먼트 삭제가 완료되었습니다.").build();
   }
 
   @Override

@@ -18,6 +18,7 @@ import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.kubernetes.exception.TooManyBuildRequestException;
 import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
@@ -263,6 +264,14 @@ public class KubernetesServiceImpl implements KubernetesService {
         .endPort()
         .withHosts(host)
         .endServer()
+        .addNewServer()
+        .withNewPort()
+        .withNumber(9443)
+        .withName("http-dev")
+        .withProtocol("HTTP")
+        .endPort()
+        .withHosts(host)
+        .endServer()
         .endSpec()
         .build();
 
@@ -370,12 +379,59 @@ public class KubernetesServiceImpl implements KubernetesService {
         .endPort()
         .withHosts(host)
         .endServer()
+        .addNewServer()
+        .withNewPort()
+        .withNumber(9443)
+        .withName("http-dev")
+        .withProtocol("HTTP")
+        .endPort()
+        .withHosts(host)
+        .endServer()
         .endSpec()
         .build();
 
-    istioClient.v1beta1().gateways().inNamespace(namespace).createOrReplace(abTestGateway);
-    istioClient.v1beta1().virtualServices().inNamespace(namespace)
-        .createOrReplace(abTestVirtualService);
+    try {
+      istioClient.v1beta1().gateways().inNamespace(namespace).createOrReplace(abTestGateway);
+      istioClient.v1beta1().virtualServices().inNamespace(namespace)
+          .createOrReplace(abTestVirtualService);
+    } catch (KubernetesClientException ignored) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public boolean deleteDeployment(io.so1s.backend.domain.deployment.entity.Deployment deployment) {
+    String namespace = "default";
+
+    try {
+      client.apps().deployments().inNamespace(namespace).withName(deployment.getName())
+          .delete();
+      client.services().inNamespace(namespace).withName(deployment.getName()).delete();
+      istioClient.v1beta1().gateways().inNamespace(namespace).withName(deployment.getName())
+          .delete();
+      istioClient.v1beta1().virtualServices().inNamespace(namespace)
+          .withName(deployment.getName()).delete();
+    } catch (KubernetesClientException ignored) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public boolean deleteABTest(ABTest abTest) {
+    String namespace = "default";
+    String abTestName = "ab-test-" + abTest.getName().toLowerCase();
+
+    try {
+      istioClient.v1beta1().gateways().inNamespace(namespace).withName(abTestName).delete();
+      istioClient.v1beta1().virtualServices().inNamespace(namespace)
+          .withName(abTestName).delete();
+    } catch (KubernetesClientException ignored) {
+      return false;
+    }
 
     return true;
   }

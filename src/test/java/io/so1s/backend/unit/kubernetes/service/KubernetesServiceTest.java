@@ -25,9 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -142,7 +139,7 @@ public class KubernetesServiceTest {
   }
 
   @Test
-  @DisplayName("성공적으로 인퍼런스 서버를 생성하면 true를 반환한다.")
+  @DisplayName("성공적으로 인퍼런스 서버를 생성하면 true를 반환한다. 작업이 끝나면 삭제한다.")
   public void deployInferenceServerTest() throws Exception {
     // given
     Deployment deployment = Deployment.builder()
@@ -180,20 +177,17 @@ public class KubernetesServiceTest {
         = Executors.newSingleThreadExecutor();
 
     // when
-    Future<Boolean> future = executor.submit(
-        () -> kubernetesService.deployInferenceServer(deployment));
+    boolean result = kubernetesService.deployInferenceServer(deployment);
 
     // then
+    assertThat(result).isTrue();
 
-    boolean result;
+    // Clean up
 
-    try {
-      result = future.get(15L, TimeUnit.SECONDS);
-    } catch (TimeoutException e) {
-      // Fabric8 Test 환경에서는 Deployment가 Ready 상태가 되지 않으므로 예외처리
-      return;
-    }
+    // when
+    result = kubernetesService.deleteDeployment(deployment);
 
+    // then
     assertThat(result).isTrue();
   }
 
@@ -272,25 +266,24 @@ public class KubernetesServiceTest {
         = Executors.newSingleThreadExecutor();
 
     // when
-    Future<Boolean> future = executor.submit(
-        () -> {
-          kubernetesService.deployInferenceServer(a);
-          kubernetesService.deployInferenceServer(b);
-          kubernetesService.deployABTest(abTest);
 
-          return true;
-        }
-    );
+    boolean result = kubernetesService.deployInferenceServer(a);
+    result = result && kubernetesService.deployInferenceServer(b);
+    result = result && kubernetesService.deployABTest(abTest);
 
     // then
-    boolean result;
 
-    try {
-      result = future.get(15L, TimeUnit.SECONDS);
-    } catch (TimeoutException e) {
-      // Fabric8 Test 환경에서는 Deployment가 Ready 상태가 되지 않으므로 예외처리
-      return;
-    }
+    assertThat(result).isTrue();
+
+    // Clean up
+
+    // when
+
+    result = kubernetesService.deleteABTest(abTest);
+    result = result && kubernetesService.deleteDeployment(a);
+    result = result && kubernetesService.deleteDeployment(b);
+
+    // then
 
     assertThat(result).isTrue();
   }

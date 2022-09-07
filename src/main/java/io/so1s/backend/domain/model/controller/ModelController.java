@@ -4,8 +4,10 @@ import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.aws.service.FileUploadService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
+import io.so1s.backend.domain.model.dto.response.ModelDeleteResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelDetailResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
+import io.so1s.backend.domain.model.dto.response.ModelMetadataDeleteResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelUploadResponseDto;
 import io.so1s.backend.domain.model.entity.Model;
@@ -13,10 +15,15 @@ import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.exception.DuplicateModelNameException;
 import io.so1s.backend.domain.model.exception.ModelNotFoundException;
 import io.so1s.backend.domain.model.service.ModelService;
+import io.so1s.backend.global.error.exception.DeploymentExistsException;
+import io.so1s.backend.global.error.exception.DuplicateModelNameException;
+import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
+import io.so1s.backend.global.error.exception.ModelNotFoundException;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -71,6 +78,20 @@ public class ModelController {
         .fileName(saveResult.getSavedName())
         .savedUrl(saveResult.getUrl())
         .build());
+  }
+
+  @DeleteMapping("/{modelId}")
+  public ResponseEntity<ModelDeleteResponseDto> deleteModel(@PathVariable("modelId") Long modelId)
+      throws ModelNotFoundException {
+    return ResponseEntity.ok(modelService.deleteModel(modelId));
+  }
+
+  @DeleteMapping("/{modelId}/versions/{version}")
+  public ResponseEntity<ModelMetadataDeleteResponseDto> deleteModelMetadata(
+      @PathVariable("modelId") Long modelId,
+      @PathVariable("version") String version)
+      throws ModelMetadataNotFoundException, DeploymentExistsException {
+    return ResponseEntity.ok(modelService.deleteModelMetadata(modelId, version));
   }
 
   @GetMapping

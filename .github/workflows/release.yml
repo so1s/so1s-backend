@@ -1,8 +1,8 @@
-name: CD
+name: Release
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
 
 env:
   jwt-secret: ${{ secrets.JWT_SECRET }}
@@ -52,7 +52,7 @@ jobs:
         env:
           JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: Build with Gradle
-        run: ./gradlew clean jib -x test -Djib.to.tags=latest
+        run: ./gradlew clean jib -x test -Djib.to.tags=$(echo $GITHUB_REF_NAME | sed 's/v//g')
         env:
           REPO: ${{ secrets.REPO }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}

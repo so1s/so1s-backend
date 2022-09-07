@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class FileUploadService {
 
-  private final UploadService uploadService;
+  private final ExternalFileService uploadService;
 
   public FileSaveResultForm uploadFile(MultipartFile file) {
     String fileName = createFileName(file.getOriginalFilename());

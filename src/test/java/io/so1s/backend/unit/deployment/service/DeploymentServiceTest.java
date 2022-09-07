@@ -2,12 +2,17 @@ package io.so1s.backend.unit.deployment.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 import io.fabric8.istio.client.IstioClient;
+import io.fabric8.istio.mock.EnableIstioMockClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
+import io.so1s.backend.domain.aws.config.S3Config;
+import io.so1s.backend.domain.aws.service.AwsS3Service;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
+import io.so1s.backend.domain.deployment.dto.response.DeploymentDeleteResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.Resource;
@@ -16,6 +21,7 @@ import io.so1s.backend.domain.deployment.exception.DeploymentStrategyNotFoundExc
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository;
 import io.so1s.backend.domain.deployment.repository.ResourceRepository;
+import io.so1s.backend.domain.deployment.service.DeploymentService;
 import io.so1s.backend.domain.deployment.service.DeploymentServiceImpl;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesServiceImpl;
@@ -27,8 +33,16 @@ import io.so1s.backend.domain.model.exception.ModelMetadataNotFoundException;
 import io.so1s.backend.domain.model.repository.LibraryRepository;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
+import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
+import io.so1s.backend.domain.test.entity.ABTest;
+import io.so1s.backend.domain.test.repository.ABTestRepository;
 import io.so1s.backend.global.config.JpaConfig;
+import io.so1s.backend.global.entity.Status;
+import io.so1s.backend.global.error.exception.ABTestExistsException;
+import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
+import io.so1s.backend.global.error.exception.DeploymentStrategyNotFoundException;
+import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
 import java.util.List;
@@ -49,6 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
 @DataJpaTest
 @Import(JpaConfig.class)
 @EnableKubernetesMockClient(crud = true)
+@EnableIstioMockClient(crud = true)
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles(profiles = {"test"})
 public class DeploymentServiceTest {
@@ -57,8 +72,8 @@ public class DeploymentServiceTest {
   IstioClient istioClient;
 
   KubernetesService kubernetesService;
-  DeploymentServiceImpl deploymentService;
-  ModelServiceImpl modelService;
+  DeploymentService deploymentService;
+  ModelService modelService;
 
   @Autowired
   ModelRepository modelRepository;
@@ -72,8 +87,14 @@ public class DeploymentServiceTest {
   DeploymentStrategyRepository deploymentStrategyRepository;
   @Autowired
   ResourceRepository resourceRepository;
+  @Autowired
+  ABTestRepository abTestRepository;
   @MockBean
   JobStatusChecker jobStatusChecker;
+  @MockBean
+  S3Config s3Config;
+  @MockBean
+  AwsS3Service awsS3UploadService;
 
   ResourceRequestDto resourceRequestDto;
 
@@ -81,10 +102,10 @@ public class DeploymentServiceTest {
   void setup() {
     kubernetesService = new KubernetesServiceImpl(client, istioClient, jobStatusChecker);
     modelService = new ModelServiceImpl(modelRepository, libraryRepository,
-        modelMetadataRepository);
+        modelMetadataRepository, deploymentRepository, awsS3UploadService);
     deploymentService = new DeploymentServiceImpl(deploymentRepository,
-        deploymentStrategyRepository, resourceRepository, modelService);
-
+        deploymentStrategyRepository, resourceRepository, abTestRepository, kubernetesService,
+        modelService);
     resourceRequestDto = ResourceRequestDto.builder()
         .cpu("1")
         .memory("1Gi")
@@ -354,6 +375,113 @@ public class DeploymentServiceTest {
     // then
     assertThat(responseDto.getDeploymentName()).isEqualTo(deployment.getName());
     assertThat(responseDto.getStatus()).isEqualTo(deployment.getStatus());
+
+  }
+
+  @Test
+  @DisplayName("디플로이먼트를 삭제한다.")
+  public void deleteDeployment() throws Exception {
+    // given
+    Library library = libraryRepository.save(Library.builder()
+        .name("testLibrary")
+        .build());
+    Model model = modelRepository.save(Model.builder()
+        .name("testModel")
+        .library(library)
+        .build());
+    ModelMetadata modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
+        .model(model)
+        .status(Status.SUCCEEDED)
+        .version(HashGenerator.sha256())
+        .fileName("firstFile")
+        .url("https://s3.test.com/")
+        .inputShape("(10,)")
+        .inputDtype("float32")
+        .outputShape("(1,)")
+        .outputDtype("float32")
+        .build());
+    Resource resource = deploymentService.createResource(resourceRequestDto);
+    DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
+        .name("testDeployment")
+        .modelMetadataId(modelMetadata.getId())
+        .strategy("rolling")
+        .resources(resourceRequestDto)
+        .build();
+
+    Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
+
+    kubernetesService.deployInferenceServer(
+        deployment); // Controller에서 Deployment 배포가 이루어지므로 로직을 가져옴.
+
+    // when
+    DeploymentDeleteResponseDto responseDto = deploymentService.deleteDeployment(
+        deployment.getId());
+
+    // then
+    assertThat(responseDto.getSuccess()).isEqualTo(true);
+    assertThat(responseDto.getMessage()).isNotEmpty();
+
+  }
+
+  @Test
+  @DisplayName("존재하지 않는 디플로이먼트를 삭제하려고 하지만, 성공하지 않는다.")
+  public void deleteDeploymentButEmpty() throws Exception {
+    // given
+    Long deploymentId = 42L;
+
+    // when & then
+    assertThrowsExactly(DeploymentNotFoundException.class,
+        () -> deploymentService.deleteDeployment(deploymentId));
+
+  }
+
+  @Test
+  @DisplayName("AB 테스트가 있는 디플로이먼트를 삭제하려고 하지만, 성공하지 않는다.")
+  public void deleteDeploymentButHasABTest() throws Exception {
+    // given
+    Library library = libraryRepository.save(Library.builder()
+        .name("testLibrary")
+        .build());
+    Model model = modelRepository.save(Model.builder()
+        .name("testModel")
+        .library(library)
+        .build());
+    ModelMetadata modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
+        .model(model)
+        .status(Status.SUCCEEDED)
+        .version(HashGenerator.sha256())
+        .fileName("firstFile")
+        .url("https://s3.test.com/")
+        .inputShape("(10,)")
+        .inputDtype("float32")
+        .outputShape("(1,)")
+        .outputDtype("float32")
+        .build());
+    Resource resource = deploymentService.createResource(resourceRequestDto);
+    DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
+        .name("testDeployment")
+        .modelMetadataId(modelMetadata.getId())
+        .strategy("rolling")
+        .resources(resourceRequestDto)
+        .build();
+
+    Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
+
+    kubernetesService.deployInferenceServer(
+        deployment); // Controller에서 Deployment 배포가 이루어지므로 로직을 가져옴.
+
+    ABTest abTest = ABTest.builder()
+        .name("testABTest")
+        .a(deployment)
+        .b(deployment)
+        .domain("*.so1s.io")
+        .build();
+
+    abTestRepository.save(abTest);
+
+    // when & then
+    assertThrowsExactly(ABTestExistsException.class, () -> deploymentService.deleteDeployment(
+        deployment.getId()));
 
   }
 }

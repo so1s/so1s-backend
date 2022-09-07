@@ -19,4 +19,8 @@ public interface KubernetesService {
       Deployment deployment);
 
   boolean deployABTest(ABTest abTest);
+
+  boolean deleteDeployment(Deployment deployment);
+
+  boolean deleteABTest(ABTest abTest);
 }
