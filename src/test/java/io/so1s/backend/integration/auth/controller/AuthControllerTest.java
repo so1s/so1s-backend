@@ -155,7 +155,7 @@ class AuthControllerTest {
 
     List<String> usernames = List.of("owner1", "admin1", "user1");
     List<UserRole> userRoles = List.of(UserRole.OWNER, UserRole.ADMIN, UserRole.USER);
-    String password = "so1s";
+    String password = "so1s1234567890";
 
     for (int i = 0; i < usernames.size(); i++) {
       String username = usernames.get(i);
@@ -170,10 +170,10 @@ class AuthControllerTest {
   @DisplayName("기존에 생성된 Owner Role 계정이 Admin Role 계정을 생성할 수 있다.")
   void testSignUp() throws Exception {
     // given
-    List<String> usernames = List.of("owner1", "admin1", "user1");
-    List<String> newUsernames = List.of("owner2", "admin2", "user2", "user3");
+    List<String> usernames = List.of("owner1", "admin1");
+    List<String> newUsernames = List.of("owner2", "admin2", "user2");
     List<UserRole> userRoles = List.of(UserRole.OWNER, UserRole.ADMIN, UserRole.USER);
-    String password = "so1s";
+    String password = "so1s1234567890";
 
     createUser("owner", password, UserRole.OWNER);
     getToken("owner", password);
