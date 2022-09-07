@@ -23,6 +23,7 @@ import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
 import io.so1s.backend.global.config.SecurityConfig;
 import io.so1s.backend.global.utils.HashGenerator;
+import java.io.FileInputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -60,6 +62,7 @@ class ModelControllerTest {
   @MockBean
   KubernetesService kubernetesService;
 
+  MockMultipartFile multipartFile;
   ObjectMapper objectMapper;
   ModelUploadRequestDto modelUploadRequestDto;
   String requestDtoMapped;
@@ -68,6 +71,13 @@ class ModelControllerTest {
 
   @BeforeEach
   public void setup() throws Exception {
+    multipartFile = new MockMultipartFile(
+        "modelFile",
+        "titanic_e500.h5",
+        "application/octet-stream",
+        new FileInputStream("forTest/titanic_e500.h5")
+    );
+
     objectMapper = new ObjectMapper();
     modelUploadRequestDto = ModelUploadRequestDto.builder()
         .name("testModel")
@@ -106,13 +116,16 @@ class ModelControllerTest {
     when(kubernetesService.inferenceServerBuild(any(ModelMetadata.class))).thenReturn(Boolean.TRUE);
 
     // when
-    ResultActions result = mockMvc.perform(MockMvcRequestBuilders
-            .post("/api/v1/models")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(requestDtoMapped)
-            .with(csrf()))
-        .andDo(print());
+    ResultActions result = mockMvc.perform(
+        MockMvcRequestBuilders.multipart("/api/v1/models")
+            .file(multipartFile)
+            .param("name", "testModel")
+            .param("library", "tensorflow")
+            .param("inputShape", "(10,)")
+            .param("inputDtype", "float32")
+            .param("outputShape", "(1,)")
+            .param("outputDtype", "float32")
+            .with(csrf())).andDo(print());
 
     //then
     result.andExpect(status().isOk())
@@ -140,12 +153,19 @@ class ModelControllerTest {
 
     // when
     ResultActions result = mockMvc.perform(MockMvcRequestBuilders
-            .put("/api/v1/models")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(requestDtoMapped)
-            .with(csrf()))
-        .andDo(print());
+        .multipart("/api/v1/models")
+        .file(multipartFile)
+        .param("name", "testModel")
+        .param("library", "tensorflow")
+        .param("inputShape", "(10,)")
+        .param("inputDtype", "float32")
+        .param("outputShape", "(1,)")
+        .param("outputDtype", "float32")
+        .with(csrf())
+        .with(request -> {
+          request.setMethod("PUT");
+          return request;
+        })).andDo(print());
 
     //then
     result.andExpect(status().isOk())
