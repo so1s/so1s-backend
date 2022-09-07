@@ -97,8 +97,7 @@ public class DeploymentServiceImpl implements DeploymentService {
   public DeploymentStrategy validateExistDeploymentStrategy(String name) {
     Optional<DeploymentStrategy> deploymentStrategy = deploymentStrategyRepository.findByName(name);
     if (!deploymentStrategy.isPresent()) {
-      throw new DeploymentStrategyNotFoundException(
-          String.format("Invalid Deployment Strategy"));
+      throw new DeploymentStrategyNotFoundException("Invalid Deployment Strategy");
     }
 
     return deploymentStrategy.get();
@@ -123,7 +122,7 @@ public class DeploymentServiceImpl implements DeploymentService {
   public Deployment validateExistDeployment(String name) throws DeploymentNotFoundException {
     Optional<Deployment> result = deploymentRepository.findByName(name);
     if (!result.isPresent()) {
-      throw new DeploymentNotFoundException(String.format("Not Found Deployment"));
+      throw new DeploymentNotFoundException("Not Found Deployment");
     }
 
     return result.get();
@@ -164,7 +163,7 @@ public class DeploymentServiceImpl implements DeploymentService {
   public DeploymentFindResponseDto findDeployment(Long id) throws DeploymentNotFoundException {
     Optional<Deployment> deployment = deploymentRepository.findById(id);
     if (deployment.isEmpty()) {
-      throw new DeploymentNotFoundException(String.format("Not Found Deployment."));
+      throw new DeploymentNotFoundException("Not Found Deployment.");
     }
 
     return setDeploymentFindResponseDto(deployment.get());
