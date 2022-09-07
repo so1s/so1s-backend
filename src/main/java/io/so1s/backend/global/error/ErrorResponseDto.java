@@ -37,14 +37,6 @@ public class ErrorResponseDto {
     this.errors = new ArrayList<>();
   }
 
-  private ErrorResponseDto(ErrorCode e, String message, FieldError fieldError) {
-    this.status = e.getStatus();
-    this.code = e.getCode();
-    this.message = message;
-    this.errors = new ArrayList<>();
-    errors.add(fieldError);
-  }
-
   private ErrorResponseDto(ErrorCode e, List<FieldError> errors) {
     this.status = e.getStatus();
     this.code = e.getCode();
@@ -65,10 +57,6 @@ public class ErrorResponseDto {
 
   public static ErrorResponseDto of(ErrorCode code, String message) {
     return new ErrorResponseDto(code, message);
-  }
-
-  public static ErrorResponseDto of(ErrorCode code, String message, FieldError fieldError) {
-    return new ErrorResponseDto(code, message, fieldError);
   }
 
   public static ErrorResponseDto of(ErrorCode code, BindingResult bindingResult) {
