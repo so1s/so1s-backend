@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  private final String LOG_FORMAT = "@@DEV, Class : {}, Code : {}, Message : {}";
+  private final String LOG_FORMAT = "Class : {}, Code : {}, Message : {}";
 
   /**
    * @Valid 값 바인딩 못 할시
@@ -85,13 +85,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(ApplicationException.class)
   protected ResponseEntity<ErrorResponseDto> handleApplicationException(ApplicationException e) {
     log.error(LOG_FORMAT, e.getClass().getSimpleName(), e.getErrorCode(), e.getMessage());
-
-    ErrorResponseDto responseDto = null;
-    if (e.getFieldError() != null) {
-      responseDto = ErrorResponseDto.of(e.getErrorCode(), e.getMessage(), e.getFieldError());
-    } else {
-      responseDto = ErrorResponseDto.of(e.getErrorCode(), e.getMessage());
-    }
+    final ErrorResponseDto responseDto = ErrorResponseDto.of(e.getErrorCode(), e.getMessage());
     return new ResponseEntity<>(responseDto, HttpStatus.valueOf(e.getErrorCode().getStatus()));
   }
 
