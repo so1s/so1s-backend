@@ -12,6 +12,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 @Slf4j
 @RestControllerAdvice
@@ -25,10 +26,10 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(MethodArgumentNotValidException.class)
   protected ResponseEntity<ErrorResponseDto> handleMethodArgumentNotValidException(
       MethodArgumentNotValidException e) {
-    log.error(LOG_FORMAT, e.getClass().getSimpleName(), HttpStatus.BAD_REQUEST, e.getMessage());
-    final ErrorResponseDto response = ErrorResponseDto.of(ErrorCode.INVALID_INPUT_VALUE,
-        e.getBindingResult());
-    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+    log.error(LOG_FORMAT, e.getClass().getSimpleName(), errorCode.getStatus(), e.getMessage());
+    final ErrorResponseDto response = ErrorResponseDto.of(errorCode);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
   }
 
   /**
@@ -36,10 +37,22 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(BindException.class)
   protected ResponseEntity<ErrorResponseDto> handleBindException(BindException e) {
-    log.error(LOG_FORMAT, e.getClass().getSimpleName(), HttpStatus.BAD_REQUEST, e.getMessage());
-    final ErrorResponseDto response = ErrorResponseDto.of(ErrorCode.INVALID_INPUT_VALUE,
-        e.getBindingResult());
-    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+    log.error(LOG_FORMAT, e.getClass().getSimpleName(), errorCode.getStatus(), e.getMessage());
+    final ErrorResponseDto response = ErrorResponseDto.of(errorCode);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
+  }
+
+  /**
+   * 잘못된 HTTP method 호출 시
+   */
+  @ExceptionHandler(NoHandlerFoundException.class)
+  protected ResponseEntity<ErrorResponseDto> handleNoHandlerFoundException(
+      NoHandlerFoundException e) {
+    ErrorCode errorCode = ErrorCode.PAGE_NOT_FOUND;
+    log.error(LOG_FORMAT, e.getClass().getSimpleName(), errorCode.getStatus(), e.getMessage());
+    final ErrorResponseDto response = ErrorResponseDto.of(errorCode);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
   }
 
   /**
@@ -48,10 +61,10 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
   protected ResponseEntity<ErrorResponseDto> handleHttpRequestMethodNotSupportedException(
       HttpRequestMethodNotSupportedException e) {
-    log.error(LOG_FORMAT, e.getClass().getSimpleName(), HttpStatus.METHOD_NOT_ALLOWED,
-        e.getMessage());
-    final ErrorResponseDto response = ErrorResponseDto.of(ErrorCode.METHOD_NOT_ALLOWED);
-    return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
+    ErrorCode errorCode = ErrorCode.METHOD_NOT_ALLOWED;
+    log.error(LOG_FORMAT, e.getClass().getSimpleName(), errorCode.getStatus(), e.getMessage());
+    final ErrorResponseDto response = ErrorResponseDto.of(errorCode);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
   }
 
   /**
@@ -59,11 +72,10 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(AccessDeniedException.class)
   protected ResponseEntity<ErrorResponseDto> handleAccessDeniedException(AccessDeniedException e) {
-    log.error(LOG_FORMAT, e.getClass().getSimpleName(), ErrorCode.HANDLE_ACCESS_DENIED.getStatus(),
-        e.getMessage());
-    final ErrorResponseDto response = ErrorResponseDto.of(ErrorCode.HANDLE_ACCESS_DENIED);
-    return new ResponseEntity<>(response,
-        HttpStatus.valueOf(ErrorCode.HANDLE_ACCESS_DENIED.getStatus()));
+    ErrorCode errorCode = ErrorCode.HANDLE_ACCESS_DENIED;
+    log.error(LOG_FORMAT, e.getClass().getSimpleName(), errorCode.getStatus(), e.getMessage());
+    final ErrorResponseDto response = ErrorResponseDto.of(errorCode);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
   }
 
   /**
@@ -72,11 +84,10 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(BadCredentialsException.class)
   protected ResponseEntity<ErrorResponseDto> handleAccessDeniedException(
       BadCredentialsException e) {
-    log.error(LOG_FORMAT, e.getClass().getSimpleName(), ErrorCode.HANDLE_ACCESS_DENIED.getStatus(),
-        e.getMessage());
-    final ErrorResponseDto response = ErrorResponseDto.of(ErrorCode.HANDLE_ACCESS_DENIED);
-    return new ResponseEntity<>(response,
-        HttpStatus.valueOf(ErrorCode.HANDLE_ACCESS_DENIED.getStatus()));
+    ErrorCode errorCode = ErrorCode.HANDLE_ACCESS_DENIED;
+    log.error(LOG_FORMAT, e.getClass().getSimpleName(), errorCode.getStatus(), e.getMessage());
+    final ErrorResponseDto response = ErrorResponseDto.of(errorCode);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
   }
 
   /**
@@ -95,9 +106,9 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(Exception.class)
   protected ResponseEntity<ErrorResponseDto> handleException(Exception e) {
-    log.error(LOG_FORMAT, e.getClass().getSimpleName(), HttpStatus.INTERNAL_SERVER_ERROR,
-        e.getMessage());
-    final ErrorResponseDto responseDto = ErrorResponseDto.of(ErrorCode.INTERNAL_SERVER_ERROR);
-    return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+    ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+    log.error(LOG_FORMAT, e.getClass().getSimpleName(), errorCode.getStatus(), e.getMessage());
+    final ErrorResponseDto response = ErrorResponseDto.of(errorCode);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
   }
 }
