@@ -12,7 +12,6 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.NoHandlerFoundException;
 
 @Slf4j
 @RestControllerAdvice
@@ -38,18 +37,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(BindException.class)
   protected ResponseEntity<ErrorResponseDto> handleBindException(BindException e) {
     ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
-    log.error(LOG_FORMAT, e.getClass().getSimpleName(), errorCode.getStatus(), e.getMessage());
-    final ErrorResponseDto response = ErrorResponseDto.of(errorCode);
-    return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
-  }
-
-  /**
-   * 잘못된 HTTP method 호출 시
-   */
-  @ExceptionHandler(NoHandlerFoundException.class)
-  protected ResponseEntity<ErrorResponseDto> handleNoHandlerFoundException(
-      NoHandlerFoundException e) {
-    ErrorCode errorCode = ErrorCode.PAGE_NOT_FOUND;
     log.error(LOG_FORMAT, e.getClass().getSimpleName(), errorCode.getStatus(), e.getMessage());
     final ErrorResponseDto response = ErrorResponseDto.of(errorCode);
     return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
