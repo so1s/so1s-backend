@@ -19,6 +19,7 @@ import io.so1s.backend.domain.auth.dto.response.TokenResponseDto;
 import io.so1s.backend.domain.auth.entity.User;
 import io.so1s.backend.domain.auth.service.UserService;
 import io.so1s.backend.domain.auth.vo.UserRole;
+import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.repository.LibraryRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
@@ -182,27 +183,22 @@ public class GlobalExceptionHandlerTest {
   @DisplayName("잘못된 값을 전달하여 데이터 바인딩 도중 Validation 체크에 걸릴경우 INVALID_INPUT_VALUE이 발생한다.")
   public void methodArgumentNotValidExceptionTest() throws Exception {
     // given
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < 65; i++) {
-      sb.append(i);
-    }
-    MockMultipartFile multipartFile = new MockMultipartFile(
-        "modelFile",
-        "titanic_e500.h5",
-        "application/octet-stream",
-        new FileInputStream("forTest/titanic_e500.h5"));
+    DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
+        .name(" ")
+        .modelMetadataId(1L)
+        .strategy("rolling")
+        .resources(null)
+        .build();
+    String requestDto = jsonMapper.asJsonString(deploymentRequestDto);
 
     // when & then
     ResultActions result = mockMvc.perform(MockMvcRequestBuilders
-        .multipart("/api/v1/models")
-        .file(multipartFile)
-        .param("name", sb.toString())
-        .param("library", libraryName)
-        .param("inputShape", inputShape)
-        .param("inputDtype", inputDtype)
-        .param("outputShape", outputShape)
-        .param("outputDtype", outputDtype)
-        .with(csrf()).header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token)));
+            .post("/api/v1/deployments")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestDto)
+            .with(csrf()).header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token)))
+        .andDo(print());
 
     result.andExpect(jsonPath("$.message").value(ErrorCode.INVALID_INPUT_VALUE.getMessage()))
         .andExpect(jsonPath("$.code").value(ErrorCode.INVALID_INPUT_VALUE.getCode()))

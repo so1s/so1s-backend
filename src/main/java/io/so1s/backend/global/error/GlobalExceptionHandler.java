@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
       MethodArgumentNotValidException e) {
     ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
     log.error(LOG_FORMAT, e.getClass().getSimpleName(), errorCode.getStatus(), e.getMessage());
-    final ErrorResponseDto response = ErrorResponseDto.of(errorCode);
+    final ErrorResponseDto response = ErrorResponseDto.of(errorCode, e.getBindingResult());
     return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
   }
 
@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
   protected ResponseEntity<ErrorResponseDto> handleBindException(BindException e) {
     ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
     log.error(LOG_FORMAT, e.getClass().getSimpleName(), errorCode.getStatus(), e.getMessage());
-    final ErrorResponseDto response = ErrorResponseDto.of(errorCode);
+    final ErrorResponseDto response = ErrorResponseDto.of(errorCode, e.getBindingResult());
     return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
   }
 
