@@ -7,8 +7,8 @@ import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
 import io.so1s.backend.domain.deployment.entity.Resource;
-import io.so1s.backend.global.error.exception.ABTestExistsException;
-import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
+import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
+import io.so1s.backend.domain.test.exception.ABTestExistsException;
 import java.util.List;
 import java.util.Optional;
 

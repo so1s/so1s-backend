@@ -18,6 +18,7 @@ public enum ErrorCode {
   INVALID_TYPE_VALUE(400, "Common005", "Invalid Type Value"),
   HANDLE_ACCESS_DENIED(403, "Common006", "Access is Denied"),
   ENTITY_DUPLICATED(409, "Common007", "Entity Duplicated"),
+  ENTITY_EXIST(409, "Common008", "Entity Exist"),
 
   //Auth
   UNABLE_TO_CREATE_USER(403, "Auth001", "Unable to Create User"),
