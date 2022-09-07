@@ -63,7 +63,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     Optional<DeploymentStrategy> deploymentStrategy = deploymentStrategyRepository.findByName(name);
     if (!deploymentStrategy.isPresent()) {
       throw new DeploymentStrategyNotFoundException(
-          String.format("잘못된 배포 전략을 선택하셨습니다. (%s)", name));
+          String.format("Invalid Deployment Strategy"));
     }
 
     return deploymentStrategy.get();
@@ -88,7 +88,7 @@ public class DeploymentServiceImpl implements DeploymentService {
   public Deployment validateExistDeployment(String name) throws DeploymentNotFoundException {
     Optional<Deployment> result = deploymentRepository.findByName(name);
     if (!result.isPresent()) {
-      throw new DeploymentNotFoundException(String.format("디플로이먼트를 찾을 수 없습니다.(%s)", name));
+      throw new DeploymentNotFoundException(String.format("Not Found Deployment"));
     }
 
     return result.get();
@@ -129,7 +129,7 @@ public class DeploymentServiceImpl implements DeploymentService {
   public DeploymentFindResponseDto findDeployment(Long id) throws DeploymentNotFoundException {
     Optional<Deployment> deployment = deploymentRepository.findById(id);
     if (deployment.isEmpty()) {
-      throw new DeploymentNotFoundException(String.format("Cannot Find Deployment.(%s)", id));
+      throw new DeploymentNotFoundException(String.format("Not Found Deployment."));
     }
 
     return setDeploymentFindResponseDto(deployment.get());

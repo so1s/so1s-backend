@@ -37,7 +37,7 @@ public class ModelServiceImpl implements ModelService {
     Optional<Model> result = modelRepository.findByName(name);
     if (result.isPresent()) {
       throw new DuplicateModelNameException(
-          String.format("중복된 모델명이 있습니다. (이름 : %s, 생성시간 : %s)",
+          String.format("Model name is duplicated. (name : %s, created_at : %s)",
               result.get().getName(),
               result.get().getUpdatedOn()));
     }
@@ -73,7 +73,7 @@ public class ModelServiceImpl implements ModelService {
   public Library validateLibrary(String library) throws LibraryNotFoundException {
     Optional<Library> result = libraryRepository.findByName(library);
     if (result.isEmpty()) {
-      throw new LibraryNotFoundException(String.format("잘못된 라이브러리를 요청하셨습니다. (%s)", library));
+      throw new LibraryNotFoundException(String.format("Invalid library."));
     }
 
     return result.get();
@@ -84,7 +84,7 @@ public class ModelServiceImpl implements ModelService {
 
     Optional<Model> model = modelRepository.findByName(name);
     if (model.isEmpty()) {
-      throw new ModelNotFoundException(String.format("해당 모델을 찾을 수 없습니다.(%s)", name));
+      throw new ModelNotFoundException(String.format("Model not found."));
     }
 
     return model.get();
@@ -96,7 +96,7 @@ public class ModelServiceImpl implements ModelService {
     Optional<ModelMetadata> modelMetadata = modelMetadataRepository.findById(id);
     if (modelMetadata.isEmpty()) {
       throw new ModelMetadataNotFoundException(
-          String.format("잘못된 모델버전을 선택했습니다. (%s)", id));
+          String.format("Invalid model version."));
     }
 
     return modelMetadata.get();
@@ -147,14 +147,14 @@ public class ModelServiceImpl implements ModelService {
     Optional<Model> model = modelRepository.findById(modelId);
     if (model.isEmpty()) {
       throw new ModelNotFoundException(
-          String.format("모델을 찾을 수 없습니다. (%s, %s)", modelId, version));
+          String.format("Model not found."));
     }
 
     Optional<ModelMetadata> modelMetadata = modelMetadataRepository.findByModelIdAndVersion(
         modelId, version);
     if (modelMetadata.isEmpty()) {
       throw new ModelMetadataNotFoundException(
-          String.format("해당 버전의 모델을 찾을 수 없습니다. (%s, %s)", modelId, version));
+          String.format("Invalid model version."));
     }
 
     return ModelDetailResponseDto.builder()
