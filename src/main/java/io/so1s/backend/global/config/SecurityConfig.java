@@ -90,6 +90,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/docs/**/*").permitAll()
         .antMatchers("/livez").permitAll()
         .antMatchers("/api/v1/signin").permitAll()
+        .antMatchers("/actuator/*").permitAll()
 
         .anyRequest().authenticated()
 

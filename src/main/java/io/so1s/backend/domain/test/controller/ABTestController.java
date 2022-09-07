@@ -5,7 +5,10 @@ import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.test.dto.mapper.ABTestMapper;
 import io.so1s.backend.domain.test.dto.request.ABTestRequestDto;
 import io.so1s.backend.domain.test.dto.response.ABTestCreateResponseDto;
+import io.so1s.backend.domain.test.dto.response.ABTestDeleteResponseDto;
 import io.so1s.backend.domain.test.dto.response.ABTestReadResponseDto;
+import io.so1s.backend.domain.test.dto.service.ABTestCreateDto;
+import io.so1s.backend.domain.test.dto.service.ABTestUpdateDto;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.service.ABTestService;
 import io.so1s.backend.global.error.exception.ABTestNotFoundException;
@@ -17,6 +20,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,10 +43,12 @@ public class ABTestController {
       @Valid @RequestBody ABTestRequestDto requestDto)
       throws DeploymentNotFoundException, DataIntegrityViolationException {
 
-    ABTest abTest = abTestService.createABTest(requestDto);
+    ABTestCreateDto createDto = abTestService.createABTest(requestDto);
+    ABTest abTest = createDto.getEntity();
+    boolean success = createDto.getSuccess();
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(mapper.toCreateDto(kubernetesService.deployABTest(abTest), "AB Test 객체가 생성되었습니다.",
+        .body(mapper.toCreateDto(success, "AB Test 객체가 생성되었습니다.",
             abTest));
   }
 
@@ -51,10 +57,18 @@ public class ABTestController {
       @Valid @RequestBody ABTestRequestDto abTestRequestDto)
       throws ABTestNotFoundException, DeploymentNotFoundException {
 
-    ABTest abTest = abTestService.updateABTest(abTestRequestDto);
+    ABTestUpdateDto updateDto = abTestService.updateABTest(abTestRequestDto);
+    ABTest abTest = updateDto.getEntity();
+    boolean success = updateDto.getSuccess();
 
     return ResponseEntity.ok(
-        mapper.toCreateDto(kubernetesService.deployABTest(abTest), "AB Test 객체가 변경되었습니다.", abTest));
+        mapper.toCreateDto(success, "AB Test 객체가 변경되었습니다.", abTest));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<ABTestDeleteResponseDto> deleteABTest(@Valid @PathVariable("id") Long id)
+      throws ABTestNotFoundException {
+    return ResponseEntity.ok(abTestService.deleteABTest(id));
   }
 
   @GetMapping
