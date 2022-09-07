@@ -1,8 +1,8 @@
 package io.so1s.backend.domain.model.entity;
 
-import io.so1s.backend.domain.auth.vo.Status;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.global.entity.BaseTimeEntity;
+import io.so1s.backend.global.vo.Status;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;

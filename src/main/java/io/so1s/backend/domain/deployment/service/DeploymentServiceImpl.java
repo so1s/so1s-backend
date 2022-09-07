@@ -1,6 +1,5 @@
 package io.so1s.backend.domain.deployment.service;
 
-import io.so1s.backend.domain.auth.vo.Status;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
@@ -14,6 +13,7 @@ import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository
 import io.so1s.backend.domain.deployment.repository.ResourceRepository;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelService;
+import io.so1s.backend.global.vo.Status;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

@@ -1,9 +1,9 @@
 package io.so1s.backend.domain.kubernetes.utils;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.so1s.backend.domain.auth.vo.Status;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
+import io.so1s.backend.global.vo.Status;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

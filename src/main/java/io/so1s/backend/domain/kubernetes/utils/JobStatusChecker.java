@@ -2,9 +2,9 @@ package io.so1s.backend.domain.kubernetes.utils;
 
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.so1s.backend.domain.auth.vo.Status;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
+import io.so1s.backend.global.vo.Status;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;

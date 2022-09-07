@@ -1,9 +1,9 @@
 package io.so1s.backend.domain.deployment.entity;
 
 
-import io.so1s.backend.domain.auth.vo.Status;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.global.entity.BaseTimeEntity;
+import io.so1s.backend.global.vo.Status;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;

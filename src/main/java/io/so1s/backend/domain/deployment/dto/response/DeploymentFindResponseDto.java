@@ -1,6 +1,6 @@
 package io.so1s.backend.domain.deployment.dto.response;
 
-import io.so1s.backend.domain.auth.vo.Status;
+import io.so1s.backend.global.vo.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

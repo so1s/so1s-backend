@@ -1,6 +1,5 @@
 package io.so1s.backend.domain.model.service;
 
-import io.so1s.backend.domain.auth.vo.Status;
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.deployment.exception.LibraryNotFoundException;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
@@ -17,6 +16,7 @@ import io.so1s.backend.domain.model.repository.LibraryRepository;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.global.utils.HashGenerator;
+import io.so1s.backend.global.vo.Status;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
