@@ -257,7 +257,7 @@ public class GlobalExceptionHandlerTest {
     // given
     LoginRequestDto loginRequestDto = LoginRequestDto.builder()
         .username("wrong-id")
-        .password("worng-password")
+        .password("wrong-password")
         .build();
     String requestBody = jsonMapper.asJsonString(loginRequestDto);
 
