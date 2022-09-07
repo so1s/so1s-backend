@@ -27,7 +27,7 @@ import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
-import io.so1s.backend.domain.model.exception.DuplicateModelNameException;
+import io.so1s.backend.domain.model.exception.DuplicatedModelNameException;
 import io.so1s.backend.domain.model.exception.ModelMetadataExistsException;
 import io.so1s.backend.domain.model.exception.ModelMetadataNotFoundException;
 import io.so1s.backend.domain.model.exception.ModelNotFoundException;
@@ -143,7 +143,7 @@ class ModelServiceTest {
     modelService.createModel(modelUploadRequestDto);
 
     // then
-    assertThrows(DuplicateModelNameException.class, () -> {
+    assertThrows(DuplicatedModelNameException.class, () -> {
       modelService.createModel(modelUploadRequestDto2);
     });
   }

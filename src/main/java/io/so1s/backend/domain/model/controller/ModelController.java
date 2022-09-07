@@ -13,7 +13,7 @@ import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelUploadResponseDto;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
-import io.so1s.backend.domain.model.exception.DuplicateModelNameException;
+import io.so1s.backend.domain.model.exception.DuplicatedModelNameException;
 import io.so1s.backend.domain.model.exception.ModelMetadataNotFoundException;
 import io.so1s.backend.domain.model.exception.ModelNotFoundException;
 import io.so1s.backend.domain.model.service.ModelService;
@@ -41,7 +41,7 @@ public class ModelController {
   @PostMapping
   public ResponseEntity<ModelUploadResponseDto> modelUpload(
       @Valid ModelUploadRequestDto modelUploadRequestDto)
-      throws IllegalAccessError, IllegalArgumentException, DuplicateModelNameException, InterruptedException {
+      throws IllegalAccessError, IllegalArgumentException, DuplicatedModelNameException, InterruptedException {
 
     Model model = modelService.createModel(modelUploadRequestDto);
     FileSaveResultForm saveResult = fileUploadService.uploadFile(
