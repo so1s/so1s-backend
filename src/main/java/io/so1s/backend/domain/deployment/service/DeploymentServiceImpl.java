@@ -7,6 +7,8 @@ import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
 import io.so1s.backend.domain.deployment.entity.Resource;
+import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
+import io.so1s.backend.domain.deployment.exception.DeploymentStrategyNotFoundException;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository;
 import io.so1s.backend.domain.deployment.repository.ResourceRepository;
@@ -14,11 +16,9 @@ import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.domain.test.entity.ABTest;
+import io.so1s.backend.domain.test.exception.ABTestExistsException;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
-import io.so1s.backend.global.entity.Status;
-import io.so1s.backend.global.error.exception.ABTestExistsException;
-import io.so1s.backend.global.error.exception.DeploymentNotFoundException;
-import io.so1s.backend.global.error.exception.DeploymentStrategyNotFoundException;
+import io.so1s.backend.global.vo.Status;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -97,8 +97,7 @@ public class DeploymentServiceImpl implements DeploymentService {
   public DeploymentStrategy validateExistDeploymentStrategy(String name) {
     Optional<DeploymentStrategy> deploymentStrategy = deploymentStrategyRepository.findByName(name);
     if (!deploymentStrategy.isPresent()) {
-      throw new DeploymentStrategyNotFoundException(
-          String.format("잘못된 배포 전략을 선택하셨습니다. (%s)", name));
+      throw new DeploymentStrategyNotFoundException("Invalid Deployment Strategy");
     }
 
     return deploymentStrategy.get();
@@ -123,7 +122,7 @@ public class DeploymentServiceImpl implements DeploymentService {
   public Deployment validateExistDeployment(String name) throws DeploymentNotFoundException {
     Optional<Deployment> result = deploymentRepository.findByName(name);
     if (!result.isPresent()) {
-      throw new DeploymentNotFoundException(String.format("디플로이먼트를 찾을 수 없습니다.(%s)", name));
+      throw new DeploymentNotFoundException("Not Found Deployment");
     }
 
     return result.get();
@@ -164,7 +163,7 @@ public class DeploymentServiceImpl implements DeploymentService {
   public DeploymentFindResponseDto findDeployment(Long id) throws DeploymentNotFoundException {
     Optional<Deployment> deployment = deploymentRepository.findById(id);
     if (deployment.isEmpty()) {
-      throw new DeploymentNotFoundException(String.format("Cannot Find Deployment.(%s)", id));
+      throw new DeploymentNotFoundException("Not Found Deployment.");
     }
 
     return setDeploymentFindResponseDto(deployment.get());

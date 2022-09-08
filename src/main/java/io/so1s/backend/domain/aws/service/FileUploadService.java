@@ -1,6 +1,8 @@
 package io.so1s.backend.domain.aws.service;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import io.so1s.backend.domain.aws.Exception.FileConversionException;
+import io.so1s.backend.domain.aws.Exception.UnsupportedFileFormatException;
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +25,7 @@ public class FileUploadService {
     try (InputStream inputStream = file.getInputStream()) {
       uploadService.uploadFile(inputStream, objectMetadata, fileName);
     } catch (IOException e) {
-      throw new IllegalArgumentException(
+      throw new FileConversionException(
           String.format("파일 변환 중 에러가 발생하였습니다. (%s)", file.getOriginalFilename()));
     }
 
@@ -42,7 +44,7 @@ public class FileUploadService {
     try {
       return fileName.substring(fileName.lastIndexOf("."));
     } catch (StringIndexOutOfBoundsException e) {
-      throw new IllegalArgumentException(
+      throw new UnsupportedFileFormatException(
           String.format("잘못된 형식의 파일입니다. 확장자를 명시해주세요. (%s)", fileName));
     }
   }

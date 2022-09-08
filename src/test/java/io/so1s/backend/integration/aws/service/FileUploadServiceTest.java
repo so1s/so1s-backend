@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazonaws.services.s3.AmazonS3;
 import io.findify.s3mock.S3Mock;
+import io.so1s.backend.domain.aws.Exception.UnsupportedFileFormatException;
 import io.so1s.backend.domain.aws.config.S3Config;
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.aws.service.AwsS3Service;
@@ -69,7 +70,7 @@ public class FileUploadServiceTest {
   }
 
   @Test
-  @DisplayName("확장자 없이 파일을 업로드하면 IllegalArgumentException이 발생한다.")
+  @DisplayName("확장자 없이 파일을 업로드하면 UnsupportedFileFormatException이 발생한다.")
   public void uploadFileIllegalArgumentExceptionTest() throws Exception {
     // given
     String fileName = "testFileName";
@@ -82,7 +83,7 @@ public class FileUploadServiceTest {
 
     // when
     // then
-    assertThrows(IllegalArgumentException.class, () -> {
+    assertThrows(UnsupportedFileFormatException.class, () -> {
       fileUploadService.uploadFile(mockMultipartFile);
     });
   }

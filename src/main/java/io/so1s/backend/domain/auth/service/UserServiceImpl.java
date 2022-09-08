@@ -2,11 +2,11 @@ package io.so1s.backend.domain.auth.service;
 
 import io.so1s.backend.domain.auth.entity.User;
 import io.so1s.backend.domain.auth.entity.UserToRole;
+import io.so1s.backend.domain.auth.exception.DuplicatedUserException;
+import io.so1s.backend.domain.auth.exception.UnableToCreateUserException;
 import io.so1s.backend.domain.auth.repository.UserRepository;
 import io.so1s.backend.domain.auth.repository.UserToRoleRepository;
 import io.so1s.backend.domain.auth.vo.UserRole;
-import io.so1s.backend.global.error.exception.DuplicateUserException;
-import io.so1s.backend.global.error.exception.UnableToCreateUserException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -44,13 +44,13 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  @Transactional(rollbackFor = {DuplicateUserException.class})
+  @Transactional(rollbackFor = {DuplicatedUserException.class})
   public User createUser(String username, String password, UserRole role)
-      throws DuplicateUserException {
+      throws DuplicatedUserException {
     Optional<User> previous = findByUsername(username);
 
     if (previous.isPresent()) {
-      throw new DuplicateUserException("이미 존재하는 사용자입니다.");
+      throw new DuplicatedUserException("이미 존재하는 사용자입니다.");
     }
 
     User user = userRepository.save(

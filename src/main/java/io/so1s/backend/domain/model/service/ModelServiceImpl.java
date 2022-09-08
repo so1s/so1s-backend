@@ -3,6 +3,8 @@ package io.so1s.backend.domain.model.service;
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.aws.service.AwsS3Service;
 import io.so1s.backend.domain.deployment.entity.Deployment;
+import io.so1s.backend.domain.deployment.exception.DeploymentExistsException;
+import io.so1s.backend.domain.deployment.exception.LibraryNotFoundException;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
 import io.so1s.backend.domain.model.dto.response.ModelDeleteResponseDto;
@@ -13,17 +15,15 @@ import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
+import io.so1s.backend.domain.model.exception.DuplicatedModelNameException;
+import io.so1s.backend.domain.model.exception.ModelMetadataExistsException;
+import io.so1s.backend.domain.model.exception.ModelMetadataNotFoundException;
+import io.so1s.backend.domain.model.exception.ModelNotFoundException;
 import io.so1s.backend.domain.model.repository.LibraryRepository;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
-import io.so1s.backend.global.entity.Status;
-import io.so1s.backend.global.error.exception.DeploymentExistsException;
-import io.so1s.backend.global.error.exception.DuplicateModelNameException;
-import io.so1s.backend.global.error.exception.LibraryNotFoundException;
-import io.so1s.backend.global.error.exception.ModelMetadataExistsException;
-import io.so1s.backend.global.error.exception.ModelMetadataNotFoundException;
-import io.so1s.backend.global.error.exception.ModelNotFoundException;
 import io.so1s.backend.global.utils.HashGenerator;
+import io.so1s.backend.global.vo.Status;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -45,8 +45,8 @@ public class ModelServiceImpl implements ModelService {
   public void validateDuplicateModelName(String name) {
     Optional<Model> result = modelRepository.findByName(name);
     if (result.isPresent()) {
-      throw new DuplicateModelNameException(
-          String.format("중복된 모델명이 있습니다. (이름 : %s, 생성시간 : %s)",
+      throw new DuplicatedModelNameException(
+          String.format("Model Name is duplicated. (name : %s, created_at : %s)",
               result.get().getName(),
               result.get().getUpdatedOn()));
     }
@@ -82,7 +82,7 @@ public class ModelServiceImpl implements ModelService {
   public Library validateLibrary(String library) throws LibraryNotFoundException {
     Optional<Library> result = libraryRepository.findByName(library);
     if (result.isEmpty()) {
-      throw new LibraryNotFoundException(String.format("잘못된 라이브러리를 요청하셨습니다. (%s)", library));
+      throw new LibraryNotFoundException("Invalid Library.");
     }
 
     return result.get();
@@ -93,7 +93,7 @@ public class ModelServiceImpl implements ModelService {
 
     Optional<Model> model = modelRepository.findByName(name);
     if (model.isEmpty()) {
-      throw new ModelNotFoundException(String.format("해당 모델을 찾을 수 없습니다.(%s)", name));
+      throw new ModelNotFoundException("Model not found.");
     }
 
     return model.get();
@@ -104,8 +104,7 @@ public class ModelServiceImpl implements ModelService {
   public ModelMetadata validateExistModelMetadata(Long id) throws ModelMetadataNotFoundException {
     Optional<ModelMetadata> modelMetadata = modelMetadataRepository.findById(id);
     if (modelMetadata.isEmpty()) {
-      throw new ModelMetadataNotFoundException(
-          String.format("잘못된 모델버전을 선택했습니다. (%s)", id));
+      throw new ModelMetadataNotFoundException("Invalid Model Version.");
     }
 
     return modelMetadata.get();
@@ -155,15 +154,13 @@ public class ModelServiceImpl implements ModelService {
 
     Optional<Model> model = modelRepository.findById(modelId);
     if (model.isEmpty()) {
-      throw new ModelNotFoundException(
-          String.format("모델을 찾을 수 없습니다. (%s, %s)", modelId, version));
+      throw new ModelNotFoundException("Model not found.");
     }
 
     Optional<ModelMetadata> modelMetadata = modelMetadataRepository.findByModelIdAndVersion(
         modelId, version);
     if (modelMetadata.isEmpty()) {
-      throw new ModelMetadataNotFoundException(
-          String.format("해당 버전의 모델을 찾을 수 없습니다. (%s, %s)", modelId, version));
+      throw new ModelMetadataNotFoundException("Invalid model version.");
     }
 
     return ModelDetailResponseDto.builder()
@@ -184,12 +181,13 @@ public class ModelServiceImpl implements ModelService {
   public ModelDeleteResponseDto deleteModel(Long modelId)
       throws ModelNotFoundException, ModelMetadataExistsException {
     Model model = modelRepository.findById(modelId)
-        .orElseThrow(() -> new ModelNotFoundException("모델을 찾지 못했습니다."));
+        .orElseThrow(() -> new ModelNotFoundException("Cannot delete Model. Model not found."));
 
     List<ModelMetadata> modelMetadatas = modelMetadataRepository.findByModelId(modelId);
 
     if (!modelMetadatas.isEmpty()) {
-      throw new ModelMetadataExistsException("모델을 사용하는 모델 메타데이터가 존재합니다.");
+      throw new ModelMetadataExistsException(
+          "Cannot delete Model. Model Metadata exists that uses the Model.");
     }
 
     modelRepository.delete(model);
@@ -204,12 +202,14 @@ public class ModelServiceImpl implements ModelService {
   public ModelMetadataDeleteResponseDto deleteModelMetadata(Long modelId, String version)
       throws ModelMetadataNotFoundException, DeploymentExistsException {
     ModelMetadata modelMetadata = modelMetadataRepository.findByModelIdAndVersion(modelId, version)
-        .orElseThrow(() -> new ModelMetadataNotFoundException("모델 메타데이터를 찾지 못했습니다."));
+        .orElseThrow(() -> new ModelMetadataNotFoundException(
+            "Cannot delete Model Metadata. Model Metadata not found."));
 
     Optional<Deployment> deployment = deploymentRepository.findByModelMetadata(modelMetadata);
 
     if (deployment.isPresent()) {
-      throw new DeploymentExistsException("모델 메타데이터를 사용하는 Deployment가 존재합니다.");
+      throw new DeploymentExistsException(
+          "Cannot delete Model Metadata. Deployment exists that uses the Model Metadata.");
     }
 
     awsS3Service.deleteFile(modelMetadata.getUrl());
