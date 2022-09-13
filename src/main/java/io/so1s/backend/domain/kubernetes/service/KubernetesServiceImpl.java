@@ -404,15 +404,14 @@ public class KubernetesServiceImpl implements KubernetesService {
   @Override
   public boolean deleteDeployment(io.so1s.backend.domain.deployment.entity.Deployment deployment) {
     String namespace = "default";
+    String deploymentName = deployment.getName().toLowerCase();
 
     try {
-      client.apps().deployments().inNamespace(namespace).withName(deployment.getName())
+      client.apps().deployments().inNamespace(namespace).withName(deploymentName).delete();
+      client.services().inNamespace(namespace).withName(deploymentName).delete();
+      istioClient.v1beta1().gateways().inNamespace(namespace).withName(deploymentName).delete();
+      istioClient.v1beta1().virtualServices().inNamespace(namespace).withName(deploymentName)
           .delete();
-      client.services().inNamespace(namespace).withName(deployment.getName()).delete();
-      istioClient.v1beta1().gateways().inNamespace(namespace).withName(deployment.getName())
-          .delete();
-      istioClient.v1beta1().virtualServices().inNamespace(namespace)
-          .withName(deployment.getName()).delete();
     } catch (KubernetesClientException ignored) {
       return false;
     }
@@ -427,8 +426,7 @@ public class KubernetesServiceImpl implements KubernetesService {
 
     try {
       istioClient.v1beta1().gateways().inNamespace(namespace).withName(abTestName).delete();
-      istioClient.v1beta1().virtualServices().inNamespace(namespace)
-          .withName(abTestName).delete();
+      istioClient.v1beta1().virtualServices().inNamespace(namespace).withName(abTestName).delete();
     } catch (KubernetesClientException ignored) {
       return false;
     }
