@@ -5,6 +5,8 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.global.vo.Status;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -23,9 +25,13 @@ public class JobStatusChecker {
       throws InterruptedException {
     long interval = 10;
 
+    Map<String, String> labels = new HashMap<>();
+    labels.put("app", "inference-build");
+    labels.put("name", jobName);
+
     while (true) {
-      Job job = client.batch().v1().jobs().inNamespace(namespace).withLabel("job-name", jobName)
-          .list().getItems().get(0);
+      Job job = client.batch().v1().jobs().inNamespace(namespace).withLabels(labels).list()
+          .getItems().get(0);
 
       if (job.getStatus().getActive() == null) {
         if (job.getStatus().getSucceeded() != null && job.getStatus().getSucceeded() == 1) {

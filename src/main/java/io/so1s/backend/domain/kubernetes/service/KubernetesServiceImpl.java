@@ -57,7 +57,8 @@ public class KubernetesServiceImpl implements KubernetesService {
 
     Map<String, String> labels = new HashMap<>();
     labels.put("app", "inference-build");
-    labels.put("name", modelName);
+    labels.put("name", jobName);
+    labels.put("modelName", modelName);
     labels.put("version", version);
 
     final Job job = new JobBuilder()
