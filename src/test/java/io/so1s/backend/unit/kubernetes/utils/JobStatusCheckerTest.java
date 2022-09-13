@@ -18,6 +18,8 @@ import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.global.config.JpaConfig;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -76,12 +78,16 @@ public class JobStatusCheckerTest {
     String namespace = "default";
     JobStatus jobStatus = new JobStatus();
     jobStatus.setSucceeded(1);
+    Map<String, String> labels = new HashMap<>();
+    labels.put("app", "inference-build");
+    labels.put("name", jobName);
+
     Job job = new JobBuilder()
         .withApiVersion("batch/v1")
         .withNewMetadata()
         .withName(jobName)
         .withNamespace(namespace)
-        .addToLabels("job-name", jobName)
+        .addToLabels(labels)
         .endMetadata()
         .withStatus(jobStatus)
         .build();
@@ -120,12 +126,15 @@ public class JobStatusCheckerTest {
     String namespace = "default";
     JobStatus jobStatus = new JobStatus();
     jobStatus.setFailed(1);
+    Map<String, String> labels = new HashMap<>();
+    labels.put("app", "inference-build");
+    labels.put("name", jobName);
     Job job = new JobBuilder()
         .withApiVersion("batch/v1")
         .withNewMetadata()
         .withName(jobName)
         .withNamespace(namespace)
-        .addToLabels("job-name", jobName)
+        .addToLabels(labels)
         .endMetadata()
         .withStatus(jobStatus)
         .build();
