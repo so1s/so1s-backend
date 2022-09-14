@@ -30,6 +30,12 @@ spring:
   application:
     name: so1s-api-server
 
+  zipkin:
+    base-url: ${zipkin-url} # zipkin server
+  sleuth:
+    sampler:
+      probability: 1.0
+
 logging:
   level:
     org:

@@ -9,7 +9,7 @@ plugins {
 }
 
 ext {
-    applicationVersion = "0.4.0"
+    applicationVersion = "0.4.1"
     repo = System.getenv("REPO")
     set('snippetsDir', file("build/generated-snippets"))
 }
@@ -141,6 +141,10 @@ dependencies {
     // metrics
     implementation 'org.springframework.boot:spring-boot-starter-actuator:2.7.3'
     implementation 'io.micrometer:micrometer-registry-prometheus:1.9.3'
+
+    // sleuth & zipkin
+    implementation 'org.springframework.cloud:spring-cloud-starter-sleuth:3.1.4'
+    implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin:3.1.4'
 
 }
 
