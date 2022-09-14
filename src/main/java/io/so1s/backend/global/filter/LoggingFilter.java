@@ -1,7 +1,7 @@
 package io.so1s.backend.global.filter;
 
-import io.so1s.backend.global.utils.RequestWrapper;
-import io.so1s.backend.global.utils.ResponseWrapper;
+import io.so1s.backend.global.filter.wrapper.RequestWrapper;
+import io.so1s.backend.global.filter.wrapper.ResponseWrapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -38,7 +38,6 @@ public class LoggingFilter extends OncePerRequestFilter {
       String headerName = (String) headerArray.nextElement();
       headerMap.put(headerName, request.getHeader(headerName));
     }
-
     return headerMap;
   }
 
@@ -55,7 +54,6 @@ public class LoggingFilter extends OncePerRequestFilter {
     for (String headerName : headerNames) {
       headerMap.put(headerName, response.getHeader(headerName));
     }
-
     return headerMap;
   }
 

@@ -1,4 +1,4 @@
-package io.so1s.backend.global.utils;
+package io.so1s.backend.global.filter.wrapper;
 
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.util.ContentCachingResponseWrapper;

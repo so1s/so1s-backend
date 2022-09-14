@@ -1,4 +1,4 @@
-package io.so1s.backend.global.utils;
+package io.so1s.backend.global.filter.wrapper;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,7 +29,6 @@ public class RequestWrapper extends ContentCachingRequestWrapper {
         try {
           return cachedBodyInputStream.available() == 0;
         } catch (IOException e) {
-
         }
         return false;
       }
