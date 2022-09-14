@@ -57,7 +57,8 @@ public class KubernetesServiceImpl implements KubernetesService {
 
     Map<String, String> labels = new HashMap<>();
     labels.put("app", "inference-build");
-    labels.put("name", modelName);
+    labels.put("name", jobName);
+    labels.put("modelName", modelName);
     labels.put("version", version);
 
     final Job job = new JobBuilder()
@@ -186,7 +187,7 @@ public class KubernetesServiceImpl implements KubernetesService {
     labels.put("app", "inference");
     labels.put("name", deployName);
 
-    String host = deployment.getEndPoint();
+    String host = deployment.getEndPoint().toLowerCase();
 
     Deployment inferenceDeployment = new DeploymentBuilder()
         .withNewMetadata()
@@ -320,8 +321,8 @@ public class KubernetesServiceImpl implements KubernetesService {
 
     String host = abTestName + ".so1s.io"; // TODO: Fix hard-coded root domain
 
-    String aName = "inference-" + abTest.getA().getName().toLowerCase();
-    String bName = "inference-" + abTest.getB().getName().toLowerCase();
+    String aName = abTest.getA().getName().toLowerCase();
+    String bName = abTest.getB().getName().toLowerCase();
 
     Map<String, String> labels = new HashMap<>();
     labels.put("app", "ab-test");
@@ -404,15 +405,14 @@ public class KubernetesServiceImpl implements KubernetesService {
   @Override
   public boolean deleteDeployment(io.so1s.backend.domain.deployment.entity.Deployment deployment) {
     String namespace = "default";
+    String deploymentName = deployment.getName().toLowerCase();
 
     try {
-      client.apps().deployments().inNamespace(namespace).withName(deployment.getName())
+      client.apps().deployments().inNamespace(namespace).withName(deploymentName).delete();
+      client.services().inNamespace(namespace).withName(deploymentName).delete();
+      istioClient.v1beta1().gateways().inNamespace(namespace).withName(deploymentName).delete();
+      istioClient.v1beta1().virtualServices().inNamespace(namespace).withName(deploymentName)
           .delete();
-      client.services().inNamespace(namespace).withName(deployment.getName()).delete();
-      istioClient.v1beta1().gateways().inNamespace(namespace).withName(deployment.getName())
-          .delete();
-      istioClient.v1beta1().virtualServices().inNamespace(namespace)
-          .withName(deployment.getName()).delete();
     } catch (KubernetesClientException ignored) {
       return false;
     }
@@ -427,8 +427,7 @@ public class KubernetesServiceImpl implements KubernetesService {
 
     try {
       istioClient.v1beta1().gateways().inNamespace(namespace).withName(abTestName).delete();
-      istioClient.v1beta1().virtualServices().inNamespace(namespace)
-          .withName(abTestName).delete();
+      istioClient.v1beta1().virtualServices().inNamespace(namespace).withName(abTestName).delete();
     } catch (KubernetesClientException ignored) {
       return false;
     }
