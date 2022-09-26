@@ -16,7 +16,7 @@ public class AuthStatusController {
   public ResponseEntity<AuthStatusResponseDto> checkAuthStatus() {
 
     // JwtAuthenticationEntryPoint에서 인증 핸들링이 이루어지기에 인증을 완료한 시점의 API Response는 true만 래핑해서 반환함.
-    // TODO: 사용자 정보도 반환해야 하는지? /users/me API로 리팩토링해야 할지?
+    // Question: 사용자 정보도 반환해야 하는지? /users/me API로 리팩토링해야 할지?
     return ResponseEntity.ok(AuthStatusResponseDto.builder().success(true).build());
   }
 }
