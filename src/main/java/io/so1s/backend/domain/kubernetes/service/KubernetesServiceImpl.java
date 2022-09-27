@@ -83,8 +83,8 @@ public class KubernetesServiceImpl implements KubernetesService {
             "--file", modelMetadata.getUrl(),
             "--input", modelMetadata.getInputDtype(),
             "--output", modelMetadata.getOutputDtype(),
-            "--name", modelMetadata.getModel().getName(),
-            "--tag", modelMetadata.getVersion(),
+            "--name", modelName,
+            "--tag", version,
             "--user", "so1s",
             "--password", "vkxmxkdlaj"
         )
@@ -189,7 +189,7 @@ public class KubernetesServiceImpl implements KubernetesService {
     String namespace = "default";
     String deployName = deployment.getName().toLowerCase();
     String modelName = deployment.getModelMetadata().getModel().getName().toLowerCase();
-    String modelVersion = deployment.getModelMetadata().getVersion();
+    String modelVersion = deployment.getModelMetadata().getVersion().toLowerCase();
 
     Map<String, String> labels = new HashMap<>();
     labels.put("app", "inference");
