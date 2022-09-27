@@ -7,7 +7,6 @@ import io.so1s.backend.global.vo.Status;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +18,7 @@ public class DeploymentStatusCheckScheduler {
   private final DeploymentRepository deploymentRepository;
   private final ApplicationHealthChecker applicationHealthChecker;
 
-  @Scheduled(fixedDelay = 1000L * 60)
+  //  @Scheduled(fixedDelay = 1000L * 60)
   public void checkDeploymentStatus() {
     List<Deployment> deployments = deploymentRepository.findAll();
 
