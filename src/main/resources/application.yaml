@@ -31,7 +31,7 @@ spring:
     name: so1s-api-server
 
   zipkin:
-    base-url: ${zipkin-url} # zipkin server
+    base-url: http://localhost:9411 # zipkin server
   sleuth:
     sampler:
       probability: 1.0
