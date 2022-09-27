@@ -143,7 +143,7 @@ dependencies {
     implementation 'io.micrometer:micrometer-registry-prometheus:1.9.3'
 
     // sleuth & zipkin
-    implementation 'org.springframework.cloud:spring-cloud-starter-sleuth:3.1.4'
+//    implementation 'org.springframework.cloud:spring-cloud-starter-sleuth:3.1.4'
 //    implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin:3.1.4'
 
 }

@@ -14,14 +14,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 import org.springframework.web.util.WebUtils;
 
 @Slf4j
-@Component
-public class LoggingFilter /*extends OncePerRequestFilter*/ {
+public class LoggingFilter extends OncePerRequestFilter {
 
   private static void logRequest(ContentCachingRequestWrapper requestWrapper) throws IOException {
     log.info("[REQUEST] Method=[{}], url=[{}], Header=[{}], Body=[{}]",
@@ -101,17 +100,17 @@ public class LoggingFilter /*extends OncePerRequestFilter*/ {
     return VISIBLE_TYPES.stream().anyMatch(visibleType -> visibleType.includes(mediaType));
   }
 
-//  @Override
-//  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-//      FilterChain filterChain) throws ServletException, IOException {
-//
-//    if (isAsyncDispatch(request)) {
-//      filterChain.doFilter(request, response);
-//    } else {
-//      doFilterWrapped(new ContentCachingRequestWrapper(request),
-//          new ContentCachingResponseWrapper(response), filterChain);
-//    }
-//  }
+  @Override
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+      FilterChain filterChain) throws ServletException, IOException {
+
+    if (isAsyncDispatch(request)) {
+      filterChain.doFilter(request, response);
+    } else {
+      doFilterWrapped(new ContentCachingRequestWrapper(request),
+          new ContentCachingResponseWrapper(response), filterChain);
+    }
+  }
 
   protected void doFilterWrapped(ContentCachingRequestWrapper request,
       ContentCachingResponseWrapper response, FilterChain filterChain)
