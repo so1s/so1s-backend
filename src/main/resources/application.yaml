@@ -2,27 +2,27 @@ spring:
   profiles:
     active: dev
 
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: ${aws-aurora-endpoint}
-    username: ${aws-aurora-username}
-    password: ${aws-aurora-password}
-
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: create
-    properties:
-      hibernate:
-        # Print all SQL queries from Hibernate execution to console
-        show_sql: false
-        # Format JPA queries on console with readability
-        format_sql: true
-        # Print extra information besides SQL queries for debugging
-        use_sql_comments: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-      generate-ddl: true
-    defer-datasource-initialization: true
+  #  datasource:
+  #    driver-class-name: org.postgresql.Driver
+  #    url: ${aws-aurora-endpoint}
+  #    username: ${aws-aurora-username}
+  #    password: ${aws-aurora-password}
+  #
+  #  jpa:
+  #    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  #    hibernate:
+  #      ddl-auto: create
+  #    properties:
+  #      hibernate:
+  #        # Print all SQL queries from Hibernate execution to console
+  #        show_sql: false
+  #        # Format JPA queries on console with readability
+  #        format_sql: true
+  #        # Print extra information besides SQL queries for debugging
+  #        use_sql_comments: true
+  #        dialect: org.hibernate.dialect.PostgreSQLDialect
+  #      generate-ddl: true
+  #    defer-datasource-initialization: true
 
   sql:
     init:
@@ -39,6 +39,9 @@ spring:
 logging:
   level:
     org:
+      springframework:
+        web:
+          filter: DEBUG
       hibernate:
         SQL=DEBUG:
 
