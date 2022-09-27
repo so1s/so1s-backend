@@ -1,9 +1,7 @@
 package io.so1s.backend.global.filter;
 
-import io.so1s.backend.global.filter.wrapper.RequestWrapper;
-import io.so1s.backend.global.filter.wrapper.ResponseWrapper;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -17,18 +15,19 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.ContentCachingRequestWrapper;
+import org.springframework.web.util.ContentCachingResponseWrapper;
+import org.springframework.web.util.WebUtils;
 
 @Slf4j
 @Component
 public class LoggingFilter extends OncePerRequestFilter {
 
-  private static void logRequest(RequestWrapper requestWrapper) throws IOException {
+  private static void logRequest(ContentCachingRequestWrapper requestWrapper) throws IOException {
     log.info("[REQUEST] Method=[{}], url=[{}], Header=[{}], Body=[{}]",
         requestWrapper.getMethod(), requestWrapper.getRequestURI(),
-        getRequestHeaders(requestWrapper),
-        getPayload(requestWrapper.getContentType(), requestWrapper.getInputStream()));
+        getRequestHeaders(requestWrapper), getRequestPayload(requestWrapper));
   }
 
   private static Map getRequestHeaders(HttpServletRequest request) {
@@ -41,11 +40,27 @@ public class LoggingFilter extends OncePerRequestFilter {
     return headerMap;
   }
 
-  private static void logResponse(ResponseWrapper responseWrapper) throws IOException {
+  private static String getRequestPayload(ContentCachingRequestWrapper requestWrapper)
+      throws IOException {
+    ContentCachingRequestWrapper wrapper = WebUtils.getNativeRequest(requestWrapper,
+        ContentCachingRequestWrapper.class);
+    if (wrapper != null) {
+      byte[] buf = wrapper.getContentAsByteArray();
+      if (buf.length > 0) {
+        try {
+          return new String(buf, 0, buf.length, wrapper.getCharacterEncoding());
+        } catch (UnsupportedEncodingException e) {
+          return " - ";
+        }
+      }
+    }
+    return " - ";
+  }
+
+  private static void logResponse(ContentCachingResponseWrapper responseWrapper) {
     log.info("[RESPONSE] Status=[{}], Header=[{}], Body=[{}]",
         responseWrapper.getStatus(),
-        getResponseHeader(responseWrapper),
-        getPayload(responseWrapper.getContentType(), responseWrapper.getContentInputStream()));
+        getResponseHeader(responseWrapper), getResponsePayload(responseWrapper));
   }
 
   private static Map getResponseHeader(HttpServletResponse response) {
@@ -57,11 +72,17 @@ public class LoggingFilter extends OncePerRequestFilter {
     return headerMap;
   }
 
-  private static String getPayload(String contentType, InputStream inputStream) throws IOException {
-    if (isVisible(MediaType.valueOf(contentType == null ? "application/json" : contentType))) {
-      byte[] content = StreamUtils.copyToByteArray(inputStream);
-      if (content.length > 0) {
-        return new String(content);
+  private static String getResponsePayload(ContentCachingResponseWrapper responseWrapper) {
+    ContentCachingResponseWrapper wrapper = WebUtils.getNativeResponse(responseWrapper,
+        ContentCachingResponseWrapper.class);
+    if (wrapper != null) {
+      byte[] buf = wrapper.getContentAsByteArray();
+      if (buf.length > 0) {
+        try {
+          return new String(buf, 0, buf.length, wrapper.getCharacterEncoding());
+        } catch (UnsupportedEncodingException e) {
+          return " - ";
+        }
       }
     }
     return " - ";
@@ -88,16 +109,19 @@ public class LoggingFilter extends OncePerRequestFilter {
     if (isAsyncDispatch(request)) {
       filterChain.doFilter(request, response);
     } else {
-      doFilterWrapped(new RequestWrapper(request), new ResponseWrapper(response), filterChain);
+      doFilterWrapped(new ContentCachingRequestWrapper(request),
+          new ContentCachingResponseWrapper(response), filterChain);
     }
   }
 
-  protected void doFilterWrapped(RequestWrapper request, ResponseWrapper response,
-      FilterChain filterChain) throws ServletException, IOException {
+  protected void doFilterWrapped(ContentCachingRequestWrapper request,
+      ContentCachingResponseWrapper response, FilterChain filterChain)
+      throws ServletException, IOException {
     try {
-      logRequest(request);
+//      logRequest(request);
       filterChain.doFilter(request, response);
     } finally {
+      logRequest(request);
       logResponse(response);
       response.copyBodyToResponse();
     }
