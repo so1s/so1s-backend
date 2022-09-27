@@ -1,8 +1,10 @@
 package io.so1s.backend.domain.deployment.controller;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentDeleteResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
+import io.so1s.backend.domain.deployment.dto.response.DeploymentFindYamlResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.Resource;
@@ -15,7 +17,6 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -84,5 +85,15 @@ public class DeploymentController {
       @Valid @PathVariable("deployment_id") Long id
   ) throws DeploymentNotFoundException {
     return ResponseEntity.ok(deploymentService.findDeployment(id));
+  }
+
+  @GetMapping("/{deployment_id}/yaml")
+  public ResponseEntity<DeploymentFindYamlResponseDto> findDeploymentYaml(
+      @Valid @PathVariable("deployment_id") Long id) {
+    String deploymentName = deploymentService.findDeployment(id).getDeploymentName().toLowerCase();
+    HasMetadata deployment = kubernetesService.getDeploymentObject(deploymentName);
+    String yaml = kubernetesService.getWorkloadToYaml(deployment);
+    
+    return ResponseEntity.ok(DeploymentFindYamlResponseDto.builder().yaml(yaml).build());
   }
 }
