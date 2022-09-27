@@ -27,13 +27,7 @@ spring:
       mode: always
   application:
     name: so1s-api-server
-
-  zipkin:
-    base-url: http://localhost:9411 # zipkin server
-  sleuth:
-    sampler:
-      probability: 1.0
-
+    
 logging:
   level:
     org:
