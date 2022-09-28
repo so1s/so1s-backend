@@ -98,9 +98,7 @@ public class KubernetesServiceImpl implements KubernetesService {
             "--input", modelMetadata.getInputDtype(),
             "--output", modelMetadata.getOutputDtype(),
             "--name", modelName,
-            "--tag", version,
-            "--user", "so1s",
-            "--password", "vkxmxkdlaj"
+            "--tag", version
         )
         .withNewResources()
         .addToRequests("cpu", new Quantity("1"))
