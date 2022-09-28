@@ -55,6 +55,7 @@ class AuthControllerTest {
 
   private static final String signInEndPoint = "/api/v1/signin";
   private static final String signUpEndPoint = "/api/v1/signup";
+  private static final String statusEndPoint = "/api/v1/auth/status";
 
   private static final String helloEndPoint = "/api/v1/hello";
 
@@ -247,6 +248,65 @@ class AuthControllerTest {
 
       user = createdUser;
     }
+
+  }
+
+  @Test
+  @DisplayName("토큰 없이 Auth Status API에 GET 요청을 보낼 경우 401 에러가 발생한다.")
+  void testAuthStatusWithoutToken() throws Exception {
+
+    // given
+
+    // when
+    ResultActions resultActions = mockMvc.perform(RestDocumentationRequestBuilders
+        .get(signUpEndPoint)
+        .accept(MediaType.APPLICATION_JSON));
+
+    // then
+    resultActions.andExpect(
+        MockMvcResultMatchers.status()
+            .is(HttpStatus.UNAUTHORIZED.value()));
+  }
+
+  @Test
+  @DisplayName("토큰과 함께 Auth Status API에 GET 요청을 보내고, 그 리스폰스 기반으로 Swagger 문서화를 진행한다.")
+  void testAuthStatus() throws Exception {
+
+    // given
+
+    String password = "so1s1234567890";
+
+    createUser("owner", password, UserRole.OWNER);
+    getToken("owner", password);
+
+    // when
+    ResultActions resultActions = mockMvc.perform(RestDocumentationRequestBuilders
+        .get(statusEndPoint)
+        .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
+        .accept(MediaType.APPLICATION_JSON));
+
+    // then
+    resultActions
+        .andDo(print())
+        .andExpect(MockMvcResultMatchers.status().isOk());
+
+    resultActions
+        .andDo(document("auth-status",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            resource(
+                ResourceSnippetParameters.builder()
+                    .description("JWT 토큰의 인증 상태를 확인합니다.")
+                    .summary("인증 상태 확인")
+                    .requestHeaders(
+                        headerWithName(HttpHeaders.AUTHORIZATION).description("Bearer JWT 토큰")
+                    )
+                    .responseFields(
+                        fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("인증 성공 여부")
+                    )
+                    .build()
+            )))
+        .andReturn();
 
   }
 }
