@@ -1,5 +1,6 @@
 package io.so1s.backend.domain.model.controller;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.aws.service.FileUploadService;
 import io.so1s.backend.domain.deployment.exception.DeploymentExistsException;
@@ -8,6 +9,7 @@ import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
 import io.so1s.backend.domain.model.dto.response.ModelDeleteResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelDetailResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
+import io.so1s.backend.domain.model.dto.response.ModelFindYamlResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelMetadataDeleteResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelUploadResponseDto;
@@ -101,6 +103,16 @@ public class ModelController {
   public ResponseEntity<List<ModelMetadataFindResponseDto>> findModelMetadatas(
       @PathVariable("modelId") Long modelId) {
     return ResponseEntity.ok(modelService.findModelMetadatasByModelId(modelId));
+  }
+
+  @GetMapping("/{modelId}/versions/{version}/yaml")
+  public ResponseEntity<ModelFindYamlResponseDto> findModelYaml(
+      @PathVariable("modelId") Long modelId, @PathVariable("version") String version) {
+    ModelDetailResponseDto modelDetail = modelService.findModelDetail(modelId, version);
+    HasMetadata job = kubernetesService.getJobObject(modelDetail.getName());
+    String yaml = kubernetesService.getWorkloadToYaml(job);
+
+    return ResponseEntity.ok(ModelFindYamlResponseDto.builder().yaml(yaml).build());
   }
 
   @GetMapping("/{modelId}/versions/{version}")

@@ -1,10 +1,12 @@
 package io.so1s.backend.domain.kubernetes.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.fabric8.istio.api.networking.v1beta1.Gateway;
 import io.fabric8.istio.api.networking.v1beta1.GatewayBuilder;
 import io.fabric8.istio.api.networking.v1beta1.VirtualService;
 import io.fabric8.istio.api.networking.v1beta1.VirtualServiceBuilder;
 import io.fabric8.istio.client.IstioClient;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
@@ -19,6 +21,7 @@ import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.internal.SerializationUtils;
 import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.kubernetes.exception.TooManyBuildRequestException;
 import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
@@ -27,7 +30,9 @@ import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.task.TaskRejectedException;
@@ -42,6 +47,15 @@ public class KubernetesServiceImpl implements KubernetesService {
   private final KubernetesClient client;
   private final IstioClient istioClient;
   private final JobStatusChecker jobStatusChecker;
+
+
+  public String getWorkloadToYaml(HasMetadata object) {
+    try {
+      return SerializationUtils.dumpAsYaml(object);
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("Fail");
+    }
+  }
 
   @Override
   public boolean inferenceServerBuild(ModelMetadata modelMetadata) throws InterruptedException {
@@ -441,5 +455,26 @@ public class KubernetesServiceImpl implements KubernetesService {
     }
 
     return true;
+  }
+
+  public HasMetadata getDeploymentObject(String name) {
+    List<Deployment> deployments = client.apps().deployments().inNamespace("default")
+        .withLabel("app", "inference").list()
+        .getItems();
+
+    return deployments.stream().filter((item) -> item.getMetadata().getName().equals(name))
+        .collect(Collectors.toList())
+        .get(deployments.size() - 1);
+  }
+
+  public HasMetadata getJobObject(String name) {
+    List<Job> jobs = client.batch().v1().jobs().inNamespace("default")
+        .withLabel("app", "inference-build").list()
+        .getItems();
+
+    return jobs.stream()
+        .filter((item) -> item.getMetadata().getLabels().get("modelName").equals(name))
+        .collect(Collectors.toList())
+        .get(jobs.size() - 1);
   }
 }
