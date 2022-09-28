@@ -77,9 +77,17 @@ public class KubernetesServiceImpl implements KubernetesService {
         .addNewContainer()
         .withImagePullPolicy("Always")
         .withName(jobName)
-        .withImage("so1s/" + library + "-build:v1")
-        .withCommand("/bin/sh", "/apps/build.sh", model.getName().toLowerCase(), version,
-            "vkxmxkdlaj")
+        .withImage("so1s/build:latest")
+        .withCommand(
+            "/bin/bash", "/apps/build.sh",
+            "--file", modelMetadata.getUrl(),
+            "--input", modelMetadata.getInputDtype(),
+            "--output", modelMetadata.getOutputDtype(),
+            "--name", modelName,
+            "--tag", version,
+            "--user", "so1s",
+            "--password", "vkxmxkdlaj"
+        )
         .withNewResources()
         .addToRequests("cpu", new Quantity("1"))
         .addToRequests("memory", new Quantity("1Gi"))
@@ -107,7 +115,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .withRestartPolicy("Never")
         .endSpec()
         .endTemplate()
-        .withBackoffLimit(5)
+        .withBackoffLimit(2)
         .endSpec()
         .build();
 
