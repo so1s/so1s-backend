@@ -35,7 +35,7 @@ public class Model extends BaseTimeEntity {
   private Long id;
 
   @NotBlank
-  @Column(nullable = false)
+  @Column(nullable = false, unique = true)
   private String name;
 
   @ManyToOne(fetch = FetchType.LAZY)

@@ -32,6 +32,7 @@ public class Library {
   private Long id;
 
   @NotBlank
+  @Column(unique = true)
   private String name;
 
   @Builder.Default
