@@ -120,6 +120,7 @@ public class ModelServiceImpl implements ModelService {
           m.getId());
 
       modelMetadata.ifPresent(metadata -> res.add(ModelFindResponseDto.builder()
+          .id(m.getId())
           .age(m.getUpdatedOn())
           .name(m.getName())
           .status(metadata.getStatus())
