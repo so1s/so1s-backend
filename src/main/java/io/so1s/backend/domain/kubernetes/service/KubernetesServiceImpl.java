@@ -102,9 +102,9 @@ public class KubernetesServiceImpl implements KubernetesService {
         )
         .withNewResources()
         .addToRequests("cpu", new Quantity("1"))
-        .addToRequests("memory", new Quantity("1Gi"))
+        .addToRequests("memory", new Quantity("6Gi"))
         .addToLimits("cpu", new Quantity("1"))
-        .addToLimits("memory", new Quantity("1Gi"))
+        .addToLimits("memory", new Quantity("6Gi"))
         .endResources()
         .withVolumeMounts(
             new VolumeMountBuilder()

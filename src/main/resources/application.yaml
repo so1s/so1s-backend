@@ -27,7 +27,13 @@ spring:
       mode: always
   application:
     name: so1s-api-server
-    
+
+  servlet:
+    multipart:
+      max-file-size: 1024MB
+      max-request-size: 1024MB
+
+
 logging:
   level:
     org:
