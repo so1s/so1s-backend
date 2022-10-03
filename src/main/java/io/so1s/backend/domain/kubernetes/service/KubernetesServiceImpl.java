@@ -102,9 +102,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         )
         .withNewResources()
         .addToRequests("cpu", new Quantity("1"))
-        .addToRequests("memory", new Quantity("1Gi"))
         .addToLimits("cpu", new Quantity("1"))
-        .addToLimits("memory", new Quantity("1Gi"))
         .endResources()
         .withVolumeMounts(
             new VolumeMountBuilder()
@@ -229,7 +227,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .addNewContainer()
         .withImagePullPolicy("Always")
         .withName(deployName)
-        .withImage("so1s/" + modelName + ":" + modelVersion)
+        .withImage("so1s-registry:5000/" + modelName + ":" + modelVersion)
         .withNewResources()
         .addToRequests("cpu", new Quantity(deployment.getResource().getCpu()))
         .addToRequests("memory", new Quantity(deployment.getResource().getMemory()))
