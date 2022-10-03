@@ -87,7 +87,7 @@ public class ABTestServiceTest {
 
   @BeforeEach
   public void setUp() {
-    library = libraryRepository.save(Library.builder().name("torch").build());
+    library = libraryRepository.save(Library.builder().name("torch-test").build());
 
     model = modelRepository.save(Model.builder()
         .name("testModel")

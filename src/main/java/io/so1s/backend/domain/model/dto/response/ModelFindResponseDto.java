@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ModelFindResponseDto {
 
+  private Long id;
   private LocalDateTime age;
   private String name;
   private Status status;
