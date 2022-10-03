@@ -229,7 +229,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .addNewContainer()
         .withImagePullPolicy("Always")
         .withName(deployName)
-        .withImage("so1s/" + modelName + ":" + modelVersion)
+        .withImage("so1s-registry:5000/" + modelName + ":" + modelVersion)
         .withNewResources()
         .addToRequests("cpu", new Quantity(deployment.getResource().getCpu()))
         .addToRequests("memory", new Quantity(deployment.getResource().getMemory()))
