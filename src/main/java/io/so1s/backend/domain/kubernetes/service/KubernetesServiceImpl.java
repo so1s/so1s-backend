@@ -98,7 +98,9 @@ public class KubernetesServiceImpl implements KubernetesService {
             "--input", modelMetadata.getInputDtype(),
             "--output", modelMetadata.getOutputDtype(),
             "--name", modelName,
-            "--tag", version
+            "--tag", version,
+            "--user", "so1s",
+            "--password", "vkxmxkdlaj"
         )
         .withNewResources()
         .addToRequests("cpu", new Quantity("1"))
@@ -227,7 +229,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .addNewContainer()
         .withImagePullPolicy("Always")
         .withName(deployName)
-        .withImage("so1s-registry:5000/" + modelName + ":" + modelVersion)
+        .withImage("so1s/" + modelName + ":" + modelVersion)
         .withNewResources()
         .addToRequests("cpu", new Quantity(deployment.getResource().getCpu()))
         .addToRequests("memory", new Quantity(deployment.getResource().getMemory()))
