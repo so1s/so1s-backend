@@ -16,26 +16,29 @@ import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentDeleteResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
-import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
 import io.so1s.backend.domain.deployment.exception.DeploymentStrategyNotFoundException;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository;
-import io.so1s.backend.domain.deployment.repository.ResourceRepository;
 import io.so1s.backend.domain.deployment.service.DeploymentService;
 import io.so1s.backend.domain.deployment.service.DeploymentServiceImpl;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesServiceImpl;
 import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
-import io.so1s.backend.domain.model.entity.Library;
+import io.so1s.backend.domain.library.entity.Library;
+import io.so1s.backend.domain.library.repository.LibraryRepository;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.exception.ModelMetadataNotFoundException;
-import io.so1s.backend.domain.model.repository.LibraryRepository;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
+import io.so1s.backend.domain.resource.dto.mapper.ResourceMapper;
+import io.so1s.backend.domain.resource.entity.Resource;
+import io.so1s.backend.domain.resource.repository.ResourceRepository;
+import io.so1s.backend.domain.resource.service.ResourceService;
+import io.so1s.backend.domain.resource.service.ResourceServiceImpl;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.exception.ABTestExistsException;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
@@ -87,6 +90,8 @@ public class DeploymentServiceTest {
   @Autowired
   ABTestRepository abTestRepository;
   DeploymentMapper deploymentMapper = new DeploymentMapper();
+  ResourceMapper resourceMapper = new ResourceMapper();
+  ResourceService resourceService;
   @MockBean
   JobStatusChecker jobStatusChecker;
   @MockBean
@@ -101,9 +106,10 @@ public class DeploymentServiceTest {
     kubernetesService = new KubernetesServiceImpl(client, istioClient, jobStatusChecker);
     modelService = new ModelServiceImpl(modelRepository, libraryRepository,
         modelMetadataRepository, deploymentRepository, awsS3UploadService);
+    resourceService = new ResourceServiceImpl(resourceRepository, resourceMapper);
     deploymentService = new DeploymentServiceImpl(deploymentRepository,
         deploymentStrategyRepository, resourceRepository, abTestRepository, kubernetesService,
-        modelService, deploymentMapper);
+        modelService, resourceService, deploymentMapper);
     resourceRequestDto = ResourceRequestDto.builder()
         .cpu("1")
         .memory("1Gi")
@@ -121,7 +127,7 @@ public class DeploymentServiceTest {
     // setup()
 
     // when
-    Resource resource = deploymentService.createResource(resourceRequestDto);
+    Resource resource = resourceService.createResource(resourceRequestDto);
     Resource result = resourceRepository.findById(resource.getId()).get();
 
     // then
@@ -230,7 +236,7 @@ public class DeploymentServiceTest {
         .outputShape("(1,)")
         .outputDtype("float32")
         .build());
-    Resource resource = deploymentService.createResource(resourceRequestDto);
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
         .modelMetadataId(modelMetadata.getId())
@@ -314,7 +320,7 @@ public class DeploymentServiceTest {
         .outputDtype("float32")
         .model(model)
         .build());
-    Resource resource = deploymentService.createResource(resourceRequestDto);
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
         .modelMetadataId(modelMetadata.getId())
@@ -398,7 +404,7 @@ public class DeploymentServiceTest {
         .outputShape("(1,)")
         .outputDtype("float32")
         .build());
-    Resource resource = deploymentService.createResource(resourceRequestDto);
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
         .modelMetadataId(modelMetadata.getId())
@@ -455,7 +461,7 @@ public class DeploymentServiceTest {
         .outputShape("(1,)")
         .outputDtype("float32")
         .build());
-    Resource resource = deploymentService.createResource(resourceRequestDto);
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
         .modelMetadataId(modelMetadata.getId())

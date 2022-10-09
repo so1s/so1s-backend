@@ -15,10 +15,11 @@ import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
-import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.deployment.service.DeploymentServiceImpl;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
+import io.so1s.backend.domain.resource.entity.Resource;
+import io.so1s.backend.domain.resource.service.ResourceService;
 import io.so1s.backend.global.config.SecurityConfig;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
@@ -57,6 +58,8 @@ public class DeploymentControllerTest {
   KubernetesService kubernetesService;
   @MockBean
   ModelServiceImpl modelService;
+  @MockBean
+  ResourceService resourceService;
 
   ObjectMapper objectMapper;
   DeploymentRequestDto deploymentRequestDto;
@@ -98,7 +101,7 @@ public class DeploymentControllerTest {
   @DisplayName("배포가 정상적으로 이루어졌을때 200을 반환한다.")
   public void createDeploymentTest() throws Exception {
     // given
-    when(deploymentService.createResource(any(ResourceRequestDto.class))).thenReturn(resource);
+    when(resourceService.createResource(any(ResourceRequestDto.class))).thenReturn(resource);
     when(deploymentService.createDeployment(any(Resource.class), any(DeploymentRequestDto.class)))
         .thenReturn(Deployment.builder()
             .id(1L)
