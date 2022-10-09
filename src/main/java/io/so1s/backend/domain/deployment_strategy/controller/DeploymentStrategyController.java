@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class DeploymentStrategyController {
 
-  private DeploymentStrategyService deploymentStrategyService;
+  private final DeploymentStrategyService deploymentStrategyService;
 
   @GetMapping
   public ResponseEntity<List<DeploymentStrategyFindResponseDto>> getDeploymentStrategies() {
