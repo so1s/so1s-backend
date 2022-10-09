@@ -1,5 +1,6 @@
 package io.so1s.backend.domain.model.entity;
 
+import io.so1s.backend.domain.library.entity.Library;
 import io.so1s.backend.global.entity.BaseTimeEntity;
 import java.util.ArrayList;
 import java.util.List;

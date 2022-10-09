@@ -2,20 +2,20 @@ package io.so1s.backend.domain.deployment.service;
 
 import io.so1s.backend.domain.deployment.dto.mapper.DeploymentMapper;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
-import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentDeleteResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
-import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
 import io.so1s.backend.domain.deployment.exception.DeploymentStrategyNotFoundException;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository;
-import io.so1s.backend.domain.deployment.repository.ResourceRepository;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelService;
+import io.so1s.backend.domain.resource.entity.Resource;
+import io.so1s.backend.domain.resource.repository.ResourceRepository;
+import io.so1s.backend.domain.resource.service.ResourceService;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.exception.ABTestExistsException;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
@@ -37,13 +37,8 @@ public class DeploymentServiceImpl implements DeploymentService {
   private final KubernetesService kubernetesService;
 
   private final ModelService modelService;
+  private final ResourceService resourceService;
   private final DeploymentMapper deploymentMapper;
-
-  @Override
-  @Transactional
-  public Resource createResource(ResourceRequestDto resourceRequestDto) {
-    return resourceRepository.save(resourceRequestDto.toEntity());
-  }
 
   @Override
   @Transactional
@@ -109,7 +104,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         deploymentRequestDto.getStrategy());
     ModelMetadata modelMetadata = modelService.validateExistModelMetadata(
         deploymentRequestDto.getModelMetadataId());
-    Resource resource = createResource(deploymentRequestDto.getResources());
+    Resource resource = resourceService.createResource(deploymentRequestDto.getResources());
 
     deployment.updateModel(modelMetadata, deploymentStrategy, resource);
 

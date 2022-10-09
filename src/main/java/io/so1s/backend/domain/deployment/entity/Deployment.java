@@ -2,6 +2,7 @@ package io.so1s.backend.domain.deployment.entity;
 
 
 import io.so1s.backend.domain.model.entity.ModelMetadata;
+import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.global.entity.BaseTimeEntity;
 import io.so1s.backend.global.vo.Status;
 import javax.persistence.Column;
