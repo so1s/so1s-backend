@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DeploymentFindResponseDto {
 
+  private Long id;
+
   private String age;
   private String deploymentName;
   private Status status;
