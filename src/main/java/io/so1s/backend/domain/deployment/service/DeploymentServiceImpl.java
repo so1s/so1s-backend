@@ -7,9 +7,9 @@ import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
-import io.so1s.backend.domain.deployment.exception.DeploymentStrategyNotFoundException;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
-import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository;
+import io.so1s.backend.domain.deployment_strategy.repository.DeploymentStrategyRepository;
+import io.so1s.backend.domain.deployment_strategy.service.DeploymentStrategyService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelService;
@@ -38,6 +38,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 
   private final ModelService modelService;
   private final ResourceService resourceService;
+  private final DeploymentStrategyService deploymentStrategyService;
   private final DeploymentMapper deploymentMapper;
 
   @Override
@@ -46,7 +47,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 
     ModelMetadata modelMetadata = modelService.validateExistModelMetadata(
         deploymentRequestDto.getModelMetadataId());
-    DeploymentStrategy deploymentStrategy = validateExistDeploymentStrategy(
+    DeploymentStrategy deploymentStrategy = deploymentStrategyService.findByName(
         deploymentRequestDto.getStrategy());
 
     Deployment deployment = deploymentMapper.toEntity(deploymentRequestDto);
@@ -87,20 +88,10 @@ public class DeploymentServiceImpl implements DeploymentService {
   }
 
   @Override
-  public DeploymentStrategy validateExistDeploymentStrategy(String name) {
-    Optional<DeploymentStrategy> deploymentStrategy = deploymentStrategyRepository.findByName(name);
-    if (!deploymentStrategy.isPresent()) {
-      throw new DeploymentStrategyNotFoundException("Invalid Deployment Strategy");
-    }
-
-    return deploymentStrategy.get();
-  }
-
-  @Override
   public Deployment updateDeployment(DeploymentRequestDto deploymentRequestDto) {
     Deployment deployment = validateExistDeployment(deploymentRequestDto.getName());
 
-    DeploymentStrategy deploymentStrategy = validateExistDeploymentStrategy(
+    DeploymentStrategy deploymentStrategy = deploymentStrategyService.findByName(
         deploymentRequestDto.getStrategy());
     ModelMetadata modelMetadata = modelService.validateExistModelMetadata(
         deploymentRequestDto.getModelMetadataId());

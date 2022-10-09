@@ -13,7 +13,7 @@ import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
-import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository;
+import io.so1s.backend.domain.deployment_strategy.repository.DeploymentStrategyRepository;
 import io.so1s.backend.domain.kubernetes.utils.ApplicationHealthChecker;
 import io.so1s.backend.domain.kubernetes.utils.DeploymentStatusCheckScheduler;
 import io.so1s.backend.domain.library.entity.Library;

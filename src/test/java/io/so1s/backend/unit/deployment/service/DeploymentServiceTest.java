@@ -17,11 +17,14 @@ import io.so1s.backend.domain.deployment.dto.response.DeploymentDeleteResponseDt
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
-import io.so1s.backend.domain.deployment.exception.DeploymentStrategyNotFoundException;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
-import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository;
 import io.so1s.backend.domain.deployment.service.DeploymentService;
 import io.so1s.backend.domain.deployment.service.DeploymentServiceImpl;
+import io.so1s.backend.domain.deployment_strategy.dto.mapper.DeploymentStrategyMapper;
+import io.so1s.backend.domain.deployment_strategy.exception.DeploymentStrategyNotFoundException;
+import io.so1s.backend.domain.deployment_strategy.repository.DeploymentStrategyRepository;
+import io.so1s.backend.domain.deployment_strategy.service.DeploymentStrategyService;
+import io.so1s.backend.domain.deployment_strategy.service.DeploymentStrategyServiceImpl;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesServiceImpl;
 import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
@@ -92,6 +95,8 @@ public class DeploymentServiceTest {
   DeploymentMapper deploymentMapper = new DeploymentMapper();
   ResourceMapper resourceMapper = new ResourceMapper();
   ResourceService resourceService;
+  DeploymentStrategyMapper deploymentStrategyMapper = new DeploymentStrategyMapper();
+  DeploymentStrategyService deploymentStrategyService;
   @MockBean
   JobStatusChecker jobStatusChecker;
   @MockBean
@@ -107,9 +112,11 @@ public class DeploymentServiceTest {
     modelService = new ModelServiceImpl(modelRepository, libraryRepository,
         modelMetadataRepository, deploymentRepository, awsS3UploadService);
     resourceService = new ResourceServiceImpl(resourceRepository, resourceMapper);
+    deploymentStrategyService = new DeploymentStrategyServiceImpl(deploymentStrategyRepository,
+        deploymentStrategyMapper);
     deploymentService = new DeploymentServiceImpl(deploymentRepository,
         deploymentStrategyRepository, resourceRepository, abTestRepository, kubernetesService,
-        modelService, resourceService, deploymentMapper);
+        modelService, resourceService, deploymentStrategyService, deploymentMapper);
     resourceRequestDto = ResourceRequestDto.builder()
         .cpu("1")
         .memory("1Gi")

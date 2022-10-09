@@ -4,7 +4,6 @@ import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentDeleteResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
-import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.domain.test.exception.ABTestExistsException;
@@ -18,8 +17,6 @@ public interface DeploymentService {
 
   DeploymentDeleteResponseDto deleteDeployment(Long id)
       throws DeploymentNotFoundException, ABTestExistsException;
-
-  DeploymentStrategy validateExistDeploymentStrategy(String name);
 
   Deployment updateDeployment(DeploymentRequestDto deploymentRequestDto);
 

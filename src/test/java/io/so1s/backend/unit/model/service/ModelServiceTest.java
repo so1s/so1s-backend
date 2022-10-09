@@ -15,7 +15,7 @@ import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
 import io.so1s.backend.domain.deployment.exception.DeploymentExistsException;
 import io.so1s.backend.domain.deployment.exception.LibraryNotFoundException;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
-import io.so1s.backend.domain.deployment.repository.DeploymentStrategyRepository;
+import io.so1s.backend.domain.deployment_strategy.repository.DeploymentStrategyRepository;
 import io.so1s.backend.domain.library.entity.Library;
 import io.so1s.backend.domain.library.repository.LibraryRepository;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
