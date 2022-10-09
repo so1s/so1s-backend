@@ -10,6 +10,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.so1s.backend.domain.aws.config.S3Config;
 import io.so1s.backend.domain.aws.service.AwsS3Service;
+import io.so1s.backend.domain.deployment.dto.mapper.DeploymentMapper;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentDeleteResponseDto;
@@ -85,6 +86,7 @@ public class DeploymentServiceTest {
   ResourceRepository resourceRepository;
   @Autowired
   ABTestRepository abTestRepository;
+  DeploymentMapper deploymentMapper = new DeploymentMapper();
   @MockBean
   JobStatusChecker jobStatusChecker;
   @MockBean
@@ -101,7 +103,7 @@ public class DeploymentServiceTest {
         modelMetadataRepository, deploymentRepository, awsS3UploadService);
     deploymentService = new DeploymentServiceImpl(deploymentRepository,
         deploymentStrategyRepository, resourceRepository, abTestRepository, kubernetesService,
-        modelService);
+        modelService, deploymentMapper);
     resourceRequestDto = ResourceRequestDto.builder()
         .cpu("1")
         .memory("1Gi")

@@ -157,6 +157,7 @@ public class DeploymentControllerTest {
     // given
     List<DeploymentFindResponseDto> list = new ArrayList<>();
     list.add(DeploymentFindResponseDto.builder()
+        .id(42L)
         .age(LocalDateTime.now().toString())
         .deploymentName("testDeploy")
         .status(Status.RUNNING)
@@ -172,6 +173,7 @@ public class DeploymentControllerTest {
 
     // then
     result.andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].id").value(list.get(0).getId()))
         .andExpect(jsonPath("$[0].age").exists()) // TimeStamp 불일치 문제로 임시 수정
         .andExpect(jsonPath("$[0].deploymentName").value(list.get(0).getDeploymentName()))
         .andExpect(jsonPath("$[0].status").value(list.get(0).getStatus().toString()))
@@ -184,6 +186,7 @@ public class DeploymentControllerTest {
   public void findDeployment() throws Exception {
     // given
     DeploymentFindResponseDto responseDto = DeploymentFindResponseDto.builder()
+        .id(42L)
         .age(LocalDateTime.now().toString())
         .deploymentName("testDeploy")
         .status(Status.RUNNING)
@@ -199,6 +202,7 @@ public class DeploymentControllerTest {
 
     // then
     result.andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(responseDto.getId()))
         .andExpect(jsonPath("$.age").exists()) // TimeStamp 불일치 문제로 임시 수정
         .andExpect(jsonPath("$.deploymentName").value(responseDto.getDeploymentName()))
         .andExpect(jsonPath("$.status").value(responseDto.getStatus().toString()))
