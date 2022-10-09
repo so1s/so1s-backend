@@ -26,9 +26,7 @@ public interface DeploymentService {
   Deployment updateDeployment(DeploymentRequestDto deploymentRequestDto);
 
   Deployment validateExistDeployment(String name);
-
-  DeploymentFindResponseDto setDeploymentFindResponseDto(Deployment deployment);
-
+  
   List<DeploymentFindResponseDto> findDeployments();
 
   DeploymentFindResponseDto findDeployment(Long id);
