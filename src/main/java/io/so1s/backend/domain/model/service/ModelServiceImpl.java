@@ -8,6 +8,8 @@ import io.so1s.backend.domain.deployment.exception.LibraryNotFoundException;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.library.entity.Library;
 import io.so1s.backend.domain.library.repository.LibraryRepository;
+import io.so1s.backend.domain.model.dto.mapper.ModelMapper;
+import io.so1s.backend.domain.model.dto.mapper.ModelMetadataMapper;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
 import io.so1s.backend.domain.model.dto.response.ModelDeleteResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelDetailResponseDto;
@@ -22,11 +24,10 @@ import io.so1s.backend.domain.model.exception.ModelMetadataNotFoundException;
 import io.so1s.backend.domain.model.exception.ModelNotFoundException;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
-import io.so1s.backend.global.utils.HashGenerator;
-import io.so1s.backend.global.vo.Status;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +41,8 @@ public class ModelServiceImpl implements ModelService {
   private final ModelMetadataRepository modelMetadataRepository;
   private final DeploymentRepository deploymentRepository;
   private final AwsS3Service awsS3Service;
+  private final ModelMapper modelMapper;
+  private final ModelMetadataMapper modelMetadataMapper;
 
   @Transactional(readOnly = true)
   public void validateDuplicateModelName(String name) {
@@ -56,26 +59,14 @@ public class ModelServiceImpl implements ModelService {
   public Model createModel(ModelUploadRequestDto modelUploadRequestDto) {
     validateDuplicateModelName(modelUploadRequestDto.getName());
     Library library = validateLibrary(modelUploadRequestDto.getLibrary());
-    return modelRepository.save(Model.builder()
-        .name(modelUploadRequestDto.getName())
-        .library(library)
-        .build());
+    return modelRepository.save(modelMapper.toEntity(modelUploadRequestDto, library));
   }
 
   @Transactional
   public ModelMetadata createModelMetadata(Model model,
       ModelUploadRequestDto modelUploadRequestDto, FileSaveResultForm fileSaveResultForm) {
-    return modelMetadataRepository.save(ModelMetadata.builder()
-        .status(Status.PENDING)
-        .version(HashGenerator.sha256())
-        .fileName(fileSaveResultForm.getSavedName())
-        .url(fileSaveResultForm.getUrl())
-        .inputShape(modelUploadRequestDto.getInputShape())
-        .inputDtype(modelUploadRequestDto.getInputDtype())
-        .outputShape(modelUploadRequestDto.getOutputShape())
-        .outputDtype(modelUploadRequestDto.getOutputDtype())
-        .model(model)
-        .build());
+    return modelMetadataRepository.save(
+        modelMetadataMapper.toEntity(model, modelUploadRequestDto, fileSaveResultForm));
   }
 
   @Transactional(readOnly = true)
@@ -115,19 +106,10 @@ public class ModelServiceImpl implements ModelService {
   public List<ModelFindResponseDto> findModels() {
     List<Model> models = modelRepository.findAll();
     List<ModelFindResponseDto> res = new ArrayList<>();
-    for (Model m : models) {
-      Optional<ModelMetadata> modelMetadata = modelMetadataRepository.findFirstByModelIdOrderByIdDesc(
-          m.getId());
 
-      modelMetadata.ifPresent(metadata -> res.add(ModelFindResponseDto.builder()
-          .id(m.getId())
-          .age(m.getUpdatedOn())
-          .name(m.getName())
-          .status(metadata.getStatus())
-          .version(metadata.getVersion())
-          .library(m.getLibrary().getName())
-          .build()));
-    }
+    models.forEach(model -> modelMetadataRepository
+        .findFirstByModelIdOrderByIdDesc(model.getId())
+        .ifPresent(modelMetadata -> res.add(modelMapper.toFindResponseDto(model, modelMetadata))));
 
     return res;
   }
@@ -135,47 +117,25 @@ public class ModelServiceImpl implements ModelService {
   @Transactional(readOnly = true)
   @Override
   public List<ModelMetadataFindResponseDto> findModelMetadatasByModelId(Long id) {
-    List<ModelMetadata> modelMetadatas = modelMetadataRepository.findByModelId(id);
-    List<ModelMetadataFindResponseDto> res = new ArrayList<>();
-    for (ModelMetadata mm : modelMetadatas) {
-      res.add(ModelMetadataFindResponseDto.builder()
-          .age(mm.getUpdatedOn())
-          .version(mm.getVersion())
-          .status(mm.getStatus())
-          .url(mm.getUrl())
-          .build());
-    }
-
-    return res;
+    return modelMetadataRepository.findByModelId(id)
+        .stream()
+        .map(modelMetadataMapper::toFindResponseDto)
+        .collect(Collectors.toList());
   }
 
   @Transactional(readOnly = true)
   @Override
-  public ModelDetailResponseDto findModelDetail(Long modelId, String version) {
+  public ModelDetailResponseDto findModelDetail(Long modelId, String version)
+      throws ModelNotFoundException, ModelMetadataNotFoundException {
 
-    Optional<Model> model = modelRepository.findById(modelId);
-    if (model.isEmpty()) {
-      throw new ModelNotFoundException("Model not found.");
-    }
+    Model model = modelRepository.findById(modelId)
+        .orElseThrow(() -> new ModelNotFoundException("Model not found."));
 
-    Optional<ModelMetadata> modelMetadata = modelMetadataRepository.findByModelIdAndVersion(
-        modelId, version);
-    if (modelMetadata.isEmpty()) {
-      throw new ModelMetadataNotFoundException("Invalid model version.");
-    }
+    ModelMetadata modelMetadata = modelMetadataRepository.findByModelIdAndVersion(
+            modelId, version)
+        .orElseThrow(() -> new ModelMetadataNotFoundException("Invalid model version."));
 
-    return ModelDetailResponseDto.builder()
-        .age(modelMetadata.get().getUpdatedOn())
-        .name(model.get().getName())
-        .version(modelMetadata.get().getVersion())
-        .status(modelMetadata.get().getStatus())
-        .url(modelMetadata.get().getUrl())
-        .library(model.get().getLibrary().getName())
-        .inputShape(modelMetadata.get().getInputShape())
-        .inputDtype(modelMetadata.get().getInputDtype())
-        .outputShape(modelMetadata.get().getOutputShape())
-        .outputDtype(modelMetadata.get().getOutputDtype())
-        .build();
+    return modelMapper.toDetailResponseDto(model, modelMetadata);
   }
 
   @Override

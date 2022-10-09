@@ -30,6 +30,8 @@ import io.so1s.backend.domain.kubernetes.service.KubernetesServiceImpl;
 import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
 import io.so1s.backend.domain.library.entity.Library;
 import io.so1s.backend.domain.library.repository.LibraryRepository;
+import io.so1s.backend.domain.model.dto.mapper.ModelMapper;
+import io.so1s.backend.domain.model.dto.mapper.ModelMetadataMapper;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.exception.ModelMetadataNotFoundException;
@@ -106,11 +108,15 @@ public class DeploymentServiceTest {
 
   ResourceRequestDto resourceRequestDto;
 
+  ModelMapper modelMapper = new ModelMapper();
+  ModelMetadataMapper modelMetadataMapper = new ModelMetadataMapper();
+
   @BeforeEach
   void setup() {
     kubernetesService = new KubernetesServiceImpl(client, istioClient, jobStatusChecker);
     modelService = new ModelServiceImpl(modelRepository, libraryRepository,
-        modelMetadataRepository, deploymentRepository, awsS3UploadService);
+        modelMetadataRepository, deploymentRepository, awsS3UploadService, modelMapper,
+        modelMetadataMapper);
     resourceService = new ResourceServiceImpl(resourceRepository, resourceMapper);
     deploymentStrategyService = new DeploymentStrategyServiceImpl(deploymentStrategyRepository,
         deploymentStrategyMapper);
