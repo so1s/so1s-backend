@@ -1,6 +1,6 @@
 package io.so1s.backend.domain.deployment.dto.request;
 
-import io.so1s.backend.domain.deployment.entity.Resource;
+import io.so1s.backend.domain.resource.entity.Resource;
 import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

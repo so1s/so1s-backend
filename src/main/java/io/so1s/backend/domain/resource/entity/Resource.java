@@ -1,5 +1,6 @@
-package io.so1s.backend.domain.deployment.entity;
+package io.so1s.backend.domain.resource.entity;
 
+import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.global.entity.BaseTimeEntity;
 import java.util.ArrayList;
 import java.util.List;
