@@ -37,15 +37,15 @@ jobs:
       - name: Run build
         run: ./gradlew build --stacktrace -x test
         env:
-          JAVA_HOME: ~/.sdkman/candidates/java/11.0.15.9.1-amzn
+          JAVA_HOME: /home/runner/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: Run test
         run: ./gradlew test
         env:
-          JAVA_HOME: ~/.sdkman/candidates/java/11.0.15.9.1-amzn
+          JAVA_HOME: /home/runner/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: Run jacoco report
         run: ./gradlew jacocoTestReport
         env:
-          JAVA_HOME: ~/.sdkman/candidates/java/11.0.15.9.1-amzn
+          JAVA_HOME: /home/runner/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
