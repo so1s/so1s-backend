@@ -13,6 +13,8 @@ import io.so1s.backend.domain.aws.service.AwsS3Service;
 import io.so1s.backend.domain.deployment.dto.mapper.DeploymentMapper;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
+import io.so1s.backend.domain.deployment.dto.request.ScaleDto;
+import io.so1s.backend.domain.deployment.dto.request.Standard;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentDeleteResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
@@ -169,6 +171,8 @@ public class DeploymentServiceTest {
     Resource resource = resourceRequestDto.toEntity();
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
+        .scaleDto(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
+            .maxReplicas(10).build())
         .modelMetadataId(modelMetadata.getId())
         .strategy("rolling")
         .resources(resourceRequestDto)
@@ -197,6 +201,8 @@ public class DeploymentServiceTest {
         .modelMetadataId(-(1L))
         .strategy("rolling")
         .resources(resourceRequestDto)
+        .scaleDto(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
+            .maxReplicas(10).build())
         .build();
 
     // when
@@ -226,6 +232,8 @@ public class DeploymentServiceTest {
         .modelMetadataId(modelMetadata.getId())
         .strategy("not-exist-strategy")
         .resources(resourceRequestDto)
+        .scaleDto(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
+            .maxReplicas(10).build())
         .build();
 
     // when
@@ -255,6 +263,8 @@ public class DeploymentServiceTest {
         .modelMetadataId(modelMetadata.getId())
         .strategy("rolling")
         .resources(resourceRequestDto)
+        .scaleDto(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
+            .maxReplicas(10).build())
         .build();
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
@@ -273,6 +283,8 @@ public class DeploymentServiceTest {
         .modelMetadataId(modelMetadata2.getId())
         .strategy("rolling")
         .resources(resourceRequestDto)
+        .scaleDto(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
+            .maxReplicas(10).build())
         .build();
 
     // when
@@ -304,6 +316,8 @@ public class DeploymentServiceTest {
         .modelMetadataId(modelMetadata.getId())
         .strategy("rolling")
         .resources(resourceRequestDto)
+        .scaleDto(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
+            .maxReplicas(10).build())
         .build();
 
     // when
@@ -339,6 +353,8 @@ public class DeploymentServiceTest {
         .modelMetadataId(modelMetadata.getId())
         .strategy("rolling")
         .resources(resourceRequestDto)
+        .scaleDto(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
+            .maxReplicas(10).build())
         .build();
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
@@ -383,6 +399,8 @@ public class DeploymentServiceTest {
         .modelMetadataId(modelMetadata.getId())
         .strategy("rolling")
         .resources(resourceRequestDto)
+        .scaleDto(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
+            .maxReplicas(10).build())
         .build();
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
@@ -423,6 +441,8 @@ public class DeploymentServiceTest {
         .modelMetadataId(modelMetadata.getId())
         .strategy("rolling")
         .resources(resourceRequestDto)
+        .scaleDto(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
+            .maxReplicas(10).build())
         .build();
 
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
@@ -480,6 +500,8 @@ public class DeploymentServiceTest {
         .modelMetadataId(modelMetadata.getId())
         .strategy("rolling")
         .resources(resourceRequestDto)
+        .scaleDto(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
+            .maxReplicas(10).build())
         .build();
 
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);

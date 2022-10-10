@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.so1s.backend.domain.deployment.controller.DeploymentController;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
+import io.so1s.backend.domain.deployment.dto.request.ScaleDto;
+import io.so1s.backend.domain.deployment.dto.request.Standard;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
@@ -83,6 +85,12 @@ public class DeploymentControllerTest {
             .cpuLimit("2")
             .memoryLimit("2Gi")
             .gpuLimit("0")
+            .build())
+        .scaleDto(ScaleDto.builder()
+            .standard(Standard.LATENCY)
+            .standardValue(20)
+            .maxReplicas(10)
+            .minReplicas(1)
             .build())
         .build();
     deploymentResponseDto = DeploymentResponseDto.builder()

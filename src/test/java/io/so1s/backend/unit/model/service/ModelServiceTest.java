@@ -10,6 +10,7 @@ import io.so1s.backend.domain.aws.config.S3Config;
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.aws.service.AwsS3Service;
 import io.so1s.backend.domain.aws.service.FileUploadService;
+import io.so1s.backend.domain.deployment.dto.request.Standard;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
 import io.so1s.backend.domain.deployment.exception.DeploymentExistsException;
@@ -420,6 +421,10 @@ class ModelServiceTest {
         .name("test-deployment")
         .endPoint("www.test.io")
         .status(Status.PENDING)
+        .standard(Standard.LATENCY)
+        .standardValue(20)
+        .maxReplicas(10)
+        .minReplicas(1)
         .modelMetadata(modelMetadata)
         .deploymentStrategy(deploymentStrategy)
         .resource(resource)

@@ -10,6 +10,7 @@ import io.fabric8.kubernetes.api.model.apps.DeploymentCondition;
 import io.fabric8.kubernetes.api.model.apps.DeploymentStatus;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
+import io.so1s.backend.domain.deployment.dto.request.Standard;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
@@ -110,6 +111,8 @@ public class DeploymentStatusCheckSchedulerTest {
         .name("test-deployment")
         .endPoint("www.test.io")
         .status(Status.PENDING)
+        .standard(Standard.REPLICAS)
+        .standardValue(1)
         .modelMetadata(modelMetadata)
         .deploymentStrategy(deploymentStrategy)
         .resource(resource)

@@ -50,13 +50,13 @@ public class Deployment extends BaseTimeEntity {
   private Standard standard;
 
   @Column(nullable = false)
-  private int standardValue;
+  private Integer standardValue;
 
   @Column()
-  private int minReplicas;
+  private Integer minReplicas;
 
   @Column()
-  private int maxReplicas;
+  private Integer maxReplicas;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "model_metadata_id")
