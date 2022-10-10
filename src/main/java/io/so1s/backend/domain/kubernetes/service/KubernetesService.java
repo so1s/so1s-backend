@@ -30,4 +30,7 @@ public interface KubernetesService {
   boolean deleteDeployment(Deployment deployment);
 
   boolean deleteABTest(ABTest abTest);
+
+  boolean createHPA(io.so1s.backend.domain.deployment.entity.Deployment deployment,
+      String namespace);
 }

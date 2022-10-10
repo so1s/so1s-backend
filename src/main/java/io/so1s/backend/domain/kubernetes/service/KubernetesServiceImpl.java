@@ -17,11 +17,15 @@ import io.fabric8.kubernetes.api.model.VolumeBuilder;
 import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
+import io.fabric8.kubernetes.api.model.autoscaling.v2beta2.HorizontalPodAutoscaler;
+import io.fabric8.kubernetes.api.model.autoscaling.v2beta2.HorizontalPodAutoscalerBuilder;
+import io.fabric8.kubernetes.api.model.autoscaling.v2beta2.MetricSpecBuilder;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.internal.SerializationUtils;
+import io.so1s.backend.domain.deployment.dto.request.Standard;
 import io.so1s.backend.domain.kubernetes.exception.TooManyBuildRequestException;
 import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
 import io.so1s.backend.domain.model.entity.Model;
@@ -216,7 +220,8 @@ public class KubernetesServiceImpl implements KubernetesService {
         .addToLabels(labels)
         .endMetadata()
         .withNewSpec()
-        .withReplicas(1)
+        .withReplicas(
+            deployment.getStandard() == Standard.REPLICAS ? deployment.getStandardValue() : 1)
         .withNewSelector()
         .addToMatchLabels(labels)
         .endSelector()
@@ -328,6 +333,10 @@ public class KubernetesServiceImpl implements KubernetesService {
     istioClient.v1beta1().gateways().inNamespace(namespace).createOrReplace(inferenceGateway);
     istioClient.v1beta1().virtualServices().inNamespace(namespace)
         .createOrReplace(inferenceVirtualService);
+
+    if (deployment.getStandard() != Standard.REPLICAS) {
+      createHPA(deployment, namespace);
+    }
 
     return true;
   }
@@ -474,5 +483,60 @@ public class KubernetesServiceImpl implements KubernetesService {
         .filter((item) -> item.getMetadata().getLabels().get("modelName").equals(name))
         .collect(Collectors.toList())
         .get(jobs.size() - 1);
+  }
+
+  public boolean createHPA(io.so1s.backend.domain.deployment.entity.Deployment deployment,
+      String namespace) {
+    HorizontalPodAutoscaler horizontalPodAutoscaler = new HorizontalPodAutoscalerBuilder()
+        .withNewMetadata().withName(deployment.getName().toLowerCase() + "-hpa")
+        .withNamespace(namespace).endMetadata()
+        .withNewSpec()
+        .withNewScaleTargetRef()
+        .withApiVersion("apps/v1")
+        .withKind("Deployment")
+        .withName(deployment.getName().toLowerCase())
+        .endScaleTargetRef()
+        .withMinReplicas(deployment.getMinReplicas())
+        .withMaxReplicas(deployment.getMaxReplicas())
+        .addToMetrics(new MetricSpecBuilder().withType("Object")
+            .withNewObject()
+            .withNewMetric()
+            .withName("request_duration_milliseconds")
+            .endMetric()
+            .withNewDescribedObject()
+            .withApiVersion("apps/v1")
+            .withKind("Deployment")
+            .withName(deployment.getName().toLowerCase())
+            .endDescribedObject()
+            .withNewTarget()
+            .withType("AverageValue")
+            .withValue(new Quantity(deployment.getStandardValue() + ""))
+            .endTarget()
+            .endObject().build())
+        .withNewBehavior()
+        .withNewScaleDown()
+        .addNewPolicy()
+        .withType("Pods")
+        .withValue(4)
+        .withPeriodSeconds(60)
+        .endPolicy()
+        .addNewPolicy()
+        .withType("Percent")
+        .withValue(10)
+        .withPeriodSeconds(60)
+        .endPolicy()
+        .endScaleDown()
+        .endBehavior()
+        .endSpec()
+        .build();
+
+    try {
+      client.autoscaling().v2beta2().horizontalPodAutoscalers().inNamespace(namespace)
+          .create(horizontalPodAutoscaler);
+    } catch (KubernetesClientException ignored) {
+      return false;
+    }
+
+    return true;
   }
 }

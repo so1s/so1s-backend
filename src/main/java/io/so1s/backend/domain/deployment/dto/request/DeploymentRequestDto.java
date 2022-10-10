@@ -29,4 +29,8 @@ public class DeploymentRequestDto {
   @Valid
   private ResourceRequestDto resources;
 
+  @Valid
+  private ScaleDto scaleDto;
+
 }
+
