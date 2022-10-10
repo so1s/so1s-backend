@@ -30,7 +30,7 @@ jobs:
           password: ${{ secrets.GHCR_TOKEN }}
       - name: Install dependencies
         run: |
-          apt update -y && apt install zip unzip -y
+          sudo apt update -y && sudo apt install zip unzip -y
           curl -s "https://get.sdkman.io" | bash
           source ~/.sdkman/bin/sdkman-init.sh
           sdk selfupdate
@@ -41,7 +41,7 @@ jobs:
           sdk use java 11.0.15.9.1-amzn
           sdk use gradle 7.4.2
           gradle wrapper
-          chmod +x gradlew
+          sudo chmod +x gradlew
         env:
           sdkman_selfupdate_enable: false
       - name: Build Openapi3 json
