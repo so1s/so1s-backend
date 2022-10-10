@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Install dependencies
         run: |
-          apt update -y && apt install zip unzip -y
+          sudo apt update -y && sudo apt install zip unzip -y
           curl -s "https://get.sdkman.io" | bash
           source ~/.sdkman/bin/sdkman-init.sh
           sdk selfupdate
@@ -37,15 +37,15 @@ jobs:
       - name: Run build
         run: ./gradlew build --stacktrace -x test
         env:
-          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
+          JAVA_HOME: ~/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: Run test
         run: ./gradlew test
         env:
-          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
+          JAVA_HOME: ~/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: Run jacoco report
         run: ./gradlew jacocoTestReport
         env:
-          JAVA_HOME: /root/.sdkman/candidates/java/11.0.15.9.1-amzn
+          JAVA_HOME: ~/.sdkman/candidates/java/11.0.15.9.1-amzn
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
