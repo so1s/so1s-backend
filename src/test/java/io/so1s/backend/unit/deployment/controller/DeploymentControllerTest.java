@@ -15,10 +15,11 @@ import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
-import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.deployment.service.DeploymentServiceImpl;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
+import io.so1s.backend.domain.resource.entity.Resource;
+import io.so1s.backend.domain.resource.service.ResourceService;
 import io.so1s.backend.global.config.SecurityConfig;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
@@ -57,6 +58,8 @@ public class DeploymentControllerTest {
   KubernetesService kubernetesService;
   @MockBean
   ModelServiceImpl modelService;
+  @MockBean
+  ResourceService resourceService;
 
   ObjectMapper objectMapper;
   DeploymentRequestDto deploymentRequestDto;
@@ -98,7 +101,7 @@ public class DeploymentControllerTest {
   @DisplayName("배포가 정상적으로 이루어졌을때 200을 반환한다.")
   public void createDeploymentTest() throws Exception {
     // given
-    when(deploymentService.createResource(any(ResourceRequestDto.class))).thenReturn(resource);
+    when(resourceService.createResource(any(ResourceRequestDto.class))).thenReturn(resource);
     when(deploymentService.createDeployment(any(Resource.class), any(DeploymentRequestDto.class)))
         .thenReturn(Deployment.builder()
             .id(1L)
@@ -157,6 +160,7 @@ public class DeploymentControllerTest {
     // given
     List<DeploymentFindResponseDto> list = new ArrayList<>();
     list.add(DeploymentFindResponseDto.builder()
+        .id(42L)
         .age(LocalDateTime.now().toString())
         .deploymentName("testDeploy")
         .status(Status.RUNNING)
@@ -172,6 +176,7 @@ public class DeploymentControllerTest {
 
     // then
     result.andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].id").value(list.get(0).getId()))
         .andExpect(jsonPath("$[0].age").exists()) // TimeStamp 불일치 문제로 임시 수정
         .andExpect(jsonPath("$[0].deploymentName").value(list.get(0).getDeploymentName()))
         .andExpect(jsonPath("$[0].status").value(list.get(0).getStatus().toString()))
@@ -184,6 +189,7 @@ public class DeploymentControllerTest {
   public void findDeployment() throws Exception {
     // given
     DeploymentFindResponseDto responseDto = DeploymentFindResponseDto.builder()
+        .id(42L)
         .age(LocalDateTime.now().toString())
         .deploymentName("testDeploy")
         .status(Status.RUNNING)
@@ -199,6 +205,7 @@ public class DeploymentControllerTest {
 
     // then
     result.andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(responseDto.getId()))
         .andExpect(jsonPath("$.age").exists()) // TimeStamp 불일치 문제로 임시 수정
         .andExpect(jsonPath("$.deploymentName").value(responseDto.getDeploymentName()))
         .andExpect(jsonPath("$.status").value(responseDto.getStatus().toString()))

@@ -7,11 +7,12 @@ import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindYamlResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
-import io.so1s.backend.domain.deployment.entity.Resource;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
 import io.so1s.backend.domain.deployment.service.DeploymentService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.service.ModelService;
+import io.so1s.backend.domain.resource.entity.Resource;
+import io.so1s.backend.domain.resource.service.ResourceService;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,13 +34,14 @@ public class DeploymentController {
 
   private final DeploymentService deploymentService;
   private final KubernetesService kubernetesService;
+  private final ResourceService resourceService;
   private final ModelService modelService;
 
   @PostMapping
   public ResponseEntity<DeploymentResponseDto> createDeployment(
       @Valid @RequestBody DeploymentRequestDto deploymentRequestDto) {
 
-    Resource resource = deploymentService.createResource(deploymentRequestDto.getResources());
+    Resource resource = resourceService.createResource(deploymentRequestDto.getResources());
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
     return ResponseEntity.ok(
@@ -93,7 +95,7 @@ public class DeploymentController {
     String deploymentName = deploymentService.findDeployment(id).getDeploymentName().toLowerCase();
     HasMetadata deployment = kubernetesService.getDeploymentObject(deploymentName);
     String yaml = kubernetesService.getWorkloadToYaml(deployment);
-    
+
     return ResponseEntity.ok(DeploymentFindYamlResponseDto.builder().yaml(yaml).build());
   }
 }

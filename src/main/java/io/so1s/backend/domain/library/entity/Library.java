@@ -1,5 +1,6 @@
-package io.so1s.backend.domain.model.entity;
+package io.so1s.backend.domain.library.entity;
 
+import io.so1s.backend.domain.model.entity.Model;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;

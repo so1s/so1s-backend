@@ -2,6 +2,7 @@ package io.so1s.backend.domain.deployment.entity;
 
 
 import io.so1s.backend.domain.model.entity.ModelMetadata;
+import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.global.entity.BaseTimeEntity;
 import io.so1s.backend.global.vo.Status;
 import javax.persistence.Column;
@@ -33,7 +34,7 @@ public class Deployment extends BaseTimeEntity {
   @Column(name = "deployment_id")
   private Long id;
 
-  @Column(nullable = false)
+  @Column(nullable = false, unique = true)
   private String name;
 
   @Column(nullable = false)

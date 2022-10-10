@@ -1,4 +1,4 @@
-package io.so1s.backend.domain.deployment.exception;
+package io.so1s.backend.domain.deployment_strategy.exception;
 
 import io.so1s.backend.global.error.exception.NotFoundException;
 

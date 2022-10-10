@@ -1,6 +1,6 @@
-package io.so1s.backend.domain.deployment.repository;
+package io.so1s.backend.domain.resource.repository;
 
-import io.so1s.backend.domain.deployment.entity.Resource;
+import io.so1s.backend.domain.resource.entity.Resource;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
