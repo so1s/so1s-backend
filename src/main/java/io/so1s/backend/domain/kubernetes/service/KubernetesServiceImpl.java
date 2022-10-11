@@ -512,8 +512,9 @@ public class KubernetesServiceImpl implements KubernetesService {
             .withName(deployment.getName().toLowerCase())
             .endDescribedObject()
             .withNewTarget()
-            .withType("AverageValue")
-            .withValue(new Quantity(deployment.getStandardValue() + ""))
+            .withType(deployment.getStandard().getType())
+            .withValue(
+                new Quantity(deployment.getStandardValue() + deployment.getStandard().getUnit()))
             .endTarget()
             .endObject().build())
         .withNewBehavior()
