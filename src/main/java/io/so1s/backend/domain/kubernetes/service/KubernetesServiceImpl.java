@@ -536,7 +536,7 @@ public class KubernetesServiceImpl implements KubernetesService {
 
     try {
       client.autoscaling().v2beta2().horizontalPodAutoscalers().inNamespace(namespace)
-          .create(horizontalPodAutoscaler);
+          .createOrReplace(horizontalPodAutoscaler);
     } catch (KubernetesClientException ignored) {
       return false;
     }
