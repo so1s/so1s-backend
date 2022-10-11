@@ -442,6 +442,9 @@ public class KubernetesServiceImpl implements KubernetesService {
       istioClient.v1beta1().gateways().inNamespace(namespace).withName(deploymentName).delete();
       istioClient.v1beta1().virtualServices().inNamespace(namespace).withName(deploymentName)
           .delete();
+      client.autoscaling().v2beta2().horizontalPodAutoscalers().inNamespace(namespace)
+          .withName(deploymentName + "-hpa")
+          .delete();
     } catch (KubernetesClientException ignored) {
       return false;
     }
