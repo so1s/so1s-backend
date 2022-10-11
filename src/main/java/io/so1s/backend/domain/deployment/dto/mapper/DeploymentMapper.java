@@ -33,10 +33,10 @@ public class DeploymentMapper {
         .name(deploymentRequestDto.getName())
         .status(Status.PENDING)
         .endPoint("inference-" + deploymentRequestDto.getName().toLowerCase() + ".so1s.io")
-        .standard(deploymentRequestDto.getScaleDto().getStandard())
-        .standardValue(deploymentRequestDto.getScaleDto().getStandardValue())
-        .minReplicas(deploymentRequestDto.getScaleDto().getMinReplicas())
-        .maxReplicas(deploymentRequestDto.getScaleDto().getMaxReplicas())
+        .standard(deploymentRequestDto.getScale().getStandard())
+        .standardValue(deploymentRequestDto.getScale().getStandardValue())
+        .minReplicas(deploymentRequestDto.getScale().getMinReplicas())
+        .maxReplicas(deploymentRequestDto.getScale().getMaxReplicas())
         .build();
   }
 }

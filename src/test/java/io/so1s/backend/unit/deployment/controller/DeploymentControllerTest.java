@@ -86,7 +86,7 @@ public class DeploymentControllerTest {
             .memoryLimit("2Gi")
             .gpuLimit("0")
             .build())
-        .scaleDto(ScaleDto.builder()
+        .scale(ScaleDto.builder()
             .standard(Standard.LATENCY)
             .standardValue(20)
             .maxReplicas(10)

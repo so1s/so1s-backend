@@ -30,7 +30,7 @@ public class DeploymentRequestDto {
   private ResourceRequestDto resources;
 
   @Valid
-  private ScaleDto scaleDto;
+  private ScaleDto scale;
 
 }
 
