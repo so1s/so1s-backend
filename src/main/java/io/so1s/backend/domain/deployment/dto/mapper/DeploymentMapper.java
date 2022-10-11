@@ -25,6 +25,10 @@ public class DeploymentMapper {
         .cpuLimit(deployment.getResource().getCpuLimit())
         .memoryLimit(deployment.getResource().getMemoryLimit())
         .gpuLimit(deployment.getResource().getGpuLimit())
+        .standard(deployment.getStandard())
+        .standardValue(deployment.getStandardValue())
+        .maxReplicas(deployment.getMaxReplicas())
+        .minReplicas(deployment.getMinReplicas())
         .build();
   }
 
