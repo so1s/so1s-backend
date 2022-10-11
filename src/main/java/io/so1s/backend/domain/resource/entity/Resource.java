@@ -34,6 +34,9 @@ public class Resource extends BaseTimeEntity {
   @Column(name = "resource_id")
   private Long id;
 
+  @Column(nullable = false, unique = true)
+  private String name;
+
   @Column(nullable = false)
   private String cpu;
 
