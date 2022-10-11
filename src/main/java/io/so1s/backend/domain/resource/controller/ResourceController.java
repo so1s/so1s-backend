@@ -1,6 +1,5 @@
 package io.so1s.backend.domain.resource.controller;
 
-import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
 import io.so1s.backend.domain.resource.dto.request.ResourceCreateRequestDto;
 import io.so1s.backend.domain.resource.dto.response.ResourceCreateResponseDto;
 import io.so1s.backend.domain.resource.dto.response.ResourceDeleteResponseDto;
@@ -46,8 +45,7 @@ public class ResourceController {
 
   @DeleteMapping("/{resource_id}")
   public ResponseEntity<ResourceDeleteResponseDto> deleteResource(
-      @Valid @PathVariable("resource_id") Long id)
-      throws DeploymentNotFoundException {
+      @Valid @PathVariable("resource_id") Long id) {
     ResourceDeleteResponseDto responseDto = resourceService.deleteResource(id);
 
     return ResponseEntity.status(responseDto.getSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
