@@ -187,7 +187,6 @@ public class GlobalExceptionHandlerTest {
         .name(" ")
         .modelMetadataId(1L)
         .strategy("rolling")
-        .resources(null)
         .build();
     String requestDto = jsonMapper.asJsonString(deploymentRequestDto);
 

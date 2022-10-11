@@ -1,6 +1,5 @@
 package io.so1s.backend.domain.deployment.dto.request;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -26,7 +25,6 @@ public class DeploymentRequestDto {
   @Builder.Default
   private String strategy = "rolling";
 
-  @Valid
-  private ResourceRequestDto resources;
+  private Long resourceId;
 
 }

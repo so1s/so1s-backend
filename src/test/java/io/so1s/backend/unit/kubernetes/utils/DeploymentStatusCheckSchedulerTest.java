@@ -99,6 +99,7 @@ public class DeploymentStatusCheckSchedulerTest {
     DeploymentStrategy deploymentStrategy = deploymentStrategyRepository.findByName("rolling")
         .get();
     Resource resource = resourceRepository.save(Resource.builder()
+        .name("schdulingTest")
         .cpu("1")
         .memory("1Gi")
         .gpu("0")

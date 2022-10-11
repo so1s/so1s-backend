@@ -12,7 +12,6 @@ import io.so1s.backend.domain.aws.config.S3Config;
 import io.so1s.backend.domain.aws.service.AwsS3Service;
 import io.so1s.backend.domain.deployment.dto.mapper.DeploymentMapper;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
-import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentDeleteResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
@@ -40,6 +39,7 @@ import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
 import io.so1s.backend.domain.resource.dto.mapper.ResourceMapper;
+import io.so1s.backend.domain.resource.dto.request.ResourceCreateRequestDto;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.domain.resource.repository.ResourceRepository;
 import io.so1s.backend.domain.resource.service.ResourceService;
@@ -106,7 +106,7 @@ public class DeploymentServiceTest {
   @MockBean
   AwsS3Service awsS3UploadService;
 
-  ResourceRequestDto resourceRequestDto;
+  ResourceCreateRequestDto resourceRequestDto;
 
   ModelMapper modelMapper = new ModelMapper();
   ModelMetadataMapper modelMetadataMapper = new ModelMetadataMapper();
@@ -123,7 +123,8 @@ public class DeploymentServiceTest {
     deploymentService = new DeploymentServiceImpl(deploymentRepository,
         deploymentStrategyRepository, resourceRepository, abTestRepository, kubernetesService,
         modelService, resourceService, deploymentStrategyService, deploymentMapper);
-    resourceRequestDto = ResourceRequestDto.builder()
+    resourceRequestDto = ResourceCreateRequestDto.builder()
+        .name("DeploymentServiceTestResource")
         .cpu("1")
         .memory("1Gi")
         .gpu("0")
@@ -166,12 +167,12 @@ public class DeploymentServiceTest {
         .outputShape("(1,)")
         .outputDtype("float32")
         .build());
-    Resource resource = resourceRequestDto.toEntity();
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
         .modelMetadataId(modelMetadata.getId())
         .strategy("rolling")
-        .resources(resourceRequestDto)
+        .resourceId(resource.getId())
         .build();
 
     // when
@@ -191,12 +192,12 @@ public class DeploymentServiceTest {
   @DisplayName("잘못된 모델메타데이터를 선택했을경우 ModelMetadataNotFoundException이 발생한다.")
   public void createDeploymentWrongModelMetadataTest() throws Exception {
     // given
-    Resource resource = resourceRequestDto.toEntity();
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
         .modelMetadataId(-(1L))
         .strategy("rolling")
-        .resources(resourceRequestDto)
+        .resourceId(resource.getId())
         .build();
 
     // when
@@ -220,12 +221,12 @@ public class DeploymentServiceTest {
         .outputShape("(1,)")
         .outputDtype("float32")
         .build());
-    Resource resource = resourceRequestDto.toEntity();
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
         .modelMetadataId(modelMetadata.getId())
         .strategy("not-exist-strategy")
-        .resources(resourceRequestDto)
+        .resourceId(resource.getId())
         .build();
 
     // when
@@ -254,7 +255,7 @@ public class DeploymentServiceTest {
         .name("testDeployment")
         .modelMetadataId(modelMetadata.getId())
         .strategy("rolling")
-        .resources(resourceRequestDto)
+        .resourceId(resource.getId())
         .build();
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
@@ -272,7 +273,7 @@ public class DeploymentServiceTest {
         .name("testDeployment")
         .modelMetadataId(modelMetadata2.getId())
         .strategy("rolling")
-        .resources(resourceRequestDto)
+        .resourceId(resource.getId())
         .build();
 
     // when
@@ -298,12 +299,12 @@ public class DeploymentServiceTest {
         .outputShape("(1,)")
         .outputDtype("float32")
         .build());
-    Resource resource = resourceRequestDto.toEntity();
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("not-exist-deployment")
         .modelMetadataId(modelMetadata.getId())
         .strategy("rolling")
-        .resources(resourceRequestDto)
+        .resourceId(resource.getId())
         .build();
 
     // when
@@ -338,7 +339,7 @@ public class DeploymentServiceTest {
         .name("testDeployment")
         .modelMetadataId(modelMetadata.getId())
         .strategy("rolling")
-        .resources(resourceRequestDto)
+        .resourceId(resource.getId())
         .build();
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
@@ -377,12 +378,12 @@ public class DeploymentServiceTest {
         .outputDtype("float32")
         .model(model)
         .build());
-    Resource resource = resourceRequestDto.toEntity();
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
         .modelMetadataId(modelMetadata.getId())
         .strategy("rolling")
-        .resources(resourceRequestDto)
+        .resourceId(resource.getId())
         .build();
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
@@ -422,7 +423,7 @@ public class DeploymentServiceTest {
         .name("testDeployment")
         .modelMetadataId(modelMetadata.getId())
         .strategy("rolling")
-        .resources(resourceRequestDto)
+        .resourceId(resource.getId())
         .build();
 
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
@@ -479,7 +480,7 @@ public class DeploymentServiceTest {
         .name("testDeployment")
         .modelMetadataId(modelMetadata.getId())
         .strategy("rolling")
-        .resources(resourceRequestDto)
+        .resourceId(resource.getId())
         .build();
 
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);

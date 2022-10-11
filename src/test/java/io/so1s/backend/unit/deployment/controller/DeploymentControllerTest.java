@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.so1s.backend.domain.deployment.controller.DeploymentController;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
-import io.so1s.backend.domain.deployment.dto.request.ResourceRequestDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
@@ -72,18 +71,21 @@ public class DeploymentControllerTest {
   public void setup() throws JsonProcessingException {
     version = HashGenerator.sha256();
     String name = "testDeploy";
+    resource = Resource.builder()
+        .id(1L)
+        .name("DeploymentControllerTestResource")
+        .cpu("1")
+        .memory("1Gi")
+        .gpu("0")
+        .cpuLimit("2")
+        .memoryLimit("2Gi")
+        .gpuLimit("0")
+        .build();
     deploymentRequestDto = DeploymentRequestDto.builder()
         .name(name)
         .modelMetadataId(1L)
         .strategy("rolling")
-        .resources(ResourceRequestDto.builder()
-            .cpu("1")
-            .memory("1Gi")
-            .gpu("0")
-            .cpuLimit("2")
-            .memoryLimit("2Gi")
-            .gpuLimit("0")
-            .build())
+        .resourceId(resource.getId())
         .build();
     deploymentResponseDto = DeploymentResponseDto.builder()
         .success(Boolean.TRUE)
@@ -94,14 +96,13 @@ public class DeploymentControllerTest {
     objectMapper = new ObjectMapper();
     requestDtoMapped = objectMapper.writeValueAsString(deploymentRequestDto);
 
-    resource = deploymentRequestDto.getResources().toEntity();
   }
 
   @Test
   @DisplayName("배포가 정상적으로 이루어졌을때 200을 반환한다.")
   public void createDeploymentTest() throws Exception {
     // given
-    when(resourceService.createResource(any(ResourceRequestDto.class))).thenReturn(resource);
+    when(resourceService.findById(resource.getId())).thenReturn(resource);
     when(deploymentService.createDeployment(any(Resource.class), any(DeploymentRequestDto.class)))
         .thenReturn(Deployment.builder()
             .id(1L)
