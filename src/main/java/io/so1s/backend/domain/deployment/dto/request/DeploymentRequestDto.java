@@ -26,8 +26,7 @@ public class DeploymentRequestDto {
   @Builder.Default
   private String strategy = "rolling";
 
-  @Valid
-  private ResourceRequestDto resources;
+  private Long resourceId;
 
   @Valid
   private ScaleDto scale;

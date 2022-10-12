@@ -104,6 +104,7 @@ public class KubernetesServiceTest {
   public void createResourceQuotaTest() throws Exception {
     // given
     Resource resource = Resource.builder()
+        .name(HashGenerator.sha256())
         .cpu("1")
         .memory("1Gi")
         .gpu("0")
@@ -125,6 +126,7 @@ public class KubernetesServiceTest {
   public void createResourceQuotaWithGpuTest() throws Exception {
     // given
     Resource resource = Resource.builder()
+        .name(HashGenerator.sha256())
         .cpu("1")
         .memory("1Gi")
         .gpu("1")
@@ -170,6 +172,7 @@ public class KubernetesServiceTest {
                 .build())
             .build())
         .resource(Resource.builder()
+            .name(HashGenerator.sha256())
             .cpu("1")
             .memory("1Gi")
             .gpu("0")
@@ -220,6 +223,7 @@ public class KubernetesServiceTest {
                 .build())
             .build())
         .resource(Resource.builder()
+            .name(HashGenerator.sha256())
             .cpu("1")
             .memory("1Gi")
             .gpu("0")
@@ -254,6 +258,7 @@ public class KubernetesServiceTest {
                 .build())
             .build())
         .resource(Resource.builder()
+            .name(HashGenerator.sha256())
             .cpu("1")
             .memory("1Gi")
             .gpu("0")
@@ -344,6 +349,7 @@ public class KubernetesServiceTest {
                 .build())
             .build())
         .resource(Resource.builder()
+            .name(HashGenerator.sha256())
             .cpu("1")
             .memory("1Gi")
             .gpu("0")
@@ -389,6 +395,7 @@ public class KubernetesServiceTest {
                 .build())
             .build())
         .resource(Resource.builder()
+            .name(HashGenerator.sha256())
             .cpu("1")
             .memory("1Gi")
             .gpu("0")

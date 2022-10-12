@@ -1,6 +1,5 @@
-package io.so1s.backend.domain.deployment.dto.request;
+package io.so1s.backend.domain.resource.dto.request;
 
-import io.so1s.backend.domain.resource.entity.Resource;
 import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +10,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResourceRequestDto {
+public class ResourceCreateRequestDto {
+
+  @NotBlank
+  private String name;
 
   @NotBlank
   private String cpu;
@@ -30,15 +32,4 @@ public class ResourceRequestDto {
 
   @NotBlank
   private String gpuLimit;
-
-  public Resource toEntity() {
-    return new Resource().builder()
-        .cpu(cpu)
-        .memory(memory)
-        .gpu(gpu)
-        .cpuLimit(cpuLimit)
-        .memoryLimit(memoryLimit)
-        .gpuLimit(gpuLimit)
-        .build();
-  }
 }

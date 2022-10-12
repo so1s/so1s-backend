@@ -10,7 +10,6 @@ import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
 import io.so1s.backend.domain.deployment.service.DeploymentService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
-import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.domain.resource.service.ResourceService;
 import java.util.List;
@@ -35,13 +34,12 @@ public class DeploymentController {
   private final DeploymentService deploymentService;
   private final KubernetesService kubernetesService;
   private final ResourceService resourceService;
-  private final ModelService modelService;
 
   @PostMapping
   public ResponseEntity<DeploymentResponseDto> createDeployment(
       @Valid @RequestBody DeploymentRequestDto deploymentRequestDto) {
 
-    Resource resource = resourceService.createResource(deploymentRequestDto.getResources());
+    Resource resource = resourceService.findById(deploymentRequestDto.getResourceId());
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
     return ResponseEntity.ok(

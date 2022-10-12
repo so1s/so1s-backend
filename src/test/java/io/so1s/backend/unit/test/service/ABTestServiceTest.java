@@ -108,6 +108,7 @@ public class ABTestServiceTest {
         .build());
 
     resource = resourceRepository.save(Resource.builder()
+        .name("ABTestServiceTest")
         .cpu("1")
         .memory("1Gi")
         .gpu("0")

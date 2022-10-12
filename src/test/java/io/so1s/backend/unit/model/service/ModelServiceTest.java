@@ -406,6 +406,7 @@ class ModelServiceTest {
         model, modelUploadRequestDto, saveResult);
 
     Resource resource = resourceRepository.save(Resource.builder()
+        .name("deleteModelMetadataWithDeployment")
         .cpu("1")
         .memory("1Gi")
         .gpu("0")

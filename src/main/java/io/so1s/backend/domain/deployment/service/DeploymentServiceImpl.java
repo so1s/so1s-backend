@@ -95,7 +95,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         deploymentRequestDto.getStrategy());
     ModelMetadata modelMetadata = modelService.validateExistModelMetadata(
         deploymentRequestDto.getModelMetadataId());
-    Resource resource = resourceService.createResource(deploymentRequestDto.getResources());
+    Resource resource = resourceService.findById(deploymentRequestDto.getResourceId());
 
     deployment.updateModel(modelMetadata, deploymentStrategy, resource);
 

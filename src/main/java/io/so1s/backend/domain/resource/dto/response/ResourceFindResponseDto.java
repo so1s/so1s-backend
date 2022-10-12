@@ -13,6 +13,8 @@ public class ResourceFindResponseDto {
 
   private Long id;
 
+  private String name;
+
   private String cpu;
 
   private String memory;
