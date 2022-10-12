@@ -8,8 +8,10 @@ import io.fabric8.istio.client.IstioClient;
 import io.fabric8.istio.mock.EnableIstioMockClient;
 import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.NodeBuilder;
+import io.fabric8.kubernetes.api.model.autoscaling.v2beta2.HorizontalPodAutoscalerList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
+import io.so1s.backend.domain.deployment.dto.request.Standard;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesServiceImpl;
@@ -22,6 +24,7 @@ import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -146,6 +149,10 @@ public class KubernetesServiceTest {
         .name("testDeployment")
         .status(Status.PENDING)
         .endPoint("inference-" + "testDeployment".toLowerCase() + ".so1s.io")
+        .standard(Standard.LATENCY)
+        .standardValue(20)
+        .maxReplicas(10)
+        .minReplicas(1)
         .modelMetadata(ModelMetadata.builder()
             .status(Status.SUCCEEDED)
             .version(HashGenerator.sha256())
@@ -182,14 +189,6 @@ public class KubernetesServiceTest {
 
     // then
     assertThat(result).isTrue();
-
-    // Clean up
-
-    // when
-    result = kubernetesService.deleteDeployment(deployment);
-
-    // then
-    assertThat(result).isTrue();
   }
 
   @Test
@@ -200,6 +199,10 @@ public class KubernetesServiceTest {
         .name("aDeployment")
         .status(Status.PENDING)
         .endPoint("inference-" + "aDeployment".toLowerCase() + ".so1s.io")
+        .standard(Standard.LATENCY)
+        .standardValue(20)
+        .minReplicas(1)
+        .maxReplicas(10)
         .modelMetadata(ModelMetadata.builder()
             .status(Status.SUCCEEDED)
             .version(HashGenerator.sha256())
@@ -230,6 +233,10 @@ public class KubernetesServiceTest {
         .name("bDeployment")
         .status(Status.PENDING)
         .endPoint("inference-" + "bDeployment".toLowerCase() + ".so1s.io")
+        .standard(Standard.LATENCY)
+        .standardValue(20)
+        .minReplicas(1)
+        .maxReplicas(10)
         .modelMetadata(ModelMetadata.builder()
             .status(Status.SUCCEEDED)
             .version(HashGenerator.sha256())
@@ -306,5 +313,110 @@ public class KubernetesServiceTest {
         .build();
 
     client.nodes().create(node);
+  }
+
+  @Test
+  @DisplayName("성공적으로 HPA true를 반환한다.")
+  public void createHPATest() throws Exception {
+    // given
+    Deployment deployment = Deployment.builder()
+        .name("testDeployment")
+        .status(Status.PENDING)
+        .endPoint("inference-" + "testDeployment".toLowerCase() + ".so1s.io")
+        .standard(Standard.LATENCY)
+        .standardValue(20)
+        .maxReplicas(10)
+        .minReplicas(1)
+        .modelMetadata(ModelMetadata.builder()
+            .status(Status.SUCCEEDED)
+            .version(HashGenerator.sha256())
+            .fileName("titanic.h5")
+            .url("https://s3.test.com/")
+            .inputShape("(10,)")
+            .inputDtype("float32")
+            .outputShape("(1,)")
+            .outputDtype("float32")
+            .model(Model.builder()
+                .name("testModel")
+                .library(Library.builder()
+                    .name("torch")
+                    .build())
+                .build())
+            .build())
+        .resource(Resource.builder()
+            .cpu("1")
+            .memory("1Gi")
+            .gpu("0")
+            .cpuLimit("2")
+            .memoryLimit("2Gi")
+            .gpuLimit("0")
+            .build())
+        .build();
+
+    addNewNodeForTolerations();
+
+    // when
+    boolean result = kubernetesService.createHPA(deployment, "default");
+
+    // then
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  @DisplayName("HPA 설정 없이 인퍼런스를 생성 할 수 있다.")
+  public void deployInferenceServerWithoutHPATest() throws Exception {
+    // given
+    Deployment deployment = Deployment.builder()
+        .name("testDeployment")
+        .status(Status.PENDING)
+        .endPoint("inference-" + "testDeployment".toLowerCase() + ".so1s.io")
+        .standard(Standard.REPLICAS)
+        .standardValue(5)
+        .modelMetadata(ModelMetadata.builder()
+            .status(Status.SUCCEEDED)
+            .version(HashGenerator.sha256())
+            .fileName("titanic.h5")
+            .url("https://s3.test.com/")
+            .inputShape("(10,)")
+            .inputDtype("float32")
+            .outputShape("(1,)")
+            .outputDtype("float32")
+            .model(Model.builder()
+                .name("testModel")
+                .library(Library.builder()
+                    .name("torch")
+                    .build())
+                .build())
+            .build())
+        .resource(Resource.builder()
+            .cpu("1")
+            .memory("1Gi")
+            .gpu("0")
+            .cpuLimit("2")
+            .memoryLimit("2Gi")
+            .gpuLimit("0")
+            .build())
+        .build();
+
+    addNewNodeForTolerations();
+
+    // when
+    boolean result = kubernetesService.deployInferenceServer(deployment);
+    List<io.fabric8.kubernetes.api.model.apps.Deployment> deployments = client.apps().deployments()
+        .inNamespace("default")
+        .withLabel("app", "inference").list()
+        .getItems();
+
+    io.fabric8.kubernetes.api.model.apps.Deployment createdDeployment = (io.fabric8.kubernetes.api.model.apps.Deployment) kubernetesService.getDeploymentObject(
+        "testDeployment".toLowerCase());
+
+    HorizontalPodAutoscalerList hpaList = client.autoscaling().v2beta2().horizontalPodAutoscalers()
+        .inNamespace("default").list();
+
+    // then
+    assertThat(result).isTrue();
+    assertThat(createdDeployment.getSpec().getReplicas()).isEqualTo(5);
+    assertThat(hpaList.getItems().size()).isEqualTo(0);
+
   }
 }

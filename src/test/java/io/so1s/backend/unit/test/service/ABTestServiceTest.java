@@ -7,6 +7,7 @@ import static org.mockito.BDDMockito.given;
 
 import io.fabric8.istio.mock.EnableIstioMockClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
+import io.so1s.backend.domain.deployment.dto.request.Standard;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
@@ -118,6 +119,10 @@ public class ABTestServiceTest {
     a = deploymentRepository.save(Deployment.builder()
         .name("aDeployment")
         .status(Status.PENDING)
+        .standard(Standard.LATENCY)
+        .standardValue(20)
+        .maxReplicas(10)
+        .minReplicas(1)
         .modelMetadata(modelMetadata)
         .endPoint("a.so1s.io")
         .resource(resource)
@@ -126,6 +131,10 @@ public class ABTestServiceTest {
     b = deploymentRepository.save(Deployment.builder()
         .name("bDeployment")
         .status(Status.PENDING)
+        .standard(Standard.LATENCY)
+        .standardValue(20)
+        .maxReplicas(10)
+        .minReplicas(1)
         .modelMetadata(modelMetadata)
         .endPoint("b.so1s.io")
         .resource(resource)
