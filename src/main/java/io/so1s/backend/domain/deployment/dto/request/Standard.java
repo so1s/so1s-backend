@@ -1,8 +1,11 @@
 package io.so1s.backend.domain.deployment.dto.request;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Standard {
   LATENCY("m", "AverageValue"),
   GPU("%", "AverageUtilization"),
@@ -10,11 +13,5 @@ public enum Standard {
 
   private String unit;
   private String type;
-
-  Standard(String unit, String type) {
-    this.unit = unit;
-    this.type = type;
-  }
-
 
 }
