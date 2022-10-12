@@ -52,10 +52,10 @@ public class Deployment extends BaseTimeEntity {
   @Column(nullable = false)
   private Integer standardValue;
 
-  @Column()
+  @Column
   private Integer minReplicas;
 
-  @Column()
+  @Column
   private Integer maxReplicas;
 
   @ManyToOne(fetch = FetchType.LAZY)
