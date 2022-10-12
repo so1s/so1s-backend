@@ -25,6 +25,10 @@ public class DeploymentMapper {
         .cpuLimit(deployment.getResource().getCpuLimit())
         .memoryLimit(deployment.getResource().getMemoryLimit())
         .gpuLimit(deployment.getResource().getGpuLimit())
+        .standard(deployment.getStandard())
+        .standardValue(deployment.getStandardValue())
+        .maxReplicas(deployment.getMaxReplicas())
+        .minReplicas(deployment.getMinReplicas())
         .build();
   }
 
@@ -33,6 +37,10 @@ public class DeploymentMapper {
         .name(deploymentRequestDto.getName())
         .status(Status.PENDING)
         .endPoint("inference-" + deploymentRequestDto.getName().toLowerCase() + ".so1s.io")
+        .standard(deploymentRequestDto.getScale().getStandard())
+        .standardValue(deploymentRequestDto.getScale().getStandardValue())
+        .minReplicas(deploymentRequestDto.getScale().getMinReplicas())
+        .maxReplicas(deploymentRequestDto.getScale().getMaxReplicas())
         .build();
   }
 }

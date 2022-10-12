@@ -1,6 +1,7 @@
 package io.so1s.backend.domain.deployment.entity;
 
 
+import io.so1s.backend.domain.deployment.dto.request.Standard;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.global.entity.BaseTimeEntity;
@@ -43,6 +44,19 @@ public class Deployment extends BaseTimeEntity {
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private Status status;
+
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  private Standard standard;
+
+  @Column(nullable = false)
+  private Integer standardValue;
+
+  @Column
+  private Integer minReplicas;
+
+  @Column
+  private Integer maxReplicas;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "model_metadata_id")

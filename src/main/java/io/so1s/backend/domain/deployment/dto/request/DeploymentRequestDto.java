@@ -27,4 +27,8 @@ public class DeploymentRequestDto {
 
   private Long resourceId;
 
+  @Valid
+  private ScaleDto scale;
+
 }
+

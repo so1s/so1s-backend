@@ -11,6 +11,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.so1s.backend.domain.deployment.controller.DeploymentController;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
+import io.so1s.backend.domain.deployment.dto.request.ScaleDto;
+import io.so1s.backend.domain.deployment.dto.request.Standard;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
@@ -86,6 +88,12 @@ public class DeploymentControllerTest {
         .modelMetadataId(1L)
         .strategy("rolling")
         .resourceId(resource.getId())
+        .scale(ScaleDto.builder()
+            .standard(Standard.LATENCY)
+            .standardValue(20)
+            .maxReplicas(10)
+            .minReplicas(1)
+            .build())
         .build();
     deploymentResponseDto = DeploymentResponseDto.builder()
         .success(Boolean.TRUE)
