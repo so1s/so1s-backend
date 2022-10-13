@@ -1,8 +1,13 @@
 INSERT INTO DEPLOYMENT_STRATEGY (name) VALUES ('rolling');
 
 INSERT INTO LIBRARY (name) VALUES ('tensorflow');
-INSERT INTO LIBRARY (name) VALUES ('torch');
+INSERT INTO LIBRARY (name) VALUES ('pytorch');
 INSERT INTO LIBRARY (name) VALUES ('sklearn');
+INSERT INTO LIBRARY (name) VALUES ('keras');
+INSERT INTO LIBRARY (name) VALUES ('detectron2');
+INSERT INTO LIBRARY (name) VALUES ('transformers');
+INSERT INTO LIBRARY (name) VALUES ('pytorch_lightning');
+INSERT INTO LIBRARY (name) VALUES ('xgboost');
 
 INSERT INTO MODEL (CREATED_ON, UPDATED_ON, NAME, LIBRARY_ID) VALUES (now(), now(), 'tensorflowModel', 1);
 INSERT INTO MODEL (CREATED_ON, UPDATED_ON, NAME, LIBRARY_ID) VALUES (now(), now(), 'torchModel', 2);
