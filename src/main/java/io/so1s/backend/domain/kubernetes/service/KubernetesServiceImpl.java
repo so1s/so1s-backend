@@ -211,6 +211,9 @@ public class KubernetesServiceImpl implements KubernetesService {
     labels.put("app", "inference");
     labels.put("name", deployName);
 
+    Map<String, String> annotations = new HashMap<>();
+    annotations.put("sidecar.istio.io/inject", "true");
+
     String host = deployment.getEndPoint().toLowerCase();
 
     Deployment inferenceDeployment = new DeploymentBuilder()
@@ -218,6 +221,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .withName(deployName)
         .withNamespace(namespace)
         .addToLabels(labels)
+        .addToAnnotations(annotations)
         .endMetadata()
         .withNewSpec()
         .withReplicas(
