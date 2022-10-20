@@ -221,7 +221,6 @@ public class KubernetesServiceImpl implements KubernetesService {
         .withName(deployName)
         .withNamespace(namespace)
         .addToLabels(labels)
-        .addToAnnotations(annotations)
         .endMetadata()
         .withNewSpec()
         .withReplicas(
@@ -233,6 +232,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .withNewMetadata()
         .withName(deployName)
         .addToLabels(labels)
+        .addToAnnotations(annotations)
         .endMetadata()
         .withNewSpec()
         .addNewContainer()
@@ -260,7 +260,6 @@ public class KubernetesServiceImpl implements KubernetesService {
         .endTemplate()
         .endSpec()
         .build();
-
     // See https://github.com/So1S/istio/blob/main/gateway.yaml
 
     io.fabric8.kubernetes.api.model.Service inferenceService = new ServiceBuilder()
