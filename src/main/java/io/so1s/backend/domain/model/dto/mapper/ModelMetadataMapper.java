@@ -26,13 +26,14 @@ public class ModelMetadataMapper {
       ModelUploadRequestDto modelUploadRequestDto, FileSaveResultForm fileSaveResultForm) {
     return ModelMetadata.builder()
         .status(Status.PENDING)
-        .version(HashGenerator.sha256())
+        .version(HashGenerator.sha256().toLowerCase())
         .fileName(fileSaveResultForm.getSavedName())
         .url(fileSaveResultForm.getUrl())
         .inputShape(modelUploadRequestDto.getInputShape())
         .inputDtype(modelUploadRequestDto.getInputDtype())
         .outputShape(modelUploadRequestDto.getOutputShape())
         .outputDtype(modelUploadRequestDto.getOutputDtype())
+        .type(modelUploadRequestDto.getType())
         .model(model)
         .build();
   }

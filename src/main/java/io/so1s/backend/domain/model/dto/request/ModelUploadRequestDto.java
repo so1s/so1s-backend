@@ -38,4 +38,7 @@ public class ModelUploadRequestDto {
 
   @NotBlank
   private String outputDtype;
+
+  @NotBlank
+  private String type;
 }
