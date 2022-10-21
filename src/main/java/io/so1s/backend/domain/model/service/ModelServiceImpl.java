@@ -18,6 +18,7 @@ import io.so1s.backend.domain.model.dto.response.ModelMetadataDeleteResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
+import io.so1s.backend.domain.model.exception.DataTypeNotFoundException;
 import io.so1s.backend.domain.model.exception.DuplicatedModelNameException;
 import io.so1s.backend.domain.model.exception.ModelMetadataExistsException;
 import io.so1s.backend.domain.model.exception.ModelMetadataNotFoundException;
@@ -36,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ModelServiceImpl implements ModelService {
 
+  private final DataTypeService dataTypeService;
   private final ModelRepository modelRepository;
   private final LibraryRepository libraryRepository;
   private final ModelMetadataRepository modelMetadataRepository;
@@ -64,7 +66,12 @@ public class ModelServiceImpl implements ModelService {
 
   @Transactional
   public ModelMetadata createModelMetadata(Model model,
-      ModelUploadRequestDto modelUploadRequestDto, FileSaveResultForm fileSaveResultForm) {
+      ModelUploadRequestDto modelUploadRequestDto, FileSaveResultForm fileSaveResultForm)
+      throws DataTypeNotFoundException {
+
+    dataTypeService.findDataTypeByName(modelUploadRequestDto.getInputDtype());
+    dataTypeService.findDataTypeByName(modelUploadRequestDto.getOutputDtype());
+
     return modelMetadataRepository.save(
         modelMetadataMapper.toEntity(model, modelUploadRequestDto, fileSaveResultForm));
   }
