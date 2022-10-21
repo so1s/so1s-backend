@@ -38,6 +38,7 @@ import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.exception.ModelMetadataNotFoundException;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
+import io.so1s.backend.domain.model.service.DataTypeService;
 import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
 import io.so1s.backend.domain.resource.dto.mapper.ResourceMapper;
@@ -107,6 +108,8 @@ public class DeploymentServiceTest {
   S3Config s3Config;
   @MockBean
   AwsS3Service awsS3UploadService;
+  @MockBean
+  DataTypeService dataTypeService;
 
   ResourceCreateRequestDto resourceRequestDto;
 
@@ -116,7 +119,7 @@ public class DeploymentServiceTest {
   @BeforeEach
   void setup() {
     kubernetesService = new KubernetesServiceImpl(client, istioClient, jobStatusChecker);
-    modelService = new ModelServiceImpl(modelRepository, libraryRepository,
+    modelService = new ModelServiceImpl(dataTypeService, modelRepository, libraryRepository,
         modelMetadataRepository, deploymentRepository, awsS3UploadService, modelMapper,
         modelMetadataMapper);
     resourceService = new ResourceServiceImpl(resourceRepository, resourceMapper);
