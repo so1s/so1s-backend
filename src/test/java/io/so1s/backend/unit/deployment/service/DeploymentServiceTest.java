@@ -108,8 +108,6 @@ public class DeploymentServiceTest {
   @MockBean
   AwsS3Service awsS3UploadService;
 
-  ResourceCreateRequestDto resourceRequestDto;
-
   ModelMapper modelMapper = new ModelMapper();
   ModelMetadataMapper modelMetadataMapper = new ModelMetadataMapper();
 
@@ -125,15 +123,6 @@ public class DeploymentServiceTest {
     deploymentService = new DeploymentServiceImpl(deploymentRepository,
         deploymentStrategyRepository, resourceRepository, abTestRepository, kubernetesService,
         modelService, resourceService, deploymentStrategyService, deploymentMapper);
-    resourceRequestDto = ResourceCreateRequestDto.builder()
-        .name("DeploymentServiceTestResource")
-        .cpu("1")
-        .memory("1Gi")
-        .gpu("0")
-        .cpuLimit("2")
-        .memoryLimit("2Gi")
-        .gpuLimit("0")
-        .build();
   }
 
   @Test
@@ -141,6 +130,7 @@ public class DeploymentServiceTest {
   public void createResourceTest() throws Exception {
     // given
     // setup()
+    ResourceCreateRequestDto resourceRequestDto = getResourceCreateRequestDto();
 
     // when
     Resource resource = resourceService.createResource(resourceRequestDto);
@@ -159,25 +149,9 @@ public class DeploymentServiceTest {
   @DisplayName("선택한 모델 데이터를 통해 배포를 진행한다.")
   public void createDeploymentTest() throws Exception {
     // given
-    ModelMetadata modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
-        .status(Status.SUCCEEDED)
-        .version(HashGenerator.sha256())
-        .fileName("testFile")
-        .url("https://s3.test.com/")
-        .inputShape("(10,)")
-        .inputDtype("float32")
-        .outputShape("(1,)")
-        .outputDtype("float32")
-        .build());
-    Resource resource = resourceService.createResource(resourceRequestDto);
-    DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
-        .name("testDeployment")
-        .scale(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
-            .maxReplicas(10).build())
-        .modelMetadataId(modelMetadata.getId())
-        .strategy("rolling")
-        .resourceId(resource.getId())
-        .build();
+    ModelMetadata modelMetadata = getModelMetadata();
+    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
+    DeploymentRequestDto deploymentRequestDto = getDeploymentRequestDto(modelMetadata, resource);
 
     // when
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
@@ -196,7 +170,7 @@ public class DeploymentServiceTest {
   @DisplayName("잘못된 모델메타데이터를 선택했을경우 ModelMetadataNotFoundException이 발생한다.")
   public void createDeploymentWrongModelMetadataTest() throws Exception {
     // given
-    Resource resource = resourceService.createResource(resourceRequestDto);
+    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
         .modelMetadataId(-(1L))
@@ -217,17 +191,8 @@ public class DeploymentServiceTest {
   @DisplayName("잘못된 전략을 선택했을경우 DeploymentStrategyNotFoundException이 발생한다.")
   public void createDeploymentWrongStragegyTest() throws Exception {
     // given
-    ModelMetadata modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
-        .status(Status.SUCCEEDED)
-        .version(HashGenerator.sha256())
-        .fileName("testFile")
-        .url("https://s3.test.com/")
-        .inputShape("(10,)")
-        .inputDtype("float32")
-        .outputShape("(1,)")
-        .outputDtype("float32")
-        .build());
-    Resource resource = resourceService.createResource(resourceRequestDto);
+    ModelMetadata modelMetadata = getModelMetadata();
+    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
         .modelMetadataId(modelMetadata.getId())
@@ -248,25 +213,9 @@ public class DeploymentServiceTest {
   @DisplayName("디플로이먼트 업데이트를 한다.")
   public void updateDeployment() throws Exception {
     // given
-    ModelMetadata modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
-        .status(Status.SUCCEEDED)
-        .version(HashGenerator.sha256())
-        .fileName("firstFile")
-        .url("https://s3.test.com/")
-        .inputShape("(10,)")
-        .inputDtype("float32")
-        .outputShape("(1,)")
-        .outputDtype("float32")
-        .build());
-    Resource resource = resourceService.createResource(resourceRequestDto);
-    DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
-        .name("testDeployment")
-        .modelMetadataId(modelMetadata.getId())
-        .strategy("rolling")
-        .resourceId(resource.getId())
-        .scale(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
-            .maxReplicas(10).build())
-        .build();
+    ModelMetadata modelMetadata = modelMetadataRepository.save(getModelMetadata());
+    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
+    DeploymentRequestDto deploymentRequestDto = getDeploymentRequestDto(modelMetadata, resource);
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
     ModelMetadata modelMetadata2 = modelMetadataRepository.save(ModelMetadata.builder()
@@ -278,6 +227,7 @@ public class DeploymentServiceTest {
         .inputDtype("float32")
         .outputShape("(1,)")
         .outputDtype("float32")
+        .deviceType("cpu")
         .build());
     DeploymentRequestDto deploymentRequestDto2 = DeploymentRequestDto.builder()
         .name("testDeployment")
@@ -301,17 +251,8 @@ public class DeploymentServiceTest {
   @DisplayName("존재하지않는 디플로이먼트를 선택하여 업데이트한 경우 DeploymentNotFoundException이 발생한다.")
   public void updateDeploymentWrongNameTest() throws Exception {
     // given
-    ModelMetadata modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
-        .status(Status.SUCCEEDED)
-        .version(HashGenerator.sha256())
-        .fileName("testFile")
-        .url("https://s3.test.com/")
-        .inputShape("(10,)")
-        .inputDtype("float32")
-        .outputShape("(1,)")
-        .outputDtype("float32")
-        .build());
-    Resource resource = resourceService.createResource(resourceRequestDto);
+    ModelMetadata modelMetadata = getModelMetadata();
+    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("not-exist-deployment")
         .modelMetadataId(modelMetadata.getId())
@@ -332,31 +273,9 @@ public class DeploymentServiceTest {
   @DisplayName("디플로이먼트들을 조회한다.")
   public void findDeploymentsTest() throws Exception {
     // given
-    Optional<Library> result = libraryRepository.findByName("tensorflow");
-    Model model = modelRepository.save(Model.builder()
-        .name("testModel")
-        .library(result.get())
-        .build());
-    ModelMetadata modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
-        .status(Status.SUCCEEDED)
-        .version(HashGenerator.sha256())
-        .fileName("testFile")
-        .url("https://s3.test.com/")
-        .inputShape("(10,)")
-        .inputDtype("float32")
-        .outputShape("(1,)")
-        .outputDtype("float32")
-        .model(model)
-        .build());
-    Resource resource = resourceService.createResource(resourceRequestDto);
-    DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
-        .name("testDeployment")
-        .modelMetadataId(modelMetadata.getId())
-        .strategy("rolling")
-        .resourceId(resource.getId())
-        .scale(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
-            .maxReplicas(10).build())
-        .build();
+    ModelMetadata modelMetadata = getModelMetadata();
+    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
+    DeploymentRequestDto deploymentRequestDto = getDeploymentRequestDto(modelMetadata, resource);
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
     // when
@@ -378,31 +297,9 @@ public class DeploymentServiceTest {
   @DisplayName("디플로이먼트를 조회한다.")
   public void findDeploymentTest() throws Exception {
     // given
-    Optional<Library> result = libraryRepository.findByName("tensorflow");
-    Model model = modelRepository.save(Model.builder()
-        .name("testModel")
-        .library(result.get())
-        .build());
-    ModelMetadata modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
-        .status(Status.SUCCEEDED)
-        .version(HashGenerator.sha256())
-        .fileName("testFile")
-        .url("https://s3.test.com/")
-        .inputShape("(10,)")
-        .inputDtype("float32")
-        .outputShape("(1,)")
-        .outputDtype("float32")
-        .model(model)
-        .build());
-    Resource resource = resourceService.createResource(resourceRequestDto);
-    DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
-        .name("testDeployment")
-        .modelMetadataId(modelMetadata.getId())
-        .strategy("rolling")
-        .resourceId(resource.getId())
-        .scale(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
-            .maxReplicas(10).build())
-        .build();
+    ModelMetadata modelMetadata = getModelMetadata();
+    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
+    DeploymentRequestDto deploymentRequestDto = getDeploymentRequestDto(modelMetadata, resource);
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
     // when
@@ -411,40 +308,15 @@ public class DeploymentServiceTest {
     // then
     assertThat(responseDto.getDeploymentName()).isEqualTo(deployment.getName());
     assertThat(responseDto.getStatus()).isEqualTo(deployment.getStatus());
-
   }
 
   @Test
   @DisplayName("디플로이먼트를 삭제한다.")
   public void deleteDeployment() throws Exception {
     // given
-    Library library = libraryRepository.save(Library.builder()
-        .name("testLibrary")
-        .build());
-    Model model = modelRepository.save(Model.builder()
-        .name("testModel")
-        .library(library)
-        .build());
-    ModelMetadata modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
-        .model(model)
-        .status(Status.SUCCEEDED)
-        .version(HashGenerator.sha256())
-        .fileName("firstFile")
-        .url("https://s3.test.com/")
-        .inputShape("(10,)")
-        .inputDtype("float32")
-        .outputShape("(1,)")
-        .outputDtype("float32")
-        .build());
-    Resource resource = resourceService.createResource(resourceRequestDto);
-    DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
-        .name("testDeployment")
-        .modelMetadataId(modelMetadata.getId())
-        .strategy("rolling")
-        .resourceId(resource.getId())
-        .scale(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
-            .maxReplicas(10).build())
-        .build();
+    ModelMetadata modelMetadata = getModelMetadata();
+    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
+    DeploymentRequestDto deploymentRequestDto = getDeploymentRequestDto(modelMetadata, resource);
 
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
@@ -458,52 +330,26 @@ public class DeploymentServiceTest {
     // then
     assertThat(responseDto.getSuccess()).isEqualTo(true);
     assertThat(responseDto.getMessage()).isNotEmpty();
-
   }
 
   @Test
   @DisplayName("존재하지 않는 디플로이먼트를 삭제하려고 하지만, 성공하지 않는다.")
   public void deleteDeploymentButEmpty() throws Exception {
     // given
-    Long deploymentId = 42L;
+    Long deploymentId = -1L;
 
     // when & then
     assertThrowsExactly(DeploymentNotFoundException.class,
         () -> deploymentService.deleteDeployment(deploymentId));
-
   }
 
   @Test
   @DisplayName("AB 테스트가 있는 디플로이먼트를 삭제하려고 하지만, 성공하지 않는다.")
   public void deleteDeploymentButHasABTest() throws Exception {
     // given
-    Library library = libraryRepository.save(Library.builder()
-        .name("testLibrary")
-        .build());
-    Model model = modelRepository.save(Model.builder()
-        .name("testModel")
-        .library(library)
-        .build());
-    ModelMetadata modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
-        .model(model)
-        .status(Status.SUCCEEDED)
-        .version(HashGenerator.sha256())
-        .fileName("firstFile")
-        .url("https://s3.test.com/")
-        .inputShape("(10,)")
-        .inputDtype("float32")
-        .outputShape("(1,)")
-        .outputDtype("float32")
-        .build());
-    Resource resource = resourceService.createResource(resourceRequestDto);
-    DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
-        .name("testDeployment")
-        .modelMetadataId(modelMetadata.getId())
-        .strategy("rolling")
-        .resourceId(resource.getId())
-        .scale(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
-            .maxReplicas(10).build())
-        .build();
+    ModelMetadata modelMetadata = getModelMetadata();
+    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
+    DeploymentRequestDto deploymentRequestDto = getDeploymentRequestDto(modelMetadata, resource);
 
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
@@ -523,5 +369,55 @@ public class DeploymentServiceTest {
     assertThrowsExactly(ABTestExistsException.class, () -> deploymentService.deleteDeployment(
         deployment.getId()));
 
+  }
+
+  public Model getModel() {
+    Optional<Library> result = libraryRepository.findByName("tensorflow");
+    Model model = Model.builder()
+        .name("testModel")
+        .library(result.get())
+        .build();
+    return modelRepository.save(model);
+  }
+
+  public ModelMetadata getModelMetadata() {
+    return modelMetadataRepository.save(ModelMetadata.builder()
+        .status(Status.SUCCEEDED)
+        .version(HashGenerator.sha256())
+        .fileName("testFile")
+        .url("https://s3.test.com/")
+        .inputShape("(10,)")
+        .inputDtype("float32")
+        .outputShape("(1,)")
+        .outputDtype("float32")
+        .deviceType("cpu")
+        .model(getModel())
+        .build());
+  }
+
+  public DeploymentRequestDto getDeploymentRequestDto(ModelMetadata modelMetadata,
+      Resource resource) {
+    return DeploymentRequestDto.builder()
+        .name("testDeployment")
+        .scale(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
+            .maxReplicas(10).build())
+        .modelMetadataId(modelMetadata.getId())
+        .strategy("rolling")
+        .scale(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
+            .maxReplicas(10).build())
+        .resourceId(resource.getId())
+        .build();
+  }
+
+  public ResourceCreateRequestDto getResourceCreateRequestDto() {
+    return ResourceCreateRequestDto.builder()
+        .name("DeploymentServiceTestResource")
+        .cpu("1")
+        .memory("1Gi")
+        .gpu("0")
+        .cpuLimit("2")
+        .memoryLimit("2Gi")
+        .gpuLimit("0")
+        .build();
   }
 }

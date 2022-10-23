@@ -100,6 +100,7 @@ class ModelServiceTest {
         .inputDtype("float32")
         .outputShape("(1,)")
         .outputDtype("float32")
+        .deviceType("cpu")
         .build();
   }
 
@@ -138,6 +139,7 @@ class ModelServiceTest {
         .inputDtype("float32")
         .outputShape("(1,)")
         .outputDtype("float32")
+        .deviceType("gpu")
         .build();
 
     // when
@@ -191,6 +193,7 @@ class ModelServiceTest {
         .inputDtype("float32")
         .outputShape("(1,)")
         .outputDtype("float32")
+        .deviceType("cpu")
         .build();
 
     // when

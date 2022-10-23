@@ -60,22 +60,8 @@ public class KubernetesServiceTest {
   @DisplayName("성공적으로 인퍼런스 잡이 실행되면 true를 반환한다.")
   public void inferenceServerBuild() throws Exception {
     // given
-    ModelMetadata modelMetadata = ModelMetadata.builder()
-        .status(Status.RUNNING)
-        .version(HashGenerator.sha256())
-        .fileName("e8eb72cd-1ef4-45f4-8105-2f4c5357e4a8.h5")
-        .url("https://so1s.s3.ap-northeast-2.amazonaws.com/13df693e-bb11-404c-9cfd-c5b1a1ecdc43.h5")
-        .inputShape("(10,)")
-        .inputDtype("float32")
-        .outputShape("(1,)")
-        .outputShape("float32")
-        .model(Model.builder()
-            .name("FinetunedModel")
-            .library(Library.builder()
-                .name("torch")
-                .build())
-            .build())
-        .build();
+    Model model = getModel("FinetunedModel");
+    ModelMetadata modelMetadata = getModelMetadata(model);
     doNothing().when(jobStatusChecker).checkJobStatus(any(), any(), any());
 
     // when
@@ -83,7 +69,6 @@ public class KubernetesServiceTest {
 
     // then
     assertThat(result).isTrue();
-
   }
 
   @Test
@@ -103,15 +88,7 @@ public class KubernetesServiceTest {
   @DisplayName("성공적으로 리소스 쿼타가 생성되면 true를 반환한다.")
   public void createResourceQuotaTest() throws Exception {
     // given
-    Resource resource = Resource.builder()
-        .name(HashGenerator.sha256())
-        .cpu("1")
-        .memory("1Gi")
-        .gpu("0")
-        .cpuLimit("2")
-        .memoryLimit("2Gi")
-        .gpuLimit("0")
-        .build();
+    Resource resource = getResource(false);
     String namespace = "test-space";
 
     // when
@@ -125,15 +102,7 @@ public class KubernetesServiceTest {
   @DisplayName("성공적으로 리소스 쿼타(withGpu)가 생성되면 true를 반환한다.")
   public void createResourceQuotaWithGpuTest() throws Exception {
     // given
-    Resource resource = Resource.builder()
-        .name(HashGenerator.sha256())
-        .cpu("1")
-        .memory("1Gi")
-        .gpu("1")
-        .cpuLimit("2")
-        .memoryLimit("2Gi")
-        .gpuLimit("2")
-        .build();
+    Resource resource = getResource(true);
     String namespace = "test-space";
 
     // when
@@ -147,40 +116,10 @@ public class KubernetesServiceTest {
   @DisplayName("성공적으로 인퍼런스 서버를 생성하면 true를 반환한다. 작업이 끝나면 삭제한다.")
   public void deployInferenceServerTest() throws Exception {
     // given
-    Deployment deployment = Deployment.builder()
-        .name("testDeployment")
-        .status(Status.PENDING)
-        .endPoint("inference-" + "testDeployment".toLowerCase() + ".so1s.io")
-        .standard(Standard.LATENCY)
-        .standardValue(20)
-        .maxReplicas(10)
-        .minReplicas(1)
-        .modelMetadata(ModelMetadata.builder()
-            .status(Status.SUCCEEDED)
-            .version(HashGenerator.sha256())
-            .fileName("titanic.h5")
-            .url("https://s3.test.com/")
-            .inputShape("(10,)")
-            .inputDtype("float32")
-            .outputShape("(1,)")
-            .outputDtype("float32")
-            .model(Model.builder()
-                .name("testModel")
-                .library(Library.builder()
-                    .name("torch")
-                    .build())
-                .build())
-            .build())
-        .resource(Resource.builder()
-            .name(HashGenerator.sha256())
-            .cpu("1")
-            .memory("1Gi")
-            .gpu("0")
-            .cpuLimit("2")
-            .memoryLimit("2Gi")
-            .gpuLimit("0")
-            .build())
-        .build();
+    Model model = getModel("testModel");
+    ModelMetadata modelMetadata = getModelMetadata(model);
+    Resource resource = getResource(false);
+    Deployment deployment = getDeployment("testDeployment", modelMetadata, resource);
 
     addNewNodeForTolerations();
 
@@ -198,75 +137,8 @@ public class KubernetesServiceTest {
   @DisplayName("성공적으로 AB 테스트를 생성하면 true를 반환한다.")
   public void deployABTest() throws Exception {
     // given
-    Deployment a = Deployment.builder()
-        .name("aDeployment")
-        .status(Status.PENDING)
-        .endPoint("inference-" + "aDeployment".toLowerCase() + ".so1s.io")
-        .standard(Standard.LATENCY)
-        .standardValue(20)
-        .minReplicas(1)
-        .maxReplicas(10)
-        .modelMetadata(ModelMetadata.builder()
-            .status(Status.SUCCEEDED)
-            .version(HashGenerator.sha256())
-            .fileName("titanic.h5")
-            .url("https://s3.test.com/")
-            .inputShape("(10,)")
-            .inputDtype("float32")
-            .outputShape("(1,)")
-            .outputDtype("float32")
-            .model(Model.builder()
-                .name("testModel")
-                .library(Library.builder()
-                    .name("torch")
-                    .build())
-                .build())
-            .build())
-        .resource(Resource.builder()
-            .name(HashGenerator.sha256())
-            .cpu("1")
-            .memory("1Gi")
-            .gpu("0")
-            .cpuLimit("2")
-            .memoryLimit("2Gi")
-            .gpuLimit("0")
-            .build())
-        .build();
-
-    Deployment b = Deployment.builder()
-        .name("bDeployment")
-        .status(Status.PENDING)
-        .endPoint("inference-" + "bDeployment".toLowerCase() + ".so1s.io")
-        .standard(Standard.LATENCY)
-        .standardValue(20)
-        .minReplicas(1)
-        .maxReplicas(10)
-        .modelMetadata(ModelMetadata.builder()
-            .status(Status.SUCCEEDED)
-            .version(HashGenerator.sha256())
-            .fileName("titanic.h5")
-            .url("https://s3.test.com/")
-            .inputShape("(10,)")
-            .inputDtype("float32")
-            .outputShape("(1,)")
-            .outputDtype("float32")
-            .model(Model.builder()
-                .name("testModel")
-                .library(Library.builder()
-                    .name("torch")
-                    .build())
-                .build())
-            .build())
-        .resource(Resource.builder()
-            .name(HashGenerator.sha256())
-            .cpu("1")
-            .memory("1Gi")
-            .gpu("0")
-            .cpuLimit("2")
-            .memoryLimit("2Gi")
-            .gpuLimit("0")
-            .build())
-        .build();
+    Deployment a = getDeployment("a", getModelMetadata(getModel("bModel")), getResource(false));
+    Deployment b = getDeployment("b", getModelMetadata(getModel("bModel")), getResource(false));
 
     ABTest abTest = ABTest.builder()
         .name("abTest")
@@ -324,6 +196,9 @@ public class KubernetesServiceTest {
   @DisplayName("성공적으로 HPA true를 반환한다.")
   public void createHPATest() throws Exception {
     // given
+    Model model = getModel("testModel");
+    ModelMetadata modelMetadata = getModelMetadata(model);
+    Resource resource = getResource(false);
     Deployment deployment = Deployment.builder()
         .name("testDeployment")
         .status(Status.PENDING)
@@ -332,31 +207,8 @@ public class KubernetesServiceTest {
         .standardValue(20)
         .maxReplicas(10)
         .minReplicas(1)
-        .modelMetadata(ModelMetadata.builder()
-            .status(Status.SUCCEEDED)
-            .version(HashGenerator.sha256())
-            .fileName("titanic.h5")
-            .url("https://s3.test.com/")
-            .inputShape("(10,)")
-            .inputDtype("float32")
-            .outputShape("(1,)")
-            .outputDtype("float32")
-            .model(Model.builder()
-                .name("testModel")
-                .library(Library.builder()
-                    .name("torch")
-                    .build())
-                .build())
-            .build())
-        .resource(Resource.builder()
-            .name(HashGenerator.sha256())
-            .cpu("1")
-            .memory("1Gi")
-            .gpu("0")
-            .cpuLimit("2")
-            .memoryLimit("2Gi")
-            .gpuLimit("0")
-            .build())
+        .modelMetadata(modelMetadata)
+        .resource(resource)
         .build();
 
     addNewNodeForTolerations();
@@ -372,37 +224,17 @@ public class KubernetesServiceTest {
   @DisplayName("HPA 설정 없이 인퍼런스를 생성 할 수 있다.")
   public void deployInferenceServerWithoutHPATest() throws Exception {
     // given
+    Model model = getModel("testModel");
+    ModelMetadata modelMetadata = getModelMetadata(model);
+    Resource resource = getResource(false);
     Deployment deployment = Deployment.builder()
         .name("testDeployment")
         .status(Status.PENDING)
         .endPoint("inference-" + "testDeployment".toLowerCase() + ".so1s.io")
         .standard(Standard.REPLICAS)
         .standardValue(5)
-        .modelMetadata(ModelMetadata.builder()
-            .status(Status.SUCCEEDED)
-            .version(HashGenerator.sha256())
-            .fileName("titanic.h5")
-            .url("https://s3.test.com/")
-            .inputShape("(10,)")
-            .inputDtype("float32")
-            .outputShape("(1,)")
-            .outputDtype("float32")
-            .model(Model.builder()
-                .name("testModel")
-                .library(Library.builder()
-                    .name("torch")
-                    .build())
-                .build())
-            .build())
-        .resource(Resource.builder()
-            .name(HashGenerator.sha256())
-            .cpu("1")
-            .memory("1Gi")
-            .gpu("0")
-            .cpuLimit("2")
-            .memoryLimit("2Gi")
-            .gpuLimit("0")
-            .build())
+        .modelMetadata(modelMetadata)
+        .resource(resource)
         .build();
 
     addNewNodeForTolerations();
@@ -425,5 +257,53 @@ public class KubernetesServiceTest {
     assertThat(createdDeployment.getSpec().getReplicas()).isEqualTo(5);
     assertThat(hpaList.getItems().size()).isEqualTo(0);
 
+  }
+
+  public Model getModel(String name) {
+    return Model.builder()
+        .name(name)
+        .library(Library.builder()
+            .name("torch")
+            .build())
+        .build();
+  }
+
+  public ModelMetadata getModelMetadata(Model model) {
+    return ModelMetadata.builder()
+        .status(Status.SUCCEEDED)
+        .version(HashGenerator.sha256())
+        .fileName("titanic.h5")
+        .url("https://s3.test.com/")
+        .inputShape("(10,)")
+        .inputDtype("float32")
+        .outputShape("(1,)")
+        .outputDtype("float32")
+        .deviceType("cpu")
+        .model(model)
+        .build();
+  }
+
+  public Resource getResource(boolean isGPU) {
+    return Resource.builder()
+        .name(HashGenerator.sha256())
+        .cpu("1")
+        .memory("1Gi")
+        .gpu(isGPU ? "1" : "0")
+        .cpuLimit("2")
+        .memoryLimit("2Gi")
+        .gpuLimit(isGPU ? "1" : "0")
+        .build();
+  }
+
+  public Deployment getDeployment(String name, ModelMetadata modelMetadata, Resource resource) {
+    return Deployment.builder()
+        .name(name)
+        .status(Status.PENDING)
+        .endPoint("inference-" + name.toLowerCase() + ".so1s.io")
+        .standard(Standard.REPLICAS)
+        .standardValue(5)
+        .modelMetadata(modelMetadata)
+        .resource(resource)
+        .build();
   }
 }
