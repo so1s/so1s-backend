@@ -7,13 +7,15 @@ import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.domain.test.exception.ABTestExistsException;
+import io.so1s.backend.global.error.exception.NodeResourceExceededException;
 import java.util.List;
 import java.util.Optional;
 
 public interface DeploymentService {
 
 
-  Deployment createDeployment(Resource resource, DeploymentRequestDto deploymentRequestDto);
+  Deployment createDeployment(Resource resource, DeploymentRequestDto deploymentRequestDto)
+      throws NodeResourceExceededException;
 
   DeploymentDeleteResponseDto deleteDeployment(Long id)
       throws DeploymentNotFoundException, ABTestExistsException;
