@@ -33,7 +33,7 @@ public class ModelMetadataMapper {
         .inputDtype(modelUploadRequestDto.getInputDtype())
         .outputShape(modelUploadRequestDto.getOutputShape())
         .outputDtype(modelUploadRequestDto.getOutputDtype())
-        .type(modelUploadRequestDto.getType())
+        .deviceType(modelUploadRequestDto.getDeviceType())
         .model(model)
         .build();
   }

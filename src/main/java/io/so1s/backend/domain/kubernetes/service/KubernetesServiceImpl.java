@@ -72,7 +72,7 @@ public class KubernetesServiceImpl implements KubernetesService {
     String modelName = model.getName().toLowerCase();
     String library = model.getLibrary().getName().toLowerCase();
     String version = modelMetadata.getVersion().toLowerCase();
-    String type = modelMetadata.getType().toLowerCase();
+    String type = modelMetadata.getDeviceType().toLowerCase();
 
     Map<String, String> labels = new HashMap<>();
     labels.put("app", "inference-build");

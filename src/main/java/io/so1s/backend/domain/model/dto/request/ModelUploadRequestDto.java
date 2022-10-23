@@ -40,5 +40,5 @@ public class ModelUploadRequestDto {
   private String outputDtype;
 
   @NotBlank
-  private String type;
+  private String deviceType;
 }
