@@ -1,13 +1,20 @@
 package io.so1s.backend.domain.resource.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.so1s.backend.domain.resource.dto.mapper.ResourceMapper;
 import io.so1s.backend.domain.resource.dto.request.ResourceCreateRequestDto;
 import io.so1s.backend.domain.resource.dto.response.ResourceDeleteResponseDto;
 import io.so1s.backend.domain.resource.dto.response.ResourceFindResponseDto;
+import io.so1s.backend.domain.resource.dto.service.ResourceDto;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.domain.resource.exception.ResourceNotFoundException;
 import io.so1s.backend.domain.resource.repository.ResourceRepository;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +26,8 @@ public class ResourceServiceImpl implements ResourceService {
 
   private final ResourceRepository resourceRepository;
   private final ResourceMapper resourceMapper;
+  private final ObjectMapper objectMapper;
+  private final KubernetesClient client;
 
   @Override
   @Transactional
@@ -54,5 +63,43 @@ public class ResourceServiceImpl implements ResourceService {
     return ResourceDeleteResponseDto.builder()
         .success(true)
         .message("삭제가 완료되었습니다.").build();
+  }
+
+  @Override
+  public boolean gte(Quantity a, Quantity b) {
+    return Quantity.getAmountInBytes(a)
+        .compareTo(Quantity.getAmountInBytes(b)) >= 0;
+  }
+
+  @Override
+  public boolean isDeployable(ResourceDto allocatable, ResourceDto desired) {
+    var resourceMapTypeRef = new TypeReference<Map<String, Quantity>>() {
+    };
+
+    Map<String, Quantity> allocatableMap = objectMapper.convertValue(allocatable,
+        resourceMapTypeRef);
+    Map<String, Quantity> desiredMap = objectMapper.convertValue(desired, resourceMapTypeRef);
+
+    Set<String> keys = allocatableMap.keySet();
+
+    return keys.stream()
+        .allMatch(key -> gte(allocatableMap.get(key), desiredMap.get(key)));
+  }
+
+  @Override
+  public boolean isDeployable(Resource resource) {
+    ResourceDto desired = resourceMapper.toServiceDto(resource);
+
+    return client.nodes()
+        .list()
+        .getItems()
+        .stream()
+        .filter(e -> e.getSpec().getTaints().stream()
+            .anyMatch(t -> t.getKey().equals("kind") && t.getValue().equals("inference")))
+        .anyMatch(e -> {
+          ResourceDto allocatable = resourceMapper.toServiceDto(e.getStatus().getAllocatable());
+
+          return isDeployable(allocatable, desired);
+        });
   }
 }
