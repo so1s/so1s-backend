@@ -127,15 +127,37 @@ public class ResourceServiceTest {
         allocatableMap.put("cpu", new Quantity("2"));
         allocatableMap.put("memory", new Quantity("4Gi"));
 
-        ResourceDto allocatable = resourceMapper.toServiceDto(allocatableMap);
+        Map<String, Quantity> desiredMap = new HashMap<>();
 
-        ResourceDto desired = ResourceDto.builder()
-            .cpu(new Quantity("500m"))
-            .memory(new Quantity("1Gi"))
-            .gpu(new Quantity("1"))
-            .build();
+        desiredMap.put("cpu", new Quantity("500m"));
+        desiredMap.put("memory", new Quantity("1Gi"));
+        desiredMap.put("gpu", new Quantity("1"));
+
+        ResourceDto allocatable = resourceMapper.toServiceDto(allocatableMap);
+        ResourceDto desired = resourceMapper.toServiceDto(desiredMap);
 
         assertThat(resourceService.isDeployable(allocatable, desired)).isFalse();
+      }
+
+      @Test
+      @DisplayName("CPU 1개는 500m보다 큰 단위이다.")
+      void checkQuantityUnits() throws Exception {
+        Map<String, Quantity> allocatableMap = new HashMap<>();
+
+        allocatableMap.put("cpu", new Quantity("1"));
+        allocatableMap.put("memory", new Quantity("2Gi"));
+        allocatableMap.put("gpu", new Quantity("0"));
+
+        Map<String, Quantity> desiredMap = new HashMap<>();
+
+        desiredMap.put("cpu", new Quantity("500m"));
+        desiredMap.put("memory", new Quantity("1Gi"));
+        desiredMap.put("gpu", new Quantity("0"));
+
+        ResourceDto allocatable = resourceMapper.toServiceDto(allocatableMap);
+        ResourceDto desired = resourceMapper.toServiceDto(desiredMap);
+
+        assertThat(resourceService.isDeployable(allocatable, desired)).isTrue();
       }
 
     }
