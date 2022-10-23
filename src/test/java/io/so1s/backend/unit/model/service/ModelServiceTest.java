@@ -3,6 +3,7 @@ package io.so1s.backend.unit.model.service;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
+import static org.mockito.BDDMockito.given;
 
 import com.amazonaws.services.s3.AmazonS3;
 import io.findify.s3mock.S3Mock;
@@ -33,6 +34,7 @@ import io.so1s.backend.domain.model.exception.ModelMetadataNotFoundException;
 import io.so1s.backend.domain.model.exception.ModelNotFoundException;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
+import io.so1s.backend.domain.model.service.DataTypeService;
 import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.domain.resource.repository.ResourceRepository;
@@ -47,6 +49,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
@@ -69,6 +72,8 @@ class ModelServiceTest {
   static ModelUploadRequestDto modelUploadRequestDto;
   @Autowired
   ModelService modelService;
+  @MockBean
+  DataTypeService dataTypeService;
   @Autowired
   AwsS3Service awsS3UploadService;
   @Autowired
@@ -162,6 +167,11 @@ class ModelServiceTest {
         .url("http://test.com/")
         .build();
 
+    given(dataTypeService.findDataTypeByName(modelUploadRequestDto.getInputDtype())).willReturn(
+        null);
+    given(dataTypeService.findDataTypeByName(modelUploadRequestDto.getOutputDtype())).willReturn(
+        null);
+
     // when
     Model model = Model.builder()
         .name("testModel")
@@ -214,6 +224,12 @@ class ModelServiceTest {
         .savedName("fileName")
         .url("http://test.com/")
         .build();
+
+    given(dataTypeService.findDataTypeByName(modelUploadRequestDto.getInputDtype())).willReturn(
+        null);
+    given(dataTypeService.findDataTypeByName(modelUploadRequestDto.getOutputDtype())).willReturn(
+        null);
+
     Model model = modelService.createModel(modelUploadRequestDto);
     ModelMetadata modelMetadata = modelService.createModelMetadata(
         model, modelUploadRequestDto, saveResult);
@@ -249,6 +265,11 @@ class ModelServiceTest {
         model, modelUploadRequestDto, saveResult);
     ModelMetadata modelMetadata2 = modelService.createModelMetadata(
         model, modelUploadRequestDto, saveResult);
+
+    given(dataTypeService.findDataTypeByName(modelUploadRequestDto.getInputDtype())).willReturn(
+        null);
+    given(dataTypeService.findDataTypeByName(modelUploadRequestDto.getOutputDtype())).willReturn(
+        null);
 
     // when
     List<ModelMetadataFindResponseDto> find = modelService.findModelMetadatasByModelId(
@@ -324,11 +345,17 @@ class ModelServiceTest {
         .savedName("fileName")
         .url("http://test.com/")
         .build();
+
+    given(dataTypeService.findDataTypeByName(modelUploadRequestDto.getInputDtype())).willReturn(
+        null);
+    given(dataTypeService.findDataTypeByName(modelUploadRequestDto.getOutputDtype())).willReturn(
+        null);
+
+    // when
     Model model = modelService.createModel(modelUploadRequestDto);
     ModelMetadata modelMetadata = modelService.createModelMetadata(
         model, modelUploadRequestDto, saveResult);
 
-    // when
     // then
     assertThrows(ModelMetadataNotFoundException.class,
         () -> modelService.findModelDetail(model.getId(),
@@ -405,6 +432,12 @@ class ModelServiceTest {
         .url("http://test.com/")
         .build();
     Model model = modelService.createModel(modelUploadRequestDto);
+
+    given(dataTypeService.findDataTypeByName(modelUploadRequestDto.getInputDtype())).willReturn(
+        null);
+    given(dataTypeService.findDataTypeByName(modelUploadRequestDto.getOutputDtype())).willReturn(
+        null);
+
     ModelMetadata modelMetadata = modelService.createModelMetadata(
         model, modelUploadRequestDto, saveResult);
 
