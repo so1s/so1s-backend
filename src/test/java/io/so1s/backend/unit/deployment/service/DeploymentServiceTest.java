@@ -5,9 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.mockito.ArgumentMatchers.any;
 
-import io.fabric8.istio.client.IstioClient;
 import io.fabric8.istio.mock.EnableIstioMockClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.so1s.backend.domain.aws.config.S3Config;
 import io.so1s.backend.domain.aws.service.AwsS3Service;
@@ -40,9 +38,9 @@ import io.so1s.backend.domain.resource.service.ResourceService;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.exception.ABTestExistsException;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
-import io.so1s.backend.global.config.JpaConfig;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
+import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,21 +53,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@SpringBootTest
-@Import(JpaConfig.class)
+@SpringBootTest(classes = {TestKubernetesConfig.class})
 @EnableKubernetesMockClient(crud = true)
 @EnableIstioMockClient(crud = true)
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles(profiles = {"test"})
 public class DeploymentServiceTest {
-
-  KubernetesClient client;
-  IstioClient istioClient;
 
   @Autowired
   KubernetesService kubernetesService;
