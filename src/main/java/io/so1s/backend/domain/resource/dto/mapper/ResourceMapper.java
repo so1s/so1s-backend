@@ -42,15 +42,17 @@ public class ResourceMapper {
   }
 
   public ResourceDto toServiceDto(Map<String, Quantity> map) {
-    Quantity gpu = Optional.ofNullable(map.get("gpu")).orElse(new Quantity("0"));
+    Quantity cpu = map.get("cpu");
+    Quantity memory = map.get("memory");
+    Quantity gpu = Optional.ofNullable(map.get("nvidia.com/gpu")).orElse(new Quantity("0"));
 
     return ResourceDto.builder()
-        .cpu(map.get("cpu"))
-        .memory(map.get("memory"))
+        .cpu(cpu)
+        .memory(memory)
         .gpu(gpu)
-        .cpuLimit(Optional.ofNullable(map.get("cpuLimit")).orElse(map.get("cpu")))
-        .memoryLimit(Optional.ofNullable(map.get("memoryLimit")).orElse(map.get("memory")))
-        .gpuLimit(Optional.ofNullable(map.get("gpuLimit")).orElse(gpu))
+        .cpuLimit(cpu)
+        .memoryLimit(memory)
+        .gpuLimit(gpu)
         .build();
   }
 

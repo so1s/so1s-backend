@@ -3,7 +3,7 @@ package io.so1s.backend.domain.resource.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.model.Quantity;
-import io.fabric8.kubernetes.client.KubernetesClient;
+import io.so1s.backend.domain.kubernetes.service.NodesService;
 import io.so1s.backend.domain.resource.dto.mapper.ResourceMapper;
 import io.so1s.backend.domain.resource.dto.request.ResourceCreateRequestDto;
 import io.so1s.backend.domain.resource.dto.response.ResourceDeleteResponseDto;
@@ -24,10 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ResourceServiceImpl implements ResourceService {
 
+  private final NodesService nodesService;
   private final ResourceRepository resourceRepository;
   private final ResourceMapper resourceMapper;
   private final ObjectMapper objectMapper;
-  private final KubernetesClient client;
+  TypeReference<Map<String, Quantity>> resourceMapTypeRef = new TypeReference<>() {
+  };
 
   @Override
   @Transactional
@@ -73,8 +75,6 @@ public class ResourceServiceImpl implements ResourceService {
 
   @Override
   public boolean isDeployable(ResourceDto allocatable, ResourceDto desired) {
-    var resourceMapTypeRef = new TypeReference<Map<String, Quantity>>() {
-    };
 
     Map<String, Quantity> allocatableMap = objectMapper.convertValue(allocatable,
         resourceMapTypeRef);
@@ -90,9 +90,7 @@ public class ResourceServiceImpl implements ResourceService {
   public boolean isDeployable(Resource resource) {
     ResourceDto desired = resourceMapper.toServiceDto(resource);
 
-    return client.nodes()
-        .list()
-        .getItems()
+    return nodesService.findNodes()
         .stream()
         .filter(e -> e.getSpec().getTaints().stream()
             .anyMatch(t -> t.getKey().equals("kind") && t.getValue().equals("inference")))
