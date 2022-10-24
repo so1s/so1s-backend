@@ -1,5 +1,6 @@
 package io.so1s.backend.global.error;
 
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.so1s.backend.global.error.exception.ApplicationException;
 import io.so1s.backend.global.error.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
@@ -85,6 +86,19 @@ public class GlobalExceptionHandler {
     log.error(LOG_FORMAT, e.getClass().getSimpleName(), e.getErrorCode(), e.getMessage());
     final ErrorResponseDto responseDto = ErrorResponseDto.of(e.getErrorCode(), e.getMessage());
     return new ResponseEntity<>(responseDto, HttpStatus.valueOf(e.getErrorCode().getStatus()));
+  }
+
+  /**
+   * Fabric8 관련 오류시
+   */
+  @ExceptionHandler(KubernetesClientException.class)
+  protected ResponseEntity<ErrorResponseDto> handleApplicationException(
+      KubernetesClientException e) {
+    ErrorCode errorCode = ErrorCode.KUBERNETES_API_ERROR;
+    log.error(LOG_FORMAT, e.getClass().getSimpleName(), errorCode,
+        e.getMessage());
+    final ErrorResponseDto responseDto = ErrorResponseDto.of(errorCode, e.getMessage());
+    return new ResponseEntity<>(responseDto, HttpStatus.valueOf(errorCode.getStatus()));
   }
 
 

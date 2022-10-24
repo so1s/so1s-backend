@@ -16,3 +16,7 @@ cloud:
       static: ap-northeast-2
     stack:
       auto: false # aws 배포할때 기본으로 CloudFormation 구성을 시작해서 기능을 끔
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
