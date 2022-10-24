@@ -124,7 +124,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .withTolerations(new TolerationBuilder()
             .withKey("kind")
             .withOperator("Equal")
-            .withValue("inference")
+            .withValue(type.equals("gpu") ? "gpu-model-builder" : "model-builder")
             .withEffect("NoSchedule")
             .build())
         .withVolumes(new VolumeBuilder()
