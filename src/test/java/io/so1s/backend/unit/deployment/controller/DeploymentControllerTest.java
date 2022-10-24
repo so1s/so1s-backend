@@ -136,14 +136,14 @@ public class DeploymentControllerTest {
   }
 
   @Test
-  @DisplayName("기존 배포를 성공적으로 업데이트를 하면 200을 반환한다.")
+  @DisplayName("기존 배포를 성공적으로 rolling 업데이트를 하면 200을 반환한다.")
   public void updateDeploymentTest() throws Exception {
     // given
     when(deploymentService.updateDeployment(any(DeploymentRequestDto.class))).thenReturn(
-        Deployment.builder()
+        DeploymentResponseDto.builder()
             .id(1L)
             .name(deploymentRequestDto.getName())
-            .resource(resource)
+            .success(true)
             .build());
     when(kubernetesService.deployInferenceServer(any(Deployment.class))).thenReturn(Boolean.TRUE);
 
