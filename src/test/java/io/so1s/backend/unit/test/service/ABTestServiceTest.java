@@ -104,6 +104,7 @@ public class ABTestServiceTest {
         .inputDtype("float32")
         .outputShape("(1,)")
         .outputDtype("float32")
+        .deviceType("cpu")
         .model(model)
         .build());
 

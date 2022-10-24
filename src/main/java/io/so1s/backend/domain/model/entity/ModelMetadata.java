@@ -62,6 +62,9 @@ public class ModelMetadata extends BaseTimeEntity {
   @Column(nullable = false)
   private String outputDtype;
 
+  @Column(nullable = false)
+  private String deviceType;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "model_id")
   private Model model;

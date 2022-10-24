@@ -67,11 +67,12 @@ public class KubernetesServiceImpl implements KubernetesService {
 
     String namespace = "default";
 
-    String tag = HashGenerator.sha256();
+    String tag = HashGenerator.sha256().toLowerCase();
     String jobName = "build-" + tag.substring(0, 12).toLowerCase();
     String modelName = model.getName().toLowerCase();
     String library = model.getLibrary().getName().toLowerCase();
     String version = modelMetadata.getVersion().toLowerCase();
+    String type = modelMetadata.getDeviceType().toLowerCase();
 
     Map<String, String> labels = new HashMap<>();
     labels.put("app", "inference-build");
@@ -95,7 +96,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .addNewContainer()
         .withImagePullPolicy("Always")
         .withName(jobName)
-        .withImage("so1s/build:latest")
+        .withImage("so1s/build:v2-" + type)
         .withCommand(
             "/bin/bash", "/apps/build.sh",
             "--file", modelMetadata.getUrl(),
@@ -103,12 +104,16 @@ public class KubernetesServiceImpl implements KubernetesService {
             "--output", modelMetadata.getOutputDtype(),
             "--name", modelName,
             "--tag", version,
+            "--library", library,
             "--user", "so1s",
-            "--password", "vkxmxkdlaj"
+            "--password", "vkxmxkdlaj",
+            "--type", type
         )
         .withNewResources()
         .addToRequests("cpu", new Quantity("1"))
         .addToLimits("cpu", new Quantity("1"))
+        .addToRequests("nvidia.com/gpu", new Quantity(type.equals("gpu") ? "1" : "0"))
+        .addToLimits("nvidia.com/gpu", new Quantity(type.equals("gpu") ? "1" : "0"))
         .endResources()
         .withVolumeMounts(
             new VolumeMountBuilder()
@@ -242,8 +247,10 @@ public class KubernetesServiceImpl implements KubernetesService {
         .withNewResources()
         .addToRequests("cpu", new Quantity(deployment.getResource().getCpu()))
         .addToRequests("memory", new Quantity(deployment.getResource().getMemory()))
+        .addToRequests("nvidia.com/gpu", new Quantity(deployment.getResource().getGpu()))
         .addToLimits("cpu", new Quantity(deployment.getResource().getCpuLimit()))
         .addToLimits("memory", new Quantity(deployment.getResource().getMemoryLimit()))
+        .addToLimits("nvidia.com/gpu", new Quantity(deployment.getResource().getGpuLimit()))
         .endResources()
         .addNewPort()
         .withName("inference-port")

@@ -81,6 +81,7 @@ public class GlobalExceptionHandlerTest {
   String inputDtype;
   String outputShape;
   String outputDtype;
+  String deviceType;
 
 
   @BeforeEach
@@ -91,6 +92,7 @@ public class GlobalExceptionHandlerTest {
     inputDtype = "(10,)";
     outputShape = "float32";
     outputDtype = "(1,)";
+    deviceType = "cpu";
 
     String username = "so1s";
     UserRole userRole = UserRole.OWNER;
@@ -296,6 +298,7 @@ public class GlobalExceptionHandlerTest {
             .param("inputDtype", inputDtype)
             .param("outputShape", outputShape)
             .param("outputDtype", outputDtype)
+            .param("deviceType", deviceType)
             .with(csrf()).header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token)))
         .andDo(print());
 

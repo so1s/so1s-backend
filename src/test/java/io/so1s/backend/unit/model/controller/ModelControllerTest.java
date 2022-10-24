@@ -125,6 +125,7 @@ class ModelControllerTest {
             .param("inputDtype", "float32")
             .param("outputShape", "(1,)")
             .param("outputDtype", "float32")
+            .param("deviceType", "cpu")
             .with(csrf())).andDo(print());
 
     //then
@@ -161,6 +162,7 @@ class ModelControllerTest {
         .param("inputDtype", "float32")
         .param("outputShape", "(1,)")
         .param("outputDtype", "float32")
+        .param("deviceType", "cpu")
         .with(csrf())
         .with(request -> {
           request.setMethod("PUT");
