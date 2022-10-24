@@ -3,8 +3,10 @@ package io.so1s.backend.domain.deployment.service;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentDeleteResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
+import io.so1s.backend.domain.deployment.dto.response.DeploymentResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
+import io.so1s.backend.domain.deployment.exception.DeploymentUpdateFailedException;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.domain.test.exception.ABTestExistsException;
 import java.util.List;
@@ -18,7 +20,9 @@ public interface DeploymentService {
   DeploymentDeleteResponseDto deleteDeployment(Long id)
       throws DeploymentNotFoundException, ABTestExistsException;
 
-  Deployment updateDeployment(DeploymentRequestDto deploymentRequestDto);
+  DeploymentResponseDto updateDeployment(DeploymentRequestDto deploymentRequestDto);
+
+  boolean updateInference(Deployment deployment) throws DeploymentUpdateFailedException;
 
   Deployment validateExistDeployment(String name);
 

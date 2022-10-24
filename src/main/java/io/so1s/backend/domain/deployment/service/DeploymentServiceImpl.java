@@ -4,9 +4,11 @@ import io.so1s.backend.domain.deployment.dto.mapper.DeploymentMapper;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentDeleteResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
+import io.so1s.backend.domain.deployment.dto.response.DeploymentResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
+import io.so1s.backend.domain.deployment.exception.DeploymentUpdateFailedException;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.deployment_strategy.repository.DeploymentStrategyRepository;
 import io.so1s.backend.domain.deployment_strategy.service.DeploymentStrategyService;
@@ -88,7 +90,8 @@ public class DeploymentServiceImpl implements DeploymentService {
   }
 
   @Override
-  public Deployment updateDeployment(DeploymentRequestDto deploymentRequestDto) {
+  @Transactional
+  public DeploymentResponseDto updateDeployment(DeploymentRequestDto deploymentRequestDto) {
     Deployment deployment = validateExistDeployment(deploymentRequestDto.getName());
 
     DeploymentStrategy deploymentStrategy = deploymentStrategyService.findByName(
@@ -97,9 +100,38 @@ public class DeploymentServiceImpl implements DeploymentService {
         deploymentRequestDto.getModelMetadataId());
     Resource resource = resourceService.findById(deploymentRequestDto.getResourceId());
 
+    boolean isUpdate = updateInference(deployment);
+
     deployment.updateModel(modelMetadata, deploymentStrategy, resource);
 
-    return deployment;
+    return DeploymentResponseDto.builder()
+        .success(isUpdate)
+        .id(deployment.getId())
+        .name(deployment.getName())
+        .build();
+  }
+
+  public boolean updateInference(Deployment deployment) throws DeploymentUpdateFailedException {
+    if (deployment.getDeploymentStrategy().getName().equals("rolling")) {
+      return kubernetesService.deployInferenceServer(deployment);
+    } else if (deployment.getDeploymentStrategy().getName().equals("static")) {
+      List<ABTest> aTests = abTestRepository.findAllByA_Id(deployment.getId());
+      List<ABTest> bTests = abTestRepository.findAllByB_Id(deployment.getId());
+
+      if (!aTests.isEmpty() || !bTests.isEmpty()) {
+        throw new ABTestExistsException(
+            "AB Test is exist that use Deployment.\nPlease delete the AB Test first.");
+      }
+
+      if (kubernetesService.deleteDeployment(deployment)) {
+        return kubernetesService.deployInferenceServer(deployment);
+      } else {
+        throw new DeploymentNotFoundException(
+            "Cannot delete a Deployment from Kubernetqes Cluster.\nPlease check Your Cluster or Deployment.");
+      }
+    }
+
+    return false;
   }
 
   @Override
