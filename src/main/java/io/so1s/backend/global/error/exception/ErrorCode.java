@@ -22,14 +22,15 @@ public enum ErrorCode {
   ENTITY_EXIST(409, "Common009", "Entity Exist"),
 
   //Auth
-  UNABLE_TO_CREATE_USER(403, "Auth001", "Unable to Create User"),
+  UNABLE_TO_CREATE_USER(403, "Auth001", "Unable to create User"),
 
   //AWS
 
   //Deployment
+  UPDATE_FAILED(421, "Deployment001", "Unable to update Deployment"),
 
   //Kubernetes
-  TOO_MANY_BUILD_REQUEST(429, "Common008", "Too Many Build Request"),
+  TOO_MANY_BUILD_REQUEST(429, "Kubernetes001", "Too Many Build Request"),
 
   //Model
 
