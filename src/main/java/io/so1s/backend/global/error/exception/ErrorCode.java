@@ -30,6 +30,8 @@ public enum ErrorCode {
 
   //Kubernetes
   TOO_MANY_BUILD_REQUEST(429, "Common008", "Too Many Build Request"),
+  KUBERNETES_API_ERROR(500, "Kubernetes001", "An error occurred connecting kubernetes api server"),
+  NODE_RESOURCE_EXCEEDED(429, "Kubernetes002", "Node Resource Exceeded"),
 
   //Model
 
