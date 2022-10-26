@@ -122,13 +122,8 @@ public class DeploymentServiceImpl implements DeploymentService {
         throw new ABTestExistsException(
             "AB Test is exist that use Deployment.\nPlease delete the AB Test first.");
       }
-
-      if (kubernetesService.deleteDeployment(deployment)) {
-        return kubernetesService.deployInferenceServer(deployment);
-      } else {
-        throw new DeploymentNotFoundException(
-            "Cannot delete a Deployment from Kubernetqes Cluster.\nPlease check Your Cluster or Deployment.");
-      }
+      
+      return kubernetesService.deployInferenceServer(deployment);
     }
 
     return false;
