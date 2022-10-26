@@ -3,14 +3,12 @@ package io.so1s.backend.unit.deployment.service;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
+import static org.mockito.ArgumentMatchers.any;
 
-import io.fabric8.istio.client.IstioClient;
 import io.fabric8.istio.mock.EnableIstioMockClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.so1s.backend.domain.aws.config.S3Config;
 import io.so1s.backend.domain.aws.service.AwsS3Service;
-import io.so1s.backend.domain.deployment.dto.mapper.DeploymentMapper;
 import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.deployment.dto.request.ScaleDto;
 import io.so1s.backend.domain.deployment.dto.request.Standard;
@@ -21,19 +19,12 @@ import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.deployment.service.DeploymentService;
-import io.so1s.backend.domain.deployment.service.DeploymentServiceImpl;
-import io.so1s.backend.domain.deployment_strategy.dto.mapper.DeploymentStrategyMapper;
 import io.so1s.backend.domain.deployment_strategy.exception.DeploymentStrategyNotFoundException;
 import io.so1s.backend.domain.deployment_strategy.repository.DeploymentStrategyRepository;
-import io.so1s.backend.domain.deployment_strategy.service.DeploymentStrategyService;
-import io.so1s.backend.domain.deployment_strategy.service.DeploymentStrategyServiceImpl;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
-import io.so1s.backend.domain.kubernetes.service.KubernetesServiceImpl;
 import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
 import io.so1s.backend.domain.library.entity.Library;
 import io.so1s.backend.domain.library.repository.LibraryRepository;
-import io.so1s.backend.domain.model.dto.mapper.ModelMapper;
-import io.so1s.backend.domain.model.dto.mapper.ModelMetadataMapper;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.exception.ModelMetadataNotFoundException;
@@ -41,47 +32,44 @@ import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.domain.model.service.DataTypeService;
 import io.so1s.backend.domain.model.service.ModelService;
-import io.so1s.backend.domain.model.service.ModelServiceImpl;
-import io.so1s.backend.domain.resource.dto.mapper.ResourceMapper;
 import io.so1s.backend.domain.resource.dto.request.ResourceCreateRequestDto;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.domain.resource.repository.ResourceRepository;
 import io.so1s.backend.domain.resource.service.ResourceService;
-import io.so1s.backend.domain.resource.service.ResourceServiceImpl;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.exception.ABTestExistsException;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
-import io.so1s.backend.global.config.JpaConfig;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
+import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@DataJpaTest
-@Import(JpaConfig.class)
+@SpringBootTest(classes = { TestKubernetesConfig.class })
 @EnableKubernetesMockClient(crud = true)
 @EnableIstioMockClient(crud = true)
 @ExtendWith(MockitoExtension.class)
-@ActiveProfiles(profiles = {"test"})
+@ActiveProfiles(profiles = { "test" })
 public class DeploymentServiceTest {
 
-  KubernetesClient client;
-  IstioClient istioClient;
-
+  @Autowired
   KubernetesService kubernetesService;
+  @Autowired
   DeploymentService deploymentService;
+  @Autowired
   ModelService modelService;
 
   @Autowired
@@ -98,11 +86,6 @@ public class DeploymentServiceTest {
   ResourceRepository resourceRepository;
   @Autowired
   ABTestRepository abTestRepository;
-  DeploymentMapper deploymentMapper = new DeploymentMapper();
-  ResourceMapper resourceMapper = new ResourceMapper();
-  ResourceService resourceService;
-  DeploymentStrategyMapper deploymentStrategyMapper = new DeploymentStrategyMapper();
-  DeploymentStrategyService deploymentStrategyService;
   @MockBean
   JobStatusChecker jobStatusChecker;
   @MockBean
@@ -111,30 +94,28 @@ public class DeploymentServiceTest {
   AwsS3Service awsS3UploadService;
   @MockBean
   DataTypeService dataTypeService;
+  @SpyBean
+  ResourceService resourceService;
 
-  ModelMapper modelMapper = new ModelMapper();
-  ModelMetadataMapper modelMetadataMapper = new ModelMetadataMapper();
+  ResourceCreateRequestDto resourceRequestDto = ResourceCreateRequestDto.builder()
+      .name("DeploymentServiceTestResource")
+      .cpu("1")
+      .memory("1Gi")
+      .gpu("0")
+      .cpuLimit("2")
+      .memoryLimit("2Gi")
+      .gpuLimit("0")
+      .build();
 
   @BeforeEach
   void setup() {
-    kubernetesService = new KubernetesServiceImpl(client, istioClient, jobStatusChecker);
-    modelService = new ModelServiceImpl(dataTypeService, modelRepository, libraryRepository,
-        modelMetadataRepository, deploymentRepository, awsS3UploadService, modelMapper,
-        modelMetadataMapper);
-    resourceService = new ResourceServiceImpl(resourceRepository, resourceMapper);
-    deploymentStrategyService = new DeploymentStrategyServiceImpl(deploymentStrategyRepository,
-        deploymentStrategyMapper);
-    deploymentService = new DeploymentServiceImpl(deploymentRepository,
-        deploymentStrategyRepository, resourceRepository, abTestRepository, kubernetesService,
-        modelService, resourceService, deploymentStrategyService, deploymentMapper);
+    Mockito.doReturn(true).when(resourceService).isDeployable(any());
   }
 
   @Test
   @DisplayName("새로운 Resource를 생성한다.")
   public void createResourceTest() throws Exception {
     // given
-    // setup()
-    ResourceCreateRequestDto resourceRequestDto = getResourceCreateRequestDto();
 
     // when
     Resource resource = resourceService.createResource(resourceRequestDto);
@@ -154,7 +135,7 @@ public class DeploymentServiceTest {
   public void createDeploymentTest() throws Exception {
     // given
     ModelMetadata modelMetadata = getModelMetadata();
-    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = getDeploymentRequestDto(modelMetadata, resource);
 
     // when
@@ -174,7 +155,7 @@ public class DeploymentServiceTest {
   @DisplayName("잘못된 모델메타데이터를 선택했을경우 ModelMetadataNotFoundException이 발생한다.")
   public void createDeploymentWrongModelMetadataTest() throws Exception {
     // given
-    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
         .modelMetadataId(-(1L))
@@ -196,7 +177,7 @@ public class DeploymentServiceTest {
   public void createDeploymentWrongStragegyTest() throws Exception {
     // given
     ModelMetadata modelMetadata = getModelMetadata();
-    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("testDeployment")
         .modelMetadataId(modelMetadata.getId())
@@ -218,7 +199,7 @@ public class DeploymentServiceTest {
   public void updateDeployment() throws Exception {
     // given
     ModelMetadata modelMetadata = modelMetadataRepository.save(getModelMetadata());
-    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = getDeploymentRequestDto(modelMetadata, resource);
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
@@ -256,7 +237,7 @@ public class DeploymentServiceTest {
   public void updateDeploymentWrongNameTest() throws Exception {
     // given
     ModelMetadata modelMetadata = getModelMetadata();
-    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = DeploymentRequestDto.builder()
         .name("not-exist-deployment")
         .modelMetadataId(modelMetadata.getId())
@@ -278,7 +259,7 @@ public class DeploymentServiceTest {
   public void findDeploymentsTest() throws Exception {
     // given
     ModelMetadata modelMetadata = getModelMetadata();
-    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = getDeploymentRequestDto(modelMetadata, resource);
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
@@ -302,7 +283,7 @@ public class DeploymentServiceTest {
   public void findDeploymentTest() throws Exception {
     // given
     ModelMetadata modelMetadata = getModelMetadata();
-    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = getDeploymentRequestDto(modelMetadata, resource);
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
@@ -319,7 +300,7 @@ public class DeploymentServiceTest {
   public void deleteDeployment() throws Exception {
     // given
     ModelMetadata modelMetadata = getModelMetadata();
-    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = getDeploymentRequestDto(modelMetadata, resource);
 
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
@@ -352,7 +333,7 @@ public class DeploymentServiceTest {
   public void deleteDeploymentButHasABTest() throws Exception {
     // given
     ModelMetadata modelMetadata = getModelMetadata();
-    Resource resource = resourceService.createResource(getResourceCreateRequestDto());
+    Resource resource = resourceService.createResource(resourceRequestDto);
     DeploymentRequestDto deploymentRequestDto = getDeploymentRequestDto(modelMetadata, resource);
 
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
@@ -410,18 +391,6 @@ public class DeploymentServiceTest {
         .scale(ScaleDto.builder().standard(Standard.LATENCY).standardValue(20).minReplicas(1)
             .maxReplicas(10).build())
         .resourceId(resource.getId())
-        .build();
-  }
-
-  public ResourceCreateRequestDto getResourceCreateRequestDto() {
-    return ResourceCreateRequestDto.builder()
-        .name("DeploymentServiceTestResource")
-        .cpu("1")
-        .memory("1Gi")
-        .gpu("0")
-        .cpuLimit("2")
-        .memoryLimit("2Gi")
-        .gpuLimit("0")
         .build();
   }
 }

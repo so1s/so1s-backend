@@ -21,6 +21,7 @@ import io.so1s.backend.domain.resource.service.ResourceService;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.domain.test.exception.ABTestExistsException;
 import io.so1s.backend.domain.test.repository.ABTestRepository;
+import io.so1s.backend.global.error.exception.NodeResourceExceededException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,12 +46,17 @@ public class DeploymentServiceImpl implements DeploymentService {
 
   @Override
   @Transactional
-  public Deployment createDeployment(Resource resource, DeploymentRequestDto deploymentRequestDto) {
+  public Deployment createDeployment(Resource resource, DeploymentRequestDto deploymentRequestDto)
+      throws NodeResourceExceededException {
 
     ModelMetadata modelMetadata = modelService.validateExistModelMetadata(
         deploymentRequestDto.getModelMetadataId());
     DeploymentStrategy deploymentStrategy = deploymentStrategyService.findByName(
         deploymentRequestDto.getStrategy());
+
+    if (!resourceService.isDeployable(resource)) {
+      throw new NodeResourceExceededException("지정된 리소스를 할당할 수 있는 노드가 없습니다.");
+    }
 
     Deployment deployment = deploymentMapper.toEntity(deploymentRequestDto);
 
