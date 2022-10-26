@@ -8,6 +8,7 @@ import io.so1s.backend.domain.deployment.dto.response.DeploymentFindYamlResponse
 import io.so1s.backend.domain.deployment.dto.response.DeploymentResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
+import io.so1s.backend.domain.deployment.exception.DeploymentUpdateFailedException;
 import io.so1s.backend.domain.deployment.service.DeploymentService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.resource.entity.Resource;
@@ -63,18 +64,11 @@ public class DeploymentController {
   @PutMapping
   public ResponseEntity<DeploymentResponseDto> updateDeployment(
       @Valid @RequestBody DeploymentRequestDto deploymentRequestDto)
-      throws DeploymentNotFoundException {
+      throws DeploymentNotFoundException, DeploymentUpdateFailedException {
 
-    Deployment deployment = deploymentService.updateDeployment(deploymentRequestDto);
-
-    return ResponseEntity.ok(
-        DeploymentResponseDto.builder()
-            .success(kubernetesService.deployInferenceServer(deployment))
-            .id(deployment.getId())
-            .name(deployment.getName())
-            .build());
+    return ResponseEntity.ok(deploymentService.updateDeployment(deploymentRequestDto));
   }
-
+  
   @GetMapping
   public ResponseEntity<List<DeploymentFindResponseDto>> findDeployments() {
     return ResponseEntity.ok(deploymentService.findDeployments());

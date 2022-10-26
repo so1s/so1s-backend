@@ -14,6 +14,7 @@ import io.so1s.backend.domain.deployment.dto.request.ScaleDto;
 import io.so1s.backend.domain.deployment.dto.request.Standard;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentDeleteResponseDto;
 import io.so1s.backend.domain.deployment.dto.response.DeploymentFindResponseDto;
+import io.so1s.backend.domain.deployment.dto.response.DeploymentResponseDto;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
@@ -194,7 +195,7 @@ public class DeploymentServiceTest {
   }
 
   @Test
-  @DisplayName("디플로이먼트 업데이트를 한다.")
+  @DisplayName("디플로이먼트 rolling 업데이트를 한다.")
   public void updateDeployment() throws Exception {
     // given
     ModelMetadata modelMetadata = modelMetadataRepository.save(getModelMetadata());
@@ -223,12 +224,12 @@ public class DeploymentServiceTest {
         .build();
 
     // when
-    Deployment result = deploymentService.updateDeployment(deploymentRequestDto2);
+    DeploymentResponseDto result = deploymentService.updateDeployment(
+        deploymentRequestDto2);
 
     // then
     assertThat(result.getName()).isEqualTo(deployment.getName());
-    assertThat(result.getModelMetadata().getFileName()).isEqualTo(modelMetadata2.getFileName());
-    assertThat(result.getModelMetadata().getId()).isEqualTo(modelMetadata2.getId());
+    assertThat(result.getSuccess()).isTrue();
   }
 
   @Test
