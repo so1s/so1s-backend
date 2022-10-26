@@ -124,7 +124,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .withTolerations(new TolerationBuilder()
             .withKey("kind")
             .withOperator("Equal")
-            .withValue("model_builder")
+            .withValue("model-builder")
             .withEffect("NoSchedule")
             .build())
         .withVolumes(new VolumeBuilder()
