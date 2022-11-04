@@ -162,7 +162,7 @@ public class KubernetesServiceImpl implements KubernetesService {
     client.namespaces().createOrReplace(
         new NamespaceBuilder()
             .withNewMetadata()
-            .withName(name)
+            .withName("so1s-" + name)
             .endMetadata()
             .build());
 
