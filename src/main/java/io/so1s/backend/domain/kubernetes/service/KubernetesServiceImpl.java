@@ -25,6 +25,7 @@ import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.internal.SerializationUtils;
+import io.so1s.backend.domain.auth.service.UserService;
 import io.so1s.backend.domain.deployment.dto.request.Standard;
 import io.so1s.backend.domain.kubernetes.exception.TooManyBuildRequestException;
 import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
@@ -51,7 +52,11 @@ public class KubernetesServiceImpl implements KubernetesService {
   private final KubernetesClient client;
   private final IstioClient istioClient;
   private final JobStatusChecker jobStatusChecker;
+  private final UserService userService;
 
+  public String getNamespace() {
+    return userService.getCurrentUsername().orElse("default");
+  }
 
   public String getWorkloadToYaml(HasMetadata object) {
     try {
@@ -65,7 +70,7 @@ public class KubernetesServiceImpl implements KubernetesService {
   public boolean inferenceServerBuild(ModelMetadata modelMetadata) throws InterruptedException {
     Model model = modelMetadata.getModel();
 
-    String namespace = "default";
+    String namespace = getNamespace();
 
     String tag = HashGenerator.sha256().toLowerCase();
     String jobName = "build-" + tag.substring(0, 12).toLowerCase();
@@ -207,7 +212,7 @@ public class KubernetesServiceImpl implements KubernetesService {
   public boolean deployInferenceServer(
       io.so1s.backend.domain.deployment.entity.Deployment deployment) {
 
-    String namespace = "default";
+    String namespace = getNamespace();
     String deployName = deployment.getName().toLowerCase();
     String modelName = deployment.getModelMetadata().getModel().getName().toLowerCase();
     String modelVersion = deployment.getModelMetadata().getVersion().toLowerCase();
@@ -355,7 +360,7 @@ public class KubernetesServiceImpl implements KubernetesService {
   @Override
   public boolean deployABTest(ABTest abTest) {
 
-    String namespace = "default";
+    String namespace = getNamespace();
     String abTestName = "ab-test-" + abTest.getName().toLowerCase();
 
     String host = abTestName + ".so1s.io"; // TODO: Fix hard-coded root domain
@@ -443,7 +448,7 @@ public class KubernetesServiceImpl implements KubernetesService {
 
   @Override
   public boolean deleteDeployment(io.so1s.backend.domain.deployment.entity.Deployment deployment) {
-    String namespace = "default";
+    String namespace = getNamespace();
     String deploymentName = deployment.getName().toLowerCase();
 
     try {
@@ -464,7 +469,7 @@ public class KubernetesServiceImpl implements KubernetesService {
 
   @Override
   public boolean deleteABTest(ABTest abTest) {
-    String namespace = "default";
+    String namespace = getNamespace();
     String abTestName = "ab-test-" + abTest.getName().toLowerCase();
 
     try {
@@ -478,7 +483,7 @@ public class KubernetesServiceImpl implements KubernetesService {
   }
 
   public HasMetadata getDeploymentObject(String name) {
-    List<Deployment> deployments = client.apps().deployments().inNamespace("default")
+    List<Deployment> deployments = client.apps().deployments().inNamespace(getNamespace())
         .withLabel("app", "inference").list()
         .getItems();
 
