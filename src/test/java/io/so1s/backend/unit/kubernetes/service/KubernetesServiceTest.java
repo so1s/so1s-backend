@@ -3,6 +3,8 @@ package io.so1s.backend.unit.kubernetes.service;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 import io.fabric8.istio.client.IstioClient;
 import io.fabric8.istio.mock.EnableIstioMockClient;
@@ -11,6 +13,7 @@ import io.fabric8.kubernetes.api.model.NodeBuilder;
 import io.fabric8.kubernetes.api.model.autoscaling.v2beta2.HorizontalPodAutoscalerList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
+import io.so1s.backend.domain.auth.service.UserService;
 import io.so1s.backend.domain.deployment.dto.request.Standard;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
@@ -47,13 +50,15 @@ public class KubernetesServiceTest {
   KubernetesService kubernetesService;
   KubernetesClient client;
   IstioClient istioClient;
+  UserService userService;
 
   JobStatusChecker jobStatusChecker;
 
   @BeforeEach
   public void setup() {
     jobStatusChecker = Mockito.mock(JobStatusChecker.class);
-    kubernetesService = new KubernetesServiceImpl(client, istioClient, jobStatusChecker);
+    kubernetesService = spy(new KubernetesServiceImpl(client, istioClient, jobStatusChecker,
+        userService));
   }
 
   @Test
@@ -63,7 +68,7 @@ public class KubernetesServiceTest {
     Model model = getModel("FinetunedModel");
     ModelMetadata modelMetadata = getModelMetadata(model);
     doNothing().when(jobStatusChecker).checkJobStatus(any(), any(), any());
-
+    doReturn("so1s").when(kubernetesService).getNamespace();
     // when
     boolean result = kubernetesService.inferenceServerBuild(modelMetadata);
 
@@ -125,7 +130,7 @@ public class KubernetesServiceTest {
 
     ExecutorService executor
         = Executors.newSingleThreadExecutor();
-
+    doReturn("so1s").when(kubernetesService).getNamespace();
     // when
     boolean result = kubernetesService.deployInferenceServer(deployment);
 
@@ -151,6 +156,7 @@ public class KubernetesServiceTest {
 
     ExecutorService executor
         = Executors.newSingleThreadExecutor();
+    doReturn("so1s").when(kubernetesService).getNamespace();
 
     // when
 
@@ -238,6 +244,7 @@ public class KubernetesServiceTest {
         .build();
 
     addNewNodeForTolerations();
+    doReturn("so1s").when(kubernetesService).getNamespace();
 
     // when
     boolean result = kubernetesService.deployInferenceServer(deployment);

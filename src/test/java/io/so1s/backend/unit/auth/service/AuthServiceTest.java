@@ -32,13 +32,13 @@ class AuthServiceTest {
   @Test
   @DisplayName("사용자명이 중복되는 사용자를 회원가입하려는 경우 익셉션이 발생한다.")
   void testDuplicateUserCreation() {
-    String username = "so1s";
-    String password = "so1s";
+    String username = "so1s-test";
+    String password = "so1s-test";
 
-    userService.createUser("so1s", "so1s", UserRole.USER);
+    userService.createUser("so1s-test", "so1s-test", UserRole.USER);
 
     assertThrows(DuplicatedUserException.class, () -> {
-      userService.createUser("so1s", "so1s", UserRole.USER);
+      userService.createUser("so1s-test", "so1s-test", UserRole.USER);
     });
 
   }
