@@ -94,7 +94,7 @@ public class GlobalExceptionHandlerTest {
     outputDtype = "(1,)";
     deviceType = "cpu";
 
-    String username = "so1s";
+    String username = "so1s-test";
     UserRole userRole = UserRole.OWNER;
     String password = "so1s1234567890";
 

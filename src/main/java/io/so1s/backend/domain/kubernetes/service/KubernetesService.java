@@ -8,6 +8,8 @@ import io.so1s.backend.domain.test.entity.ABTest;
 
 public interface KubernetesService {
 
+  String getNamespace();
+
   HasMetadata getDeploymentObject(String name);
 
   HasMetadata getJobObject(String name);
