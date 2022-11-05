@@ -1,24 +1,16 @@
 package io.so1s.backend.unit.kubernetes.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
 
-import io.fabric8.istio.client.IstioClient;
 import io.fabric8.istio.mock.EnableIstioMockClient;
 import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.NodeBuilder;
 import io.fabric8.kubernetes.api.model.autoscaling.v2beta2.HorizontalPodAutoscalerList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
-import io.so1s.backend.domain.auth.service.UserService;
 import io.so1s.backend.domain.deployment.dto.request.Standard;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
-import io.so1s.backend.domain.kubernetes.service.KubernetesServiceImpl;
-import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
 import io.so1s.backend.domain.library.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
@@ -26,20 +18,22 @@ import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
+import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 
+@SpringBootTest(classes = {TestKubernetesConfig.class})
 @EnableKubernetesMockClient(crud = true)
 @EnableIstioMockClient(crud = true)
 @ExtendWith(MockitoExtension.class)
@@ -47,19 +41,9 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(profiles = {"test"})
 public class KubernetesServiceTest {
 
+  @Autowired
   KubernetesService kubernetesService;
   KubernetesClient client;
-  IstioClient istioClient;
-  UserService userService;
-
-  JobStatusChecker jobStatusChecker;
-
-  @BeforeEach
-  public void setup() {
-    jobStatusChecker = Mockito.mock(JobStatusChecker.class);
-    kubernetesService = spy(new KubernetesServiceImpl(client, istioClient, jobStatusChecker,
-        userService));
-  }
 
   @Test
   @DisplayName("성공적으로 인퍼런스 잡이 실행되면 true를 반환한다.")
@@ -67,8 +51,7 @@ public class KubernetesServiceTest {
     // given
     Model model = getModel("FinetunedModel");
     ModelMetadata modelMetadata = getModelMetadata(model);
-    doNothing().when(jobStatusChecker).checkJobStatus(any(), any(), any());
-    doReturn("so1s").when(kubernetesService).getNamespace();
+
     // when
     boolean result = kubernetesService.inferenceServerBuild(modelMetadata);
 
@@ -130,7 +113,6 @@ public class KubernetesServiceTest {
 
     ExecutorService executor
         = Executors.newSingleThreadExecutor();
-    doReturn("so1s").when(kubernetesService).getNamespace();
     // when
     boolean result = kubernetesService.deployInferenceServer(deployment);
 
@@ -156,7 +138,6 @@ public class KubernetesServiceTest {
 
     ExecutorService executor
         = Executors.newSingleThreadExecutor();
-    doReturn("so1s").when(kubernetesService).getNamespace();
 
     // when
 
@@ -244,7 +225,6 @@ public class KubernetesServiceTest {
         .build();
 
     addNewNodeForTolerations();
-    doReturn("so1s").when(kubernetesService).getNamespace();
 
     // when
     boolean result = kubernetesService.deployInferenceServer(deployment);
