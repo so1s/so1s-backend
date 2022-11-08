@@ -20,7 +20,7 @@ public interface ModelService {
 
   void validateDuplicateModelName(String name);
 
-  Model createModel(ModelUploadRequestDto modelUploadRequestDto);
+  Model createModel(ModelUploadRequestDto modelUploadRequestDto) throws IllegalArgumentException;
 
   ModelMetadata createModelMetadata(Model model, ModelUploadRequestDto modelUploadRequestDto,
       FileSaveResultForm fileSaveResultForm);

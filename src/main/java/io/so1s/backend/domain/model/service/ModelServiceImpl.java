@@ -58,7 +58,12 @@ public class ModelServiceImpl implements ModelService {
   }
 
   @Transactional
-  public Model createModel(ModelUploadRequestDto modelUploadRequestDto) {
+  public Model createModel(ModelUploadRequestDto modelUploadRequestDto)
+      throws IllegalArgumentException {
+    if (modelUploadRequestDto.getName().matches("[0-9|a-z|A-Z|_| ]*")) {
+      throw new IllegalArgumentException(
+          "Invalid Model Name.\nOnly numbers, alphabets, _, and spaces are allowed.");
+    }
     validateDuplicateModelName(modelUploadRequestDto.getName());
     Library library = validateLibrary(modelUploadRequestDto.getLibrary());
     return modelRepository.save(modelMapper.toEntity(modelUploadRequestDto, library));
