@@ -60,7 +60,7 @@ public class ModelServiceImpl implements ModelService {
   @Transactional
   public Model createModel(ModelUploadRequestDto modelUploadRequestDto)
       throws IllegalArgumentException {
-    if (modelUploadRequestDto.getName().matches("[0-9|a-z|A-Z|_| ]*")) {
+    if (modelUploadRequestDto.getName().matches("[0-9|a-z|A-Z|_]*")) {
       throw new IllegalArgumentException(
           "Invalid Model Name.\nOnly numbers, alphabets, _, and spaces are allowed.");
     }
