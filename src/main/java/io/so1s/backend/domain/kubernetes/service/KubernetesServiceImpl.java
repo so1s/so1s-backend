@@ -55,7 +55,7 @@ public class KubernetesServiceImpl implements KubernetesService {
   private final UserService userService;
 
   public String getNamespace() {
-    return userService.getCurrentUsername().orElse("default");
+    return "so1s-" + userService.getCurrentUsername().orElse("default");
   }
 
   public String getWorkloadToYaml(HasMetadata object) {
