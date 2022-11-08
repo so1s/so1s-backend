@@ -24,7 +24,7 @@ public class AfterStartupHandler {
     try {
       userService.createUser("so1s", "admin12345", UserRole.ADMIN);
       if (isConnected()) {
-        kubernetesService.createNamespace("so1s-so1s");
+        kubernetesService.createNamespace("so1s");
       }
     } catch (DuplicatedUserException ignored) {
     }
