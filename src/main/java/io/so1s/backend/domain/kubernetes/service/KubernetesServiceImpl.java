@@ -98,6 +98,9 @@ public class KubernetesServiceImpl implements KubernetesService {
         .addToAnnotations("sidecar.istio.io/inject", "false")
         .endMetadata()
         .withNewSpec()
+        .withSchedulerName(
+            (type.equals("gpu") ? "gpu-binpack-scheduler"
+                : "default-scheduler"))
         .addNewContainer()
         .withImagePullPolicy("Always")
         .withName(jobName)
@@ -245,6 +248,9 @@ public class KubernetesServiceImpl implements KubernetesService {
         .addToAnnotations(annotations)
         .endMetadata()
         .withNewSpec()
+        .withSchedulerName(
+            (deployment.getResource().getGpu().equals("0")) ? "gpu-binpack-scheduler"
+                : "default-scheduler")
         .addNewContainer()
         .withImagePullPolicy("Always")
         .withName(deployName)
