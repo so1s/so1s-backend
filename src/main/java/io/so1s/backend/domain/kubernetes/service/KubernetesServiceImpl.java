@@ -99,7 +99,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .endMetadata()
         .withNewSpec()
         .withSchedulerName(
-            (type.equals("gpu") ? "gpu-binpack-scheduler"
+            (type.equals("gpu") ? "gpu-resource-scheduler"
                 : "default-scheduler"))
         .addNewContainer()
         .withImagePullPolicy("Always")
@@ -249,7 +249,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .endMetadata()
         .withNewSpec()
         .withSchedulerName(
-            (deployment.getResource().getGpu().equals("0")) ? "gpu-binpack-scheduler"
+            (!deployment.getResource().getGpu().equals("0")) ? "gpu-resource-scheduler"
                 : "default-scheduler")
         .addNewContainer()
         .withImagePullPolicy("Always")
