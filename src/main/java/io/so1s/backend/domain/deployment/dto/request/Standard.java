@@ -8,7 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Standard {
   LATENCY("m", "AverageValue"),
-  GPU("%", "AverageUtilization"),
+  GPU("%", "Utilization"),
   REPLICAS("", "");
 
   private String unit;

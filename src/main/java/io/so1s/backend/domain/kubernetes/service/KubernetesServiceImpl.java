@@ -19,6 +19,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.autoscaling.v2beta2.HorizontalPodAutoscaler;
 import io.fabric8.kubernetes.api.model.autoscaling.v2beta2.HorizontalPodAutoscalerBuilder;
+import io.fabric8.kubernetes.api.model.autoscaling.v2beta2.MetricSpec;
 import io.fabric8.kubernetes.api.model.autoscaling.v2beta2.MetricSpecBuilder;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
@@ -522,22 +523,9 @@ public class KubernetesServiceImpl implements KubernetesService {
         .endScaleTargetRef()
         .withMinReplicas(deployment.getMinReplicas())
         .withMaxReplicas(deployment.getMaxReplicas())
-        .addToMetrics(new MetricSpecBuilder().withType("Object")
-            .withNewObject()
-            .withNewMetric()
-            .withName("request_duration_milliseconds")
-            .endMetric()
-            .withNewDescribedObject()
-            .withApiVersion("apps/v1")
-            .withKind("Deployment")
-            .withName(deployment.getName().toLowerCase())
-            .endDescribedObject()
-            .withNewTarget()
-            .withType(deployment.getStandard().getType())
-            .withValue(
-                new Quantity(deployment.getStandardValue() + deployment.getStandard().getUnit()))
-            .endTarget()
-            .endObject().build())
+        .addToMetrics(
+            deployment.getStandard().name().equals("GPU") ? createGpuUtilizationMetricSpec(
+                deployment) : createLatencyMetricSpec(deployment))
         .withNewBehavior()
         .withNewScaleDown()
         .addNewPolicy()
@@ -563,5 +551,39 @@ public class KubernetesServiceImpl implements KubernetesService {
     }
 
     return true;
+  }
+
+  private MetricSpec createLatencyMetricSpec(
+      io.so1s.backend.domain.deployment.entity.Deployment deployment) {
+    return new MetricSpecBuilder().withType("Object")
+        .withNewObject()
+        .withNewMetric()
+        .withName("request_duration_milliseconds")
+        .endMetric()
+        .withNewDescribedObject()
+        .withApiVersion("apps/v1")
+        .withKind("Deployment")
+        .withName(deployment.getName().toLowerCase())
+        .endDescribedObject()
+        .withNewTarget()
+        .withType(deployment.getStandard().getType())
+        .withValue(
+            new Quantity(deployment.getStandardValue() + deployment.getStandard().getUnit()))
+        .endTarget()
+        .endObject().build();
+  }
+
+  public MetricSpec createGpuUtilizationMetricSpec(
+      io.so1s.backend.domain.deployment.entity.Deployment deployment) {
+    return new MetricSpecBuilder().withType("Pods")
+        .withNewPods()
+        .withNewMetric()
+        .withName("DCGM_FI_DEV_GPU_UTIL")
+        .endMetric()
+        .withNewTarget()
+        .withType(deployment.getStandard().getType())
+        .withAverageValue(new Quantity(String.valueOf(deployment.getStandardValue())))
+        .endTarget()
+        .endPods().build();
   }
 }
