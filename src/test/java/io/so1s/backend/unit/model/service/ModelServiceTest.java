@@ -114,7 +114,6 @@ class ModelServiceTest {
     amazonS3.shutdown();
   }
 
-
   @Test
   @Transactional
   @DisplayName("모델을 저장한다.")
@@ -130,6 +129,7 @@ class ModelServiceTest {
     assertThat(result.getName()).isEqualTo(modelUploadRequestDto.getName());
     assertThat(result.getLibrary().getName()).isEqualTo(modelUploadRequestDto.getLibrary());
   }
+
 
   @Test
   @Transactional
@@ -471,5 +471,25 @@ class ModelServiceTest {
     assertThrowsExactly(DeploymentExistsException.class, () -> modelService.deleteModelMetadata(
         model.getId(),
         modelMetadata.getVersion()));
+  }
+
+  @Test
+  @Transactional
+  @DisplayName("잘못된 이름의 모델을 저장하면 IllegalArgumentException이 발생합니다.")
+  public void createWrongNameModelTest() throws Exception {
+    // given
+    ModelUploadRequestDto wrongModelUploadRequestDto = ModelUploadRequestDto.builder()
+        .name("modelName!!")
+        .library(library)
+        .inputShape("(10,)")
+        .inputDtype("float32")
+        .outputShape("(1,)")
+        .outputDtype("float32")
+        .deviceType("cpu")
+        .build();
+
+    // when & then
+    assertThrowsExactly(IllegalArgumentException.class,
+        () -> modelService.createModel(wrongModelUploadRequestDto));
   }
 }
