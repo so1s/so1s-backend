@@ -496,8 +496,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .getItems();
 
     return deployments.stream().filter((item) -> item.getMetadata().getName().equals(name))
-        .collect(Collectors.toList())
-        .get(deployments.size() - 1);
+        .findFirst().get();
   }
 
   public HasMetadata getJobObject(String name) {

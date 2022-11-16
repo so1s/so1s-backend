@@ -234,7 +234,7 @@ public class KubernetesServiceTest {
         .getItems();
 
     io.fabric8.kubernetes.api.model.apps.Deployment createdDeployment = (io.fabric8.kubernetes.api.model.apps.Deployment) kubernetesService.getDeploymentObject(
-        "testDeployment".toLowerCase());
+        "inference-" + deployment.getName().toLowerCase());
 
     HorizontalPodAutoscalerList hpaList = client.autoscaling().v2beta2().horizontalPodAutoscalers()
         .inNamespace("default").list();
