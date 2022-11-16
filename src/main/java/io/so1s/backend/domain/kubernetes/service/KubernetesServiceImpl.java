@@ -166,6 +166,7 @@ public class KubernetesServiceImpl implements KubernetesService {
     client.namespaces().createOrReplace(
         new NamespaceBuilder()
             .withNewMetadata()
+            .addToLabels(Map.of("istio-injection", "enabled"))
             .withName("so1s-" + name)
             .endMetadata()
             .build());
