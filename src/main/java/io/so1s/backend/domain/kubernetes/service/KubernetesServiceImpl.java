@@ -500,14 +500,13 @@ public class KubernetesServiceImpl implements KubernetesService {
   }
 
   public HasMetadata getJobObject(String name) {
-    List<Job> jobs = client.batch().v1().jobs().inNamespace("default")
+    List<Job> jobs = client.batch().v1().jobs().inNamespace(getNamespace())
         .withLabel("app", "inference-build").list()
         .getItems();
 
     return jobs.stream()
         .filter((item) -> item.getMetadata().getLabels().get("modelName").equals(name))
-        .collect(Collectors.toList())
-        .get(jobs.size() - 1);
+        .findFirst().get();
   }
 
   public boolean createHPA(io.so1s.backend.domain.deployment.entity.Deployment deployment,
