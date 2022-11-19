@@ -28,6 +28,7 @@ import io.so1s.backend.domain.test.v1.entity.ABTest;
 import io.so1s.backend.domain.test.v1.exception.ABTestNotFoundException;
 import io.so1s.backend.domain.test.v1.repository.ABTestRepository;
 import io.so1s.backend.domain.test.v1.service.ABTestService;
+import io.so1s.backend.domain.test.v1.service.internal.ABTestKubernetesService;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,6 +68,8 @@ public class ABTestServiceTest {
   LibraryRepository libraryRepository;
   @MockBean
   KubernetesService kubernetesService;
+  @MockBean
+  ABTestKubernetesService abTestKubernetesService;
 
   Library library;
   Model model;
@@ -173,7 +176,7 @@ public class ABTestServiceTest {
         .name(baseRequestDto.getName())
         .domain(baseRequestDto.getDomain()).build();
 
-    given(kubernetesService.deployABTest(any())).willReturn(true);
+    given(abTestKubernetesService.deployABTest(any())).willReturn(true);
 
     // when
     ABTestCreateDto createDto = abTestService.createABTest(abTestRequestDto);
@@ -194,7 +197,7 @@ public class ABTestServiceTest {
     // Clean up
 
     // given
-    given(kubernetesService.deleteABTest(any())).willReturn(true);
+    given(abTestKubernetesService.deleteABTest(any())).willReturn(true);
 
     // when
     ABTestDeleteResponseDto deleteResponseDto = abTestService.deleteABTest(abTest.getId());
@@ -216,7 +219,7 @@ public class ABTestServiceTest {
         .domain(baseRequestDto.getDomain())
         .build();
 
-    given(kubernetesService.deployABTest(any())).willReturn(false);
+    given(abTestKubernetesService.deployABTest(any())).willReturn(false);
 
     // when
     ABTestCreateDto createDto = abTestService.createABTest(abTestRequestDto);
@@ -237,7 +240,7 @@ public class ABTestServiceTest {
     // Clean up
 
     // given
-    given(kubernetesService.deleteABTest(any())).willReturn(false);
+    given(abTestKubernetesService.deleteABTest(any())).willReturn(false);
 
     // when
     ABTestDeleteResponseDto deleteResponseDto = abTestService.deleteABTest(abTest.getId());
@@ -322,7 +325,7 @@ public class ABTestServiceTest {
         .domain(baseRequestDto.getDomain())
         .build();
 
-    given(kubernetesService.deployABTest(any())).willReturn(true);
+    given(abTestKubernetesService.deployABTest(any())).willReturn(true);
 
     abTestService.createABTest(abTestCreateRequestDto);
 
