@@ -8,7 +8,7 @@ import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
 import io.so1s.backend.domain.deployment.exception.DeploymentUpdateFailedException;
 import io.so1s.backend.domain.resource.entity.Resource;
-import io.so1s.backend.domain.test.exception.ABTestExistsException;
+import io.so1s.backend.domain.test.v1.exception.ABTestExistsException;
 import io.so1s.backend.global.error.exception.NodeResourceExceededException;
 import java.util.List;
 import java.util.Optional;

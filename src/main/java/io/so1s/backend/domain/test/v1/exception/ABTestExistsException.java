@@ -1,4 +1,4 @@
-package io.so1s.backend.domain.test.exception;
+package io.so1s.backend.domain.test.v1.exception;
 
 import io.so1s.backend.global.error.exception.ExistException;
 

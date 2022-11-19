@@ -36,9 +36,9 @@ import io.so1s.backend.domain.resource.dto.request.ResourceCreateRequestDto;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.domain.resource.repository.ResourceRepository;
 import io.so1s.backend.domain.resource.service.ResourceService;
-import io.so1s.backend.domain.test.entity.ABTest;
-import io.so1s.backend.domain.test.exception.ABTestExistsException;
-import io.so1s.backend.domain.test.repository.ABTestRepository;
+import io.so1s.backend.domain.test.v1.entity.ABTest;
+import io.so1s.backend.domain.test.v1.exception.ABTestExistsException;
+import io.so1s.backend.domain.test.v1.repository.ABTestRepository;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
 import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
@@ -58,11 +58,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@SpringBootTest(classes = { TestKubernetesConfig.class })
+@SpringBootTest(classes = {TestKubernetesConfig.class})
 @EnableKubernetesMockClient(crud = true)
 @EnableIstioMockClient(crud = true)
 @ExtendWith(MockitoExtension.class)
-@ActiveProfiles(profiles = { "test" })
+@ActiveProfiles(profiles = {"test"})
 public class DeploymentServiceTest {
 
   @Autowired

@@ -1,19 +1,19 @@
-package io.so1s.backend.domain.test.dto.service;
+package io.so1s.backend.domain.test.v1.dto.service.base;
 
-import io.so1s.backend.domain.test.entity.ABTest;
+import io.so1s.backend.domain.test.v1.entity.ABTest;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ABTestCreateDto {
+public abstract class ABTestBaseDto {
 
   private ABTest entity;
   private Boolean success;
-  
+
 }

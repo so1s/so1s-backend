@@ -1,10 +1,10 @@
-package io.so1s.backend.domain.test.dto.mapper;
+package io.so1s.backend.domain.test.v1.dto.mapper;
 
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
-import io.so1s.backend.domain.test.dto.request.ABTestRequestDto;
-import io.so1s.backend.domain.test.dto.response.ABTestCreateResponseDto;
-import io.so1s.backend.domain.test.dto.response.ABTestReadResponseDto;
-import io.so1s.backend.domain.test.entity.ABTest;
+import io.so1s.backend.domain.test.v1.dto.request.ABTestRequestDto;
+import io.so1s.backend.domain.test.v1.dto.response.ABTestCreateResponseDto;
+import io.so1s.backend.domain.test.v1.dto.response.ABTestReadResponseDto;
+import io.so1s.backend.domain.test.v1.entity.ABTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
 public interface ABTestMapper {

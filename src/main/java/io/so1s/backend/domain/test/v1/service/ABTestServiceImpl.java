@@ -1,18 +1,18 @@
-package io.so1s.backend.domain.test.service;
+package io.so1s.backend.domain.test.v1.service;
 
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
 import io.so1s.backend.domain.deployment.service.DeploymentService;
-import io.so1s.backend.domain.kubernetes.service.KubernetesService;
-import io.so1s.backend.domain.test.dto.mapper.ABTestMapper;
-import io.so1s.backend.domain.test.dto.request.ABTestRequestDto;
-import io.so1s.backend.domain.test.dto.response.ABTestDeleteResponseDto;
-import io.so1s.backend.domain.test.dto.response.ABTestReadResponseDto;
-import io.so1s.backend.domain.test.dto.service.ABTestCreateDto;
-import io.so1s.backend.domain.test.dto.service.ABTestUpdateDto;
-import io.so1s.backend.domain.test.entity.ABTest;
-import io.so1s.backend.domain.test.exception.ABTestNotFoundException;
-import io.so1s.backend.domain.test.repository.ABTestRepository;
+import io.so1s.backend.domain.test.v1.dto.mapper.ABTestMapper;
+import io.so1s.backend.domain.test.v1.dto.request.ABTestRequestDto;
+import io.so1s.backend.domain.test.v1.dto.response.ABTestDeleteResponseDto;
+import io.so1s.backend.domain.test.v1.dto.response.ABTestReadResponseDto;
+import io.so1s.backend.domain.test.v1.dto.service.derived.ABTestCreateDto;
+import io.so1s.backend.domain.test.v1.dto.service.derived.ABTestUpdateDto;
+import io.so1s.backend.domain.test.v1.entity.ABTest;
+import io.so1s.backend.domain.test.v1.exception.ABTestNotFoundException;
+import io.so1s.backend.domain.test.v1.repository.ABTestRepository;
+import io.so1s.backend.domain.test.v1.service.internal.ABTestKubernetesService;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ABTestServiceImpl implements ABTestService {
 
   private final DeploymentService deploymentService;
-  private final KubernetesService kubernetesService;
+  private final ABTestKubernetesService kubernetesService;
   private final ABTestRepository repository;
   private final ABTestMapper mapper;
 

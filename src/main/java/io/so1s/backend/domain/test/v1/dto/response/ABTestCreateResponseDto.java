@@ -1,5 +1,8 @@
-package io.so1s.backend.domain.test.dto.response;
+package io.so1s.backend.domain.test.v1.dto.response;
 
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,12 +13,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ABTestDeleteResponseDto {
+public class ABTestCreateResponseDto {
 
   @Builder.Default
   private Boolean success = Boolean.TRUE;
 
-  @Builder.Default
-  private String message = "";
+  @NotBlank
+  private String message;
 
+  @NotNull
+  private ABTestReadResponseDto data;
 }

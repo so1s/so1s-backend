@@ -1,4 +1,4 @@
-package io.so1s.backend.domain.test.dto.request;
+package io.so1s.backend.domain.test.v1.dto.request;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

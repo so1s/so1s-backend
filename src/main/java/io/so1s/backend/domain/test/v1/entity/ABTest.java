@@ -1,4 +1,4 @@
-package io.so1s.backend.domain.test.entity;
+package io.so1s.backend.domain.test.v1.entity;
 
 
 import io.so1s.backend.domain.deployment.entity.Deployment;
@@ -22,7 +22,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "test")
+@Table(name = "ab_test")
 @Getter
 @Builder
 @AllArgsConstructor
@@ -31,7 +31,7 @@ public class ABTest extends BaseTimeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "test_id")
+  @Column(name = "ab_test_id")
   private Long id;
 
   @NotBlank

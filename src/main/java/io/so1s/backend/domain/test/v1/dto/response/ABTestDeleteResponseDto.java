@@ -1,6 +1,5 @@
-package io.so1s.backend.domain.test.dto.service;
+package io.so1s.backend.domain.test.v1.dto.response;
 
-import io.so1s.backend.domain.test.entity.ABTest;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +10,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ABTestUpdateDto {
+public class ABTestDeleteResponseDto {
 
-  private ABTest entity;
-  private Boolean success;
+  @Builder.Default
+  private Boolean success = Boolean.TRUE;
+
+  @Builder.Default
+  private String message = "";
 
 }

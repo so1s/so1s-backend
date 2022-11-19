@@ -4,7 +4,6 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.resource.entity.Resource;
-import io.so1s.backend.domain.test.entity.ABTest;
 
 public interface KubernetesService {
 
@@ -27,11 +26,7 @@ public interface KubernetesService {
   boolean deployInferenceServer(
       Deployment deployment);
 
-  boolean deployABTest(ABTest abTest);
-
-  boolean deleteDeployment(Deployment deployment);
-
-  boolean deleteABTest(ABTest abTest);
+  boolean deleteInferenceServer(Deployment deployment);
 
   boolean createHPA(Deployment deployment,
       String namespace);
