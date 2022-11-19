@@ -1,9 +1,9 @@
 package io.so1s.backend.domain.test.v2.service;
 
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
-import io.so1s.backend.domain.test.v1.dto.response.ABTestReadResponseDto;
 import io.so1s.backend.domain.test.v2.dto.request.ABNTestRequestDto;
 import io.so1s.backend.domain.test.v2.dto.response.ABNTestDeleteResponseDto;
+import io.so1s.backend.domain.test.v2.dto.response.ABNTestReadResponseDto;
 import io.so1s.backend.domain.test.v2.dto.service.derived.ABNTestCreateDto;
 import io.so1s.backend.domain.test.v2.dto.service.derived.ABNTestUpdateDto;
 import io.so1s.backend.domain.test.v2.exception.ABNTestNotFoundException;
@@ -20,7 +20,7 @@ public interface ABNTestService {
 
   ABNTestDeleteResponseDto deleteABNTest(Long id) throws ABNTestNotFoundException;
 
-  List<ABTestReadResponseDto> findAll();
+  List<ABNTestReadResponseDto> findAll();
 
-  Optional<ABTestReadResponseDto> findbyId(Long id);
+  Optional<ABNTestReadResponseDto> findById(Long id);
 }
