@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DeploymentStrategyRepository extends JpaRepository<DeploymentStrategy, Long> {
-  
+
   Optional<DeploymentStrategy> findById(Long id);
 
   List<DeploymentStrategy> findAll();

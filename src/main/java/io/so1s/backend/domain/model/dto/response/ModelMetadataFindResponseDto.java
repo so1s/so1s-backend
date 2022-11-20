@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ModelMetadataFindResponseDto {
-  
+
   private Long id;
   private LocalDateTime age;
   private String version;

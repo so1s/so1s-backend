@@ -15,7 +15,8 @@ import io.so1s.backend.domain.library.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.resource.entity.Resource;
-import io.so1s.backend.domain.test.entity.ABTest;
+import io.so1s.backend.domain.test.v1.entity.ABTest;
+import io.so1s.backend.domain.test.v1.service.internal.ABTestKubernetesService;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
 import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
@@ -43,7 +44,10 @@ public class KubernetesServiceTest {
 
   @Autowired
   KubernetesService kubernetesService;
+  @Autowired
+  ABTestKubernetesService abTestKubernetesService;
   KubernetesClient client;
+
 
   @Test
   @DisplayName("성공적으로 인퍼런스 잡이 실행되면 true를 반환한다.")
@@ -143,7 +147,7 @@ public class KubernetesServiceTest {
 
     boolean result = kubernetesService.deployInferenceServer(a);
     result = result && kubernetesService.deployInferenceServer(b);
-    result = result && kubernetesService.deployABTest(abTest);
+    result = result && abTestKubernetesService.deployABTest(abTest);
 
     // then
 
@@ -153,9 +157,9 @@ public class KubernetesServiceTest {
 
     // when
 
-    result = kubernetesService.deleteABTest(abTest);
-    result = result && kubernetesService.deleteDeployment(a);
-    result = result && kubernetesService.deleteDeployment(b);
+    result = abTestKubernetesService.deleteABTest(abTest);
+    result = result && kubernetesService.deleteInferenceServer(a);
+    result = result && kubernetesService.deleteInferenceServer(b);
 
     // then
 

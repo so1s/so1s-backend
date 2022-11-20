@@ -33,17 +33,14 @@ import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.resource.entity.Resource;
-import io.so1s.backend.domain.test.entity.ABTest;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -364,98 +361,10 @@ public class KubernetesServiceImpl implements KubernetesService {
     return true;
   }
 
-  @Transactional(readOnly = true)
-  @Override
-  public boolean deployABTest(ABTest abTest) {
-
-    String namespace = getNamespace();
-    String abTestName = "ab-test-" + abTest.getName().toLowerCase();
-
-    String host = abTestName + ".so1s.io"; // TODO: Fix hard-coded root domain
-
-    String aName = abTest.getA().getName().toLowerCase();
-    String bName = abTest.getB().getName().toLowerCase();
-
-    Map<String, String> labels = new HashMap<>();
-    labels.put("app", "ab-test");
-    labels.put("name", abTestName);
-
-    VirtualService abTestVirtualService = new VirtualServiceBuilder()
-        .withNewMetadata()
-        .withName(abTestName)
-        .withNamespace(namespace)
-        .addToLabels(labels)
-        .endMetadata()
-        .withNewSpec()
-        .withHosts(host)
-        .withGateways(abTestName)
-        .addNewHttp()
-        .addNewMatch()
-        .withNewUri()
-        .withNewStringMatchPrefixType("/")
-        .endUri()
-        .endMatch()
-        .addNewRoute()
-        .withWeight(50)
-        .withNewDestination()
-        .withHost(aName)
-        .withNewPort()
-        .withNumber(3000)
-        .endPort()
-        .endDestination()
-        .endRoute()
-        .addNewRoute()
-        .withWeight(50)
-        .withNewDestination()
-        .withHost(bName)
-        .withNewPort()
-        .withNumber(3000)
-        .endPort()
-        .endDestination()
-        .endRoute()
-        .endHttp()
-        .endSpec()
-        .build();
-
-    Gateway abTestGateway = new GatewayBuilder()
-        .withNewMetadata()
-        .withName(abTestName)
-        .withNamespace(namespace)
-        .addToLabels(labels)
-        .endMetadata()
-        .withNewSpec()
-        .addNewServer()
-        .withNewPort()
-        .withNumber(80)
-        .withName("http")
-        .withProtocol("HTTP")
-        .endPort()
-        .withHosts(host)
-        .endServer()
-        .addNewServer()
-        .withNewPort()
-        .withNumber(9443)
-        .withName("http-dev")
-        .withProtocol("HTTP")
-        .endPort()
-        .withHosts(host)
-        .endServer()
-        .endSpec()
-        .build();
-
-    try {
-      istioClient.v1beta1().gateways().inNamespace(namespace).createOrReplace(abTestGateway);
-      istioClient.v1beta1().virtualServices().inNamespace(namespace)
-          .createOrReplace(abTestVirtualService);
-    } catch (KubernetesClientException ignored) {
-      return false;
-    }
-
-    return true;
-  }
 
   @Override
-  public boolean deleteDeployment(io.so1s.backend.domain.deployment.entity.Deployment deployment) {
+  public boolean deleteInferenceServer(
+      io.so1s.backend.domain.deployment.entity.Deployment deployment) {
     String namespace = getNamespace();
     String deploymentName = deployment.getName().toLowerCase();
 
@@ -468,21 +377,6 @@ public class KubernetesServiceImpl implements KubernetesService {
       client.autoscaling().v2beta2().horizontalPodAutoscalers().inNamespace(namespace)
           .withName(deploymentName + "-hpa")
           .delete();
-    } catch (KubernetesClientException ignored) {
-      return false;
-    }
-
-    return true;
-  }
-
-  @Override
-  public boolean deleteABTest(ABTest abTest) {
-    String namespace = getNamespace();
-    String abTestName = "ab-test-" + abTest.getName().toLowerCase();
-
-    try {
-      istioClient.v1beta1().gateways().inNamespace(namespace).withName(abTestName).delete();
-      istioClient.v1beta1().virtualServices().inNamespace(namespace).withName(abTestName).delete();
     } catch (KubernetesClientException ignored) {
       return false;
     }

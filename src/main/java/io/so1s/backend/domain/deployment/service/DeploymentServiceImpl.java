@@ -18,9 +18,9 @@ import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.domain.resource.repository.ResourceRepository;
 import io.so1s.backend.domain.resource.service.ResourceService;
-import io.so1s.backend.domain.test.entity.ABTest;
-import io.so1s.backend.domain.test.exception.ABTestExistsException;
-import io.so1s.backend.domain.test.repository.ABTestRepository;
+import io.so1s.backend.domain.test.v1.entity.ABTest;
+import io.so1s.backend.domain.test.v1.exception.ABTestExistsException;
+import io.so1s.backend.domain.test.v1.repository.ABTestRepository;
 import io.so1s.backend.global.error.exception.NodeResourceExceededException;
 import java.util.List;
 import java.util.Optional;
@@ -80,7 +80,7 @@ public class DeploymentServiceImpl implements DeploymentService {
       throw new ABTestExistsException("해당 디플로이먼트를 사용하고 있는 AB 테스트가 존재합니다.\nAB 테스트를 먼저 삭제해 주세요.");
     }
 
-    boolean result = kubernetesService.deleteDeployment(deployment);
+    boolean result = kubernetesService.deleteInferenceServer(deployment);
 
     if (!result) {
       return DeploymentDeleteResponseDto.builder()
@@ -129,7 +129,7 @@ public class DeploymentServiceImpl implements DeploymentService {
             "AB Test is exist that use Deployment.\nPlease delete the AB Test first.");
       }
 
-      kubernetesService.deleteDeployment(deployment);
+      kubernetesService.deleteInferenceServer(deployment);
 
       return kubernetesService.deployInferenceServer(deployment);
     }
