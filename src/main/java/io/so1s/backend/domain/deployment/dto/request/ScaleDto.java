@@ -21,7 +21,7 @@ public class ScaleDto {
 
   @Min(1)
   private int minReplicas;
-  
+
   @Min(1)
   private int maxReplicas;
 }

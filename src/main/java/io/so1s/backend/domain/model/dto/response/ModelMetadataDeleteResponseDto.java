@@ -16,5 +16,5 @@ public class ModelMetadataDeleteResponseDto {
 
   @Builder.Default
   private String message = "";
-  
+
 }

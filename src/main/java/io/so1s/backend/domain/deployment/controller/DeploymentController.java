@@ -68,7 +68,7 @@ public class DeploymentController {
 
     return ResponseEntity.ok(deploymentService.updateDeployment(deploymentRequestDto));
   }
-  
+
   @GetMapping
   public ResponseEntity<List<DeploymentFindResponseDto>> findDeployments() {
     return ResponseEntity.ok(deploymentService.findDeployments());
