@@ -1,5 +1,6 @@
 package io.so1s.backend.unit.test.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -147,18 +148,19 @@ public class ABNTestServiceTest {
             ABNTestElementDto.builder().deploymentId(2L).weight(1).build()))
         .build();
 
-    if (requestDto.getName().isBlank()) {
-      return;
-    }
-    if (requestDto.getDomain().isBlank()) {
-      return;
-    }
-    if (requestDto.getElements().size() < 1) {
-      return;
-    }
+    var createResponse = controller.createABNTest(requestDto).getBody();
+    var entity = createResponse.getEntity();
 
-    var entity = controller.createABNTest(requestDto).getBody().getEntity();
-    controller.deleteABNTest(entity.getId());
+    assertThat(createResponse.getSuccess()).isTrue();
+    assertThat(entity).isNotNull();
+    assertThat(entity.getName()).isEqualTo("example");
+    assertThat(entity.getDomain()).isEqualTo("so1s.io");
+    assertThat(entity.getElements()).hasSize(2);
+
+    var deleteResponse = controller.deleteABNTest(createResponse.getEntity().getId()).getBody();
+
+    assertThat(deleteResponse.getSuccess()).isTrue();
+    assertThat(deleteResponse.getMessage()).isNotNull();
 
   }
 
