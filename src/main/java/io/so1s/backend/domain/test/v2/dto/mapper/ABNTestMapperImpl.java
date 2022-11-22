@@ -35,12 +35,15 @@ public class ABNTestMapperImpl implements ABNTestMapper {
         .map(elementMapper::toElement)
         .collect(Collectors.toList());
 
-    return ABNTest.builder()
+    var entity = ABNTest.builder()
         .name(dto.getName())
-        .elements(elements)
         .domain(dto.getDomain())
         .endPoint(String.format("abn-test-%s.%s", dto.getName().toLowerCase(), dto.getDomain()))
         .build();
+
+    entity.addElements(elements);
+
+    return entity;
   }
 
 

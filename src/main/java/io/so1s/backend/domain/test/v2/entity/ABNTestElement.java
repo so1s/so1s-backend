@@ -36,6 +36,7 @@ public class ABNTestElement extends BaseTimeEntity {
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "deployment_id")
+  @NotNull
   private Deployment deployment;
 
   @Column
