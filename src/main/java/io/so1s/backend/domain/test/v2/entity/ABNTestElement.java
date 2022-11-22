@@ -1,5 +1,6 @@
 package io.so1s.backend.domain.test.v2.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.global.entity.BaseTimeEntity;
 import javax.persistence.Column;
@@ -32,6 +33,7 @@ public class ABNTestElement extends BaseTimeEntity {
   @Column(name = "abn_test_element_id")
   private Long id;
 
+  @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "deployment_id")
   private Deployment deployment;

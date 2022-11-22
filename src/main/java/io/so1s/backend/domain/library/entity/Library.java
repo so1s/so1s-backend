@@ -1,5 +1,6 @@
 package io.so1s.backend.domain.library.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.so1s.backend.domain.model.entity.Model;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,7 @@ public class Library {
   @Column(unique = true)
   private String name;
 
+  @JsonIgnore
   @Builder.Default
   @OneToMany(mappedBy = "library")
   @Fetch(FetchMode.SUBSELECT)
