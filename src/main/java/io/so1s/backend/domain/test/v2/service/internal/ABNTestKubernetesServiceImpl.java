@@ -32,7 +32,7 @@ public class ABNTestKubernetesServiceImpl implements
     String namespace = kubernetesService.getNamespace();
     String fullName = "abn-test-" + abnTest.getName().toLowerCase();
 
-    String endpoint = String.format("%s.%s", fullName, abnTest.getDomain());
+    String endpoint = abnTest.getEndPoint();
 
     List<ABNTestElement> elements = abnTest.getElements();
 
@@ -60,7 +60,7 @@ public class ABNTestKubernetesServiceImpl implements
       progress = progress.addNewRoute()
           .withWeight(element.getWeight())
           .withNewDestination()
-          .withHost(element.getDeployment().getEndPoint())
+          .withHost("inference-" + element.getDeployment().getName().toLowerCase())
           .withNewPort()
           .withNumber(3000)
           .endPort()

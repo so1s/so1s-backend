@@ -48,4 +48,8 @@ public class ABNTest extends BaseTimeEntity {
 
   @NotBlank
   private String domain;
+
+  @NotBlank
+  private String endPoint;
+
 }

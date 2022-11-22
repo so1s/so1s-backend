@@ -39,6 +39,7 @@ public class ABNTestMapperImpl implements ABNTestMapper {
         .name(dto.getName())
         .elements(elements)
         .domain(dto.getDomain())
+        .endPoint(String.format("abn-test-%s.%s", dto.getName().toLowerCase(), dto.getDomain()))
         .build();
   }
 
@@ -53,13 +54,15 @@ public class ABNTestMapperImpl implements ABNTestMapper {
     return ABNTestReadResponseDto.builder()
         .id(entity.getId())
         .name(entity.getName())
-        .elements(elements)
         .domain(entity.getDomain())
+        .endPoint(entity.getEndPoint())
+        .elements(elements)
         .build();
   }
 
   @Override
-  public ABNTestCreateResponseDto toCreateDto(Boolean success, String message, ABNTest entity) {
+  public ABNTestCreateResponseDto toCreateResponseDto(Boolean success, String message,
+      ABNTest entity) {
     return ABNTestCreateResponseDto.builder()
         .success(success)
         .message(message)

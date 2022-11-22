@@ -149,7 +149,7 @@ public class ABNTestServiceTest {
         .build();
 
     var createResponse = controller.createABNTest(requestDto).getBody();
-    var entity = createResponse.getEntity();
+    var entity = createResponse.getData();
 
     assertThat(createResponse.getSuccess()).isTrue();
     assertThat(entity).isNotNull();
@@ -157,7 +157,7 @@ public class ABNTestServiceTest {
     assertThat(entity.getDomain()).isEqualTo("so1s.io");
     assertThat(entity.getElements()).hasSize(2);
 
-    var deleteResponse = controller.deleteABNTest(createResponse.getEntity().getId()).getBody();
+    var deleteResponse = controller.deleteABNTest(entity.getId()).getBody();
 
     assertThat(deleteResponse.getSuccess()).isTrue();
     assertThat(deleteResponse.getMessage()).isNotNull();

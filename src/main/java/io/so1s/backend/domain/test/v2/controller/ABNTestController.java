@@ -2,7 +2,9 @@ package io.so1s.backend.domain.test.v2.controller;
 
 
 import io.so1s.backend.domain.test.v1.exception.ABTestNotFoundException;
+import io.so1s.backend.domain.test.v2.dto.mapper.ABNTestMapper;
 import io.so1s.backend.domain.test.v2.dto.request.ABNTestRequestDto;
+import io.so1s.backend.domain.test.v2.dto.response.ABNTestCreateResponseDto;
 import io.so1s.backend.domain.test.v2.dto.response.ABNTestDeleteResponseDto;
 import io.so1s.backend.domain.test.v2.dto.response.ABNTestReadResponseDto;
 import io.so1s.backend.domain.test.v2.dto.service.derived.ABNTestCreateDto;
@@ -12,6 +14,7 @@ import io.so1s.backend.domain.test.v2.service.ABNTestService;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ABNTestController {
 
   private final ABNTestService service;
+  private final ABNTestMapper mapper;
 
   @GetMapping
   public ResponseEntity<List<ABNTestReadResponseDto>> findDeployments() {
@@ -44,14 +48,18 @@ public class ABNTestController {
   }
 
   @PostMapping
-  public ResponseEntity<ABNTestCreateDto> createABNTest(
+  public ResponseEntity<ABNTestCreateResponseDto> createABNTest(
       @Valid @RequestBody ABNTestRequestDto requestDto) {
     ABNTestCreateDto createDto = service.createABNTest(requestDto);
 
-    return ResponseEntity.ok(ABNTestCreateDto.builder()
-        .entity(createDto.getEntity())
-        .success(createDto.getSuccess())
-        .build());
+    var responseDto = mapper.toCreateResponseDto(createDto.getSuccess(),
+        String.format("ABN 테스트 생성에 %s하였습니다.", createDto.getSuccess() ? "성공" : "실패"),
+        createDto.getEntity());
+
+    var statusCode =
+        createDto.getSuccess() ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
+
+    return ResponseEntity.status(statusCode).body(responseDto);
   }
 
   @PutMapping

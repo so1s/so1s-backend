@@ -31,4 +31,7 @@ public class ABNTestReadResponseDto {
   @NotBlank
   private String domain;
 
+  @NotBlank
+  private String endPoint;
+
 }
