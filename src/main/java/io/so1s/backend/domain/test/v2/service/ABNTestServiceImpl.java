@@ -66,6 +66,8 @@ public class ABNTestServiceImpl implements ABNTestService {
 
     boolean success = kubernetesService.deleteABNTest(entity);
 
+    repository.delete(entity);
+
     return ABNTestDeleteResponseDto.builder().success(success).build();
   }
 
