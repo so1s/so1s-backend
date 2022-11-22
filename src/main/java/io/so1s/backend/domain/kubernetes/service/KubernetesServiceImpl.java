@@ -366,7 +366,7 @@ public class KubernetesServiceImpl implements KubernetesService {
   public boolean deleteInferenceServer(
       io.so1s.backend.domain.deployment.entity.Deployment deployment) {
     String namespace = getNamespace();
-    String deploymentName = deployment.getName().toLowerCase();
+    String deploymentName = "inference-" + deployment.getName().toLowerCase();
 
     try {
       client.apps().deployments().inNamespace(namespace).withName(deploymentName).delete();
