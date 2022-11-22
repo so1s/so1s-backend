@@ -10,6 +10,7 @@ import io.so1s.backend.domain.test.v2.repository.ABNTestElementRepository;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ public class ABNTestMapperImpl implements ABNTestMapper {
   private final ABNTestElementMapper elementMapper;
 
   @Autowired
+  @Lazy
   private ABNTestMapper self;
 
   @Transactional
