@@ -28,11 +28,11 @@ import io.so1s.backend.domain.resource.repository.ResourceRepository;
 import io.so1s.backend.global.config.JpaConfig;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
-import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,12 +48,10 @@ import org.springframework.test.context.ActiveProfiles;
 @Import(JpaConfig.class)
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles(profiles = {"test"})
-@SpringBootTest(classes = {TestKubernetesConfig.class})
+@SpringBootTest
 public class DeploymentStatusCheckSchedulerTest {
 
-  @Autowired
   KubernetesClient client;
-  @Autowired
   DeploymentStatusCheckScheduler deploymentStatusCheckScheduler;
 
   @Autowired
@@ -71,6 +69,12 @@ public class DeploymentStatusCheckSchedulerTest {
 
   @MockBean
   ApplicationHealthChecker applicationHealthChecker;
+
+  @BeforeEach
+  public void setup() {
+    deploymentStatusCheckScheduler = new DeploymentStatusCheckScheduler(client,
+        deploymentRepository, applicationHealthChecker);
+  }
 
   @Test
   @DisplayName("디플로이먼트의 상태를 성공적으로 감지하면 RUNNING으로 변경한다.")
@@ -175,6 +179,6 @@ public class DeploymentStatusCheckSchedulerTest {
     Optional<Deployment> findDeployment = deploymentRepository.findById(deployment.getId());
 
     assertThat(findDeployment.isPresent()).isTrue();
-//    assertThat(findDeployment.get().getStatus()).isEqualTo(Status.SUCCEEDED);
+    assertThat(findDeployment.get().getStatus()).isEqualTo(Status.RUNNING);
   }
 }

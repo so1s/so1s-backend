@@ -1,5 +1,7 @@
 package io.so1s.backend.unit.kubernetes.utils;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 import io.fabric8.istio.mock.EnableIstioMockClient;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
@@ -13,32 +15,32 @@ import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
+import io.so1s.backend.global.config.JpaConfig;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
-import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 @EnableKubernetesMockClient(crud = true)
 @EnableIstioMockClient(crud = true)
-@SpringBootTest(classes = {TestKubernetesConfig.class})
+@DataJpaTest
+@Import(JpaConfig.class)
 @ActiveProfiles(profiles = {"test"})
 @ExtendWith(MockitoExtension.class)
 public class JobStatusCheckerTest {
 
-  @Autowired
   JobStatusChecker jobStatusChecker;
 
-  @SpyBean
   KubernetesClient client;
 
   @Autowired
@@ -48,13 +50,18 @@ public class JobStatusCheckerTest {
   @Autowired
   LibraryRepository libraryRepository;
 
+  @BeforeEach
+  public void setup() {
+    jobStatusChecker = new JobStatusChecker(client, modelMetadataRepository);
+  }
+
   @Test
   @DisplayName("인퍼런스 서버 빌드 잡이 성공했을때 ModelMetadata는 SUCCDEEDED를 Status로 가진다.")
   public void checkJobStatusSucceededTest() throws Exception {
     // given
     ModelMetadata modelMetadata = getModelMetadata();
 
-    String jobName = "testJob1";
+    String jobName = "testJob";
     String namespace = "default";
     JobStatus jobStatus = new JobStatus();
     jobStatus.setSucceeded(1);
@@ -78,7 +85,7 @@ public class JobStatusCheckerTest {
 
     // then
     ModelMetadata find = modelMetadataRepository.findById(modelMetadata.getId()).get();
-//    assertThat(find.getStatus()).isEqualTo(Status.SUCCEEDED);
+    assertThat(find.getStatus()).isEqualTo(Status.SUCCEEDED);
   }
 
   @Test
@@ -87,7 +94,7 @@ public class JobStatusCheckerTest {
     // given
     ModelMetadata modelMetadata = getModelMetadata();
 
-    String jobName = "testJob2";
+    String jobName = "testJob";
     String namespace = "default";
     JobStatus jobStatus = new JobStatus();
     jobStatus.setActive(null);
@@ -107,20 +114,18 @@ public class JobStatusCheckerTest {
         .build();
     client.batch().v1().jobs().inNamespace(namespace).createOrReplace(job);
 
-//    doReturn(job).when(client).batch().v1().jobs().inNamespace(ArgumentMatchers.matches(namespace))
-//        .withName(ArgumentMatchers.matches(jobName)).get();
-
     // when
     jobStatusChecker.checkJobStatus(jobName, namespace, modelMetadata);
 
     // then
     ModelMetadata find = modelMetadataRepository.findById(modelMetadata.getId()).get();
-//    assertThat(find.getStatus()).isEqualTo(Status.FAILED);
+    assertThat(find.getStatus()).isEqualTo(Status.FAILED);
 
   }
 
   public Model getModel() {
-    Library result = libraryRepository.findByName("tensorflow").get();
+    Library result = libraryRepository.findByName("tensorflow")
+        .orElseGet(() -> libraryRepository.save(Library.builder().name("tensorflow").build()));
     return modelRepository.save(Model.builder()
         .name(UUID.randomUUID().toString())
         .library(result)
