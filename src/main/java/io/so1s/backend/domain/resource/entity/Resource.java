@@ -41,17 +41,22 @@ public class Resource extends BaseTimeEntity {
   private String cpu;
 
   @Column(nullable = false)
-  private String memory;
-
-  private String gpu;
+  private String cpuLimit;
 
   @Column(nullable = false)
-  private String cpuLimit;
+  @Builder.Default
+  private String gpu = "0";
+
+  @Column(nullable = false)
+  @Builder.Default
+  private String gpuLimit = "0";
+
+  @Column(nullable = false)
+  private String memory;
 
   @Column(nullable = false)
   private String memoryLimit;
 
-  private String gpuLimit;
 
   @Builder.Default
   @Fetch(FetchMode.SUBSELECT)
