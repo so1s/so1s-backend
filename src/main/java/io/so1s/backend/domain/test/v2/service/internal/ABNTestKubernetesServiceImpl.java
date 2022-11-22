@@ -60,7 +60,7 @@ public class ABNTestKubernetesServiceImpl implements
       progress = progress.addNewRoute()
           .withWeight(element.getWeight())
           .withNewDestination()
-          .withHost(element.getDeployment().getName().toLowerCase())
+          .withHost(element.getDeployment().getEndPoint())
           .withNewPort()
           .withNumber(3000)
           .endPort()
