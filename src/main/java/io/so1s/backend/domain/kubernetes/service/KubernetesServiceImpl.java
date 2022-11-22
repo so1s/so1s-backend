@@ -1,10 +1,10 @@
 package io.so1s.backend.domain.kubernetes.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.fabric8.istio.api.networking.v1beta1.Gateway;
-import io.fabric8.istio.api.networking.v1beta1.GatewayBuilder;
-import io.fabric8.istio.api.networking.v1beta1.VirtualService;
-import io.fabric8.istio.api.networking.v1beta1.VirtualServiceBuilder;
+import io.fabric8.istio.api.networking.v1alpha3.Gateway;
+import io.fabric8.istio.api.networking.v1alpha3.GatewayBuilder;
+import io.fabric8.istio.api.networking.v1alpha3.VirtualService;
+import io.fabric8.istio.api.networking.v1alpha3.VirtualServiceBuilder;
 import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
@@ -350,8 +350,8 @@ public class KubernetesServiceImpl implements KubernetesService {
 
     client.apps().deployments().inNamespace(namespace).createOrReplace(inferenceDeployment);
     client.services().inNamespace(namespace).createOrReplace(inferenceService);
-    istioClient.v1beta1().gateways().inNamespace(namespace).createOrReplace(inferenceGateway);
-    istioClient.v1beta1().virtualServices().inNamespace(namespace)
+    istioClient.v1alpha3().gateways().inNamespace(namespace).createOrReplace(inferenceGateway);
+    istioClient.v1alpha3().virtualServices().inNamespace(namespace)
         .createOrReplace(inferenceVirtualService);
 
     if (deployment.getStandard() != Standard.REPLICAS) {
@@ -371,8 +371,8 @@ public class KubernetesServiceImpl implements KubernetesService {
     try {
       client.apps().deployments().inNamespace(namespace).withName(deploymentName).delete();
       client.services().inNamespace(namespace).withName(deploymentName).delete();
-      istioClient.v1beta1().gateways().inNamespace(namespace).withName(deploymentName).delete();
-      istioClient.v1beta1().virtualServices().inNamespace(namespace).withName(deploymentName)
+      istioClient.v1alpha3().gateways().inNamespace(namespace).withName(deploymentName).delete();
+      istioClient.v1alpha3().virtualServices().inNamespace(namespace).withName(deploymentName)
           .delete();
       client.autoscaling().v2beta2().horizontalPodAutoscalers().inNamespace(namespace)
           .withName(deploymentName + "-hpa")
