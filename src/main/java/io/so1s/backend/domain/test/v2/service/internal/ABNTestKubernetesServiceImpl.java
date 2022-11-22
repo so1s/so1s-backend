@@ -1,9 +1,9 @@
 package io.so1s.backend.domain.test.v2.service.internal;
 
-import io.fabric8.istio.api.networking.v1alpha3.Gateway;
-import io.fabric8.istio.api.networking.v1alpha3.GatewayBuilder;
-import io.fabric8.istio.api.networking.v1alpha3.VirtualService;
-import io.fabric8.istio.api.networking.v1alpha3.VirtualServiceBuilder;
+import io.fabric8.istio.api.networking.v1beta1.Gateway;
+import io.fabric8.istio.api.networking.v1beta1.GatewayBuilder;
+import io.fabric8.istio.api.networking.v1beta1.VirtualService;
+import io.fabric8.istio.api.networking.v1beta1.VirtualServiceBuilder;
 import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
@@ -100,8 +100,8 @@ public class ABNTestKubernetesServiceImpl implements
         .build();
 
     try {
-      istioClient.v1alpha3().gateways().inNamespace(namespace).createOrReplace(gateway);
-      istioClient.v1alpha3().virtualServices().inNamespace(namespace)
+      istioClient.v1beta1().gateways().inNamespace(namespace).createOrReplace(gateway);
+      istioClient.v1beta1().virtualServices().inNamespace(namespace)
           .createOrReplace(virtualService);
     } catch (KubernetesClientException ignored) {
       return false;
@@ -116,8 +116,8 @@ public class ABNTestKubernetesServiceImpl implements
     String abTestName = "abn-test-" + abTest.getName().toLowerCase();
 
     try {
-      istioClient.v1alpha3().gateways().inNamespace(namespace).withName(abTestName).delete();
-      istioClient.v1alpha3().virtualServices().inNamespace(namespace).withName(abTestName).delete();
+      istioClient.v1beta1().gateways().inNamespace(namespace).withName(abTestName).delete();
+      istioClient.v1beta1().virtualServices().inNamespace(namespace).withName(abTestName).delete();
     } catch (KubernetesClientException ignored) {
       return false;
     }
