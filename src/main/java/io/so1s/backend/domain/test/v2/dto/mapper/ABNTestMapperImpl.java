@@ -8,10 +8,11 @@ import io.so1s.backend.domain.test.v2.dto.response.ABNTestReadResponseDto;
 import io.so1s.backend.domain.test.v2.entity.ABNTest;
 import io.so1s.backend.domain.test.v2.repository.ABNTestElementRepository;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -21,7 +22,10 @@ public class ABNTestMapperImpl implements ABNTestMapper {
   private final ABNTestElementRepository elementRepository;
   private final ABNTestElementMapper elementMapper;
 
+  @Autowired
+  private ABNTestMapper self;
 
+  @Transactional
   @Override
   public ABNTest toABNTest(ABNTestRequestDto dto)
       throws DeploymentNotFoundException, DataIntegrityViolationException {
@@ -57,7 +61,7 @@ public class ABNTestMapperImpl implements ABNTestMapper {
     return ABNTestCreateResponseDto.builder()
         .success(success)
         .message(message)
-        .data(toReadDto(entity))
+        .data(self.toReadDto(entity))
         .build();
   }
 }

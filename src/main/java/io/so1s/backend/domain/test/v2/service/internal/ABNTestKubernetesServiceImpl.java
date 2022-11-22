@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,7 @@ public class ABNTestKubernetesServiceImpl implements
   private final KubernetesClient client;
   private final IstioClient istioClient;
 
+  @Transactional
   @Override
   public boolean deployABNTest(ABNTest abnTest) {
     String namespace = kubernetesService.getNamespace();
