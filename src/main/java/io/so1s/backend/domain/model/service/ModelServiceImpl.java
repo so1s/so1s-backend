@@ -158,10 +158,7 @@ public class ModelServiceImpl implements ModelService {
 
     List<ModelMetadata> modelMetadatas = modelMetadataRepository.findByModelId(modelId);
 
-    if (!modelMetadatas.isEmpty()) {
-      throw new ModelMetadataExistsException(
-          "Cannot delete Model. Model Metadata exists that uses the Model.");
-    }
+    modelMetadatas.forEach(e -> deleteModelMetadata(model.getId(), e.getVersion()));
 
     modelRepository.delete(model);
 
