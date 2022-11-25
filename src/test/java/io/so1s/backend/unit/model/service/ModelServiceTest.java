@@ -401,32 +401,6 @@ class ModelServiceTest {
   }
 
   @Test
-  @DisplayName("ModelMetadata를 삭제한 뒤, Model도 삭제한다.")
-  public void deleteModelMetadataAndModel() throws Exception {
-    // given
-    FileSaveResultForm saveResult = FileSaveResultForm.builder()
-        .savedName("fileName")
-        .url("http://test.com/")
-        .build();
-    Model model = modelService.createModel(modelUploadRequestDto);
-    ModelMetadata modelMetadata = modelService.createModelMetadata(
-        model, modelUploadRequestDto, saveResult);
-
-    // when
-    ModelMetadataDeleteResponseDto metadataResponseDto = modelService.deleteModelMetadata(
-        model.getId(),
-        modelMetadata.getVersion());
-    ModelDeleteResponseDto responseDto = modelService.deleteModel(model.getId());
-
-    // then
-    assertThat(metadataResponseDto.getSuccess()).isTrue();
-    assertThat(metadataResponseDto.getMessage()).isNotEmpty();
-
-    assertThat(responseDto.getSuccess()).isTrue();
-    assertThat(responseDto.getMessage()).isNotEmpty();
-  }
-
-  @Test
   @DisplayName("Deployment가 존재하는 상태로 ModelMetadata를 삭제하면 DeploymentExistsException이 발생한다.")
   public void deleteModelMetadataWithDeployment() throws Exception {
     // given
