@@ -384,13 +384,18 @@ public class KubernetesServiceImpl implements KubernetesService {
     return true;
   }
 
-  public HasMetadata getDeploymentObject(String name) {
-    List<Deployment> deployments = client.apps().deployments().inNamespace(getNamespace())
+
+  public HasMetadata getDeploymentObject(String name, String namespace) {
+    List<Deployment> deployments = client.apps().deployments().inNamespace(namespace)
         .withLabel("app", "inference").list()
         .getItems();
 
     return deployments.stream().filter((item) -> item.getMetadata().getName().equals(name))
         .findFirst().get();
+  }
+
+  public HasMetadata getDeploymentObject(String name) {
+    return getDeploymentObject(name, getNamespace());
   }
 
   public HasMetadata getJobObject(String name) {

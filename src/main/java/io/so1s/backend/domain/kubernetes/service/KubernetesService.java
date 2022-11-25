@@ -10,6 +10,7 @@ public interface KubernetesService {
   String getNamespace();
 
   HasMetadata getDeploymentObject(String name);
+  HasMetadata getDeploymentObject(String name, String namespace);
 
   HasMetadata getJobObject(String name);
 
