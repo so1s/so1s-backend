@@ -15,6 +15,7 @@ import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.deployment_strategy.repository.DeploymentStrategyRepository;
+import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.kubernetes.utils.ApplicationHealthChecker;
 import io.so1s.backend.domain.kubernetes.utils.DeploymentStatusCheckScheduler;
 import io.so1s.backend.domain.library.entity.Library;
@@ -55,6 +56,9 @@ public class DeploymentStatusCheckSchedulerTest {
   DeploymentStatusCheckScheduler deploymentStatusCheckScheduler;
 
   @Autowired
+  KubernetesService kubernetesService;
+
+  @Autowired
   ResourceRepository resourceRepository;
   @Autowired
   DeploymentStrategyRepository deploymentStrategyRepository;
@@ -73,7 +77,7 @@ public class DeploymentStatusCheckSchedulerTest {
   @BeforeEach
   public void setup() {
     deploymentStatusCheckScheduler = new DeploymentStatusCheckScheduler(client,
-        deploymentRepository, applicationHealthChecker);
+        deploymentRepository, applicationHealthChecker, kubernetesService);
   }
 
   @Test
