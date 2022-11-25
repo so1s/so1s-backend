@@ -123,7 +123,7 @@ public class DeploymentStatusCheckSchedulerTest {
         .resource(resource)
         .build());
 
-    String namespace = "default";
+    String namespace = kubernetesService.getNamespace();
     String deployName = deployment.getName().toLowerCase();
     Map<String, String> labels = new HashMap<>();
     labels.put("app", "inference");

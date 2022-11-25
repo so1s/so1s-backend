@@ -381,7 +381,7 @@ class ModelServiceTest {
   }
 
   @Test
-  @DisplayName("ModelMetadata가 존재하는 상태로 Model을 삭제하면 ModelMetadataExistsException이 발생한다.")
+  @DisplayName("ModelMetadata가 존재하는 상태로 Model을 삭제하면 관련된 ModelMetadata가 모두 삭제된다.")
   public void deleteModelWithModelMetadata() throws Exception {
     // given
     FileSaveResultForm saveResult = FileSaveResultForm.builder()
@@ -392,9 +392,12 @@ class ModelServiceTest {
     ModelMetadata modelMetadata = modelService.createModelMetadata(
         model, modelUploadRequestDto, saveResult);
 
-    // when & then
-    assertThrowsExactly(ModelMetadataExistsException.class,
-        () -> modelService.deleteModel(model.getId()));
+    // when
+    modelService.deleteModel(model.getId());
+
+    // then
+    assertThat(modelRepository.findById(model.getId())).isEmpty();
+    assertThat(modelMetadataRepository.findById(modelMetadata.getId())).isEmpty();
   }
 
   @Test
