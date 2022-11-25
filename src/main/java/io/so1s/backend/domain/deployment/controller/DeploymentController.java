@@ -85,7 +85,8 @@ public class DeploymentController {
   public ResponseEntity<DeploymentFindYamlResponseDto> findDeploymentYaml(
       @Valid @PathVariable("deployment_id") Long id) {
     String deploymentName = deploymentService.findDeployment(id).getDeploymentName().toLowerCase();
-    HasMetadata deployment = kubernetesService.getDeploymentObject(deploymentName, "backend");
+    String fullName = String.format("inference-%s", deploymentName);
+    HasMetadata deployment = kubernetesService.getDeploymentObject(fullName);
     String yaml = kubernetesService.getWorkloadToYaml(deployment);
 
     return ResponseEntity.ok(DeploymentFindYamlResponseDto.builder().yaml(yaml).build());
