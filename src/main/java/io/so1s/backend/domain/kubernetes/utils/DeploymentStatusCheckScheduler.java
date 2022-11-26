@@ -8,12 +8,16 @@ import io.so1s.backend.global.vo.Status;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class DeploymentStatusCheckScheduler {
 
   private final KubernetesClient client;
@@ -21,37 +25,40 @@ public class DeploymentStatusCheckScheduler {
   private final ApplicationHealthChecker applicationHealthChecker;
   private final KubernetesService kubernetesService;
 
+  @Autowired
+  @Lazy
+  private DeploymentStatusCheckScheduler self;
+
   @Scheduled(fixedDelay = 1000L * 60)
   public void checkDeploymentStatus() {
+    log.info("Scheduled method DeploymentStatusCheckScheduler.checkDeploymentStatus() invoked");
     List<Deployment> deployments = deploymentRepository.findAll();
 
     List<io.fabric8.kubernetes.api.model.apps.Deployment> k8sDeployments = client.apps()
-        .deployments()
-        .inNamespace(kubernetesService.getNamespace())
-        .withLabel("app", "inference")
-        .list()
-        .getItems();
+        .deployments().inNamespace(kubernetesService.getNamespace()).withLabel("app", "inference")
+        .list().getItems();
 
     for (Deployment deployment : deployments) {
       Optional<io.fabric8.kubernetes.api.model.apps.Deployment> find = k8sDeployments.stream()
           .parallel().filter(d -> d.getMetadata().getName().equalsIgnoreCase(deployment.getName()))
           .findAny();
-      if (find.isPresent()) {
-        if (find.get().getStatus().getConditions().get(0).getStatus().equals("True")) {
-          if (applicationHealthChecker.checkApplicationHealth(deployment.getEndPoint())) {
-            setDeploymentStatus(deployment, Status.RUNNING);
-            continue;
-          }
+      find.ifPresentOrElse(e -> {
+        if (e.getStatus().getConditions().stream()
+            .anyMatch(cond -> cond.getStatus().equals("True"))
+            && applicationHealthChecker.checkApplicationHealth(deployment.getEndPoint())) {
+          self.setDeploymentStatus(deployment, Status.RUNNING);
+        } else {
+          self.setDeploymentStatus(deployment, Status.FAILED);
         }
-        setDeploymentStatus(deployment, Status.FAILED);
-      } else {
-        setDeploymentStatus(deployment, Status.UNKNOWN);
-      }
+      }, () -> self.setDeploymentStatus(deployment, Status.UNKNOWN));
     }
   }
 
   @Transactional
   public void setDeploymentStatus(Deployment deployment, Status status) {
+    log.info(String.format(
+        "DeploymentStatusCheckScheduler.setDeploymentStatus change deployment %s status to %s",
+        deployment, status));
     deployment.changeStatus(status);
     deploymentRepository.save(deployment);
   }

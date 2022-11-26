@@ -9,7 +9,6 @@ import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.apps.DeploymentCondition;
 import io.fabric8.kubernetes.api.model.apps.DeploymentStatus;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.so1s.backend.domain.deployment.dto.request.Standard;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
@@ -29,11 +28,10 @@ import io.so1s.backend.domain.resource.repository.ResourceRepository;
 import io.so1s.backend.global.config.JpaConfig;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
+import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,17 +40,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 
-@Slf4j
-@EnableKubernetesMockClient(crud = true)
+@SpringBootTest(classes = {TestKubernetesConfig.class})
 @Import(JpaConfig.class)
 @ExtendWith(MockitoExtension.class)
+@WithMockUser
 @ActiveProfiles(profiles = {"test"})
 @SpringBootTest
 public class DeploymentStatusCheckSchedulerTest {
 
+  @Autowired
   KubernetesClient client;
+
+  @Autowired
   DeploymentStatusCheckScheduler deploymentStatusCheckScheduler;
 
   @Autowired
@@ -70,15 +72,11 @@ public class DeploymentStatusCheckSchedulerTest {
   LibraryRepository libraryRepository;
   @Autowired
   ModelRepository modelRepository;
+  @Autowired
+  KubernetesService kubernetesService;
 
   @MockBean
   ApplicationHealthChecker applicationHealthChecker;
-
-  @BeforeEach
-  public void setup() {
-    deploymentStatusCheckScheduler = new DeploymentStatusCheckScheduler(client,
-        deploymentRepository, applicationHealthChecker, kubernetesService);
-  }
 
   @Test
   @DisplayName("디플로이먼트의 상태를 성공적으로 감지하면 RUNNING으로 변경한다.")
@@ -181,8 +179,6 @@ public class DeploymentStatusCheckSchedulerTest {
 
     // then
     Optional<Deployment> findDeployment = deploymentRepository.findById(deployment.getId());
-
-    assertThat(findDeployment.isPresent()).isTrue();
-    assertThat(findDeployment.get().getStatus()).isEqualTo(Status.RUNNING);
+    findDeployment.ifPresent(value -> assertThat(value.getStatus()).isEqualTo(Status.RUNNING));
   }
 }
