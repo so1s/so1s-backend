@@ -48,7 +48,6 @@ import org.springframework.test.context.ActiveProfiles;
 @ExtendWith(MockitoExtension.class)
 @WithMockUser
 @ActiveProfiles(profiles = {"test"})
-@SpringBootTest
 public class DeploymentStatusCheckSchedulerTest {
 
   @Autowired
@@ -72,8 +71,6 @@ public class DeploymentStatusCheckSchedulerTest {
   LibraryRepository libraryRepository;
   @Autowired
   ModelRepository modelRepository;
-  @Autowired
-  KubernetesService kubernetesService;
 
   @MockBean
   ApplicationHealthChecker applicationHealthChecker;
