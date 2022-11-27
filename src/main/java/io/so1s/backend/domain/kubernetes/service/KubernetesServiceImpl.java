@@ -32,6 +32,7 @@ import io.so1s.backend.domain.kubernetes.exception.TooManyBuildRequestException;
 import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
+import io.so1s.backend.domain.registry.entity.Registry;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.HashMap;
@@ -51,6 +52,7 @@ public class KubernetesServiceImpl implements KubernetesService {
   private final IstioClient istioClient;
   private final JobStatusChecker jobStatusChecker;
   private final UserService userService;
+  private final Registry registry;
 
   public String getNamespace() {
     return "so1s-" + userService.getCurrentUsername().orElse("default");
@@ -111,8 +113,8 @@ public class KubernetesServiceImpl implements KubernetesService {
             "--name", modelName,
             "--tag", version,
             "--library", library,
-            "--user", "so1s",
-            "--password", "vkxmxkdlaj",
+            "--user", registry.getUsername(),
+            "--password", registry.getPassword(),
             "--type", type
         )
         .withNewResources()

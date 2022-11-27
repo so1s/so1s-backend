@@ -12,6 +12,7 @@ import io.fabric8.kubernetes.client.server.mock.KubernetesMockServer;
 import io.fabric8.mockwebserver.Context;
 import io.fabric8.mockwebserver.ServerRequest;
 import io.fabric8.mockwebserver.ServerResponse;
+import io.so1s.backend.domain.registry.entity.Registry;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
@@ -25,8 +26,8 @@ import org.springframework.context.annotation.Primary;
 @EnableIstioMockClient(crud = true)
 public class TestKubernetesConfig {
 
-  @Bean
   @Primary
+  @Bean
   public KubernetesClient kubernetesClient() {
     final Map<ServerRequest, Queue<ServerResponse>> responses = new HashMap<>();
 
@@ -47,8 +48,8 @@ public class TestKubernetesConfig {
     return kubernetesClient;
   }
 
-  @Bean
   @Primary
+  @Bean
   public IstioClient istioClient() {
     final Map<ServerRequest, Queue<ServerResponse>> responses = new HashMap<>();
 
@@ -57,6 +58,12 @@ public class TestKubernetesConfig {
     istioMockServer.start();
 
     return istioMockServer.createIstio();
+  }
+
+  @Bean
+  @Primary
+  public Registry defaultRegistry() {
+    return Registry.builder().username("example-username").password("example-password").build();
   }
 
 }
