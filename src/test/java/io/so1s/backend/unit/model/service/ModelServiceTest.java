@@ -24,12 +24,10 @@ import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
 import io.so1s.backend.domain.model.dto.response.ModelDeleteResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelDetailResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
-import io.so1s.backend.domain.model.dto.response.ModelMetadataDeleteResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.exception.DuplicatedModelNameException;
-import io.so1s.backend.domain.model.exception.ModelMetadataExistsException;
 import io.so1s.backend.domain.model.exception.ModelMetadataNotFoundException;
 import io.so1s.backend.domain.model.exception.ModelNotFoundException;
 import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
@@ -41,6 +39,7 @@ import io.so1s.backend.domain.resource.repository.ResourceRepository;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
 import io.so1s.backend.integration.aws.service.S3MockConfig;
+import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -60,7 +59,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Import(S3MockConfig.class)
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
+@SpringBootTest(classes = {TestKubernetesConfig.class})
 @ActiveProfiles(profiles = {"test"})
 // Flush S3Mock Server After Test
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)

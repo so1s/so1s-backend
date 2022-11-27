@@ -25,6 +25,7 @@ import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.global.error.exception.ErrorCode;
 import io.so1s.backend.global.utils.JsonMapper;
+import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
 import java.io.FileInputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -51,7 +52,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
+@SpringBootTest(classes = {TestKubernetesConfig.class})
 // Flush DB after each test
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 // For use test jwt secret

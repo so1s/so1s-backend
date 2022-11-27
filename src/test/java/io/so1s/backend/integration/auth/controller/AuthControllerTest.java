@@ -20,6 +20,7 @@ import io.so1s.backend.domain.auth.entity.UserToRole;
 import io.so1s.backend.domain.auth.service.UserService;
 import io.so1s.backend.domain.auth.vo.UserRole;
 import io.so1s.backend.global.utils.JsonMapper;
+import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -46,7 +47,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
+@SpringBootTest(classes = {TestKubernetesConfig.class})
 // Flush DB after each test
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 // For use test jwt secret

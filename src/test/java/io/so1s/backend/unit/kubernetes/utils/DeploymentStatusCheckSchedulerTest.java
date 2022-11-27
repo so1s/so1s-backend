@@ -29,6 +29,7 @@ import io.so1s.backend.domain.resource.repository.ResourceRepository;
 import io.so1s.backend.global.config.JpaConfig;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
+import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -49,7 +50,7 @@ import org.springframework.test.context.ActiveProfiles;
 @Import(JpaConfig.class)
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles(profiles = {"test"})
-@SpringBootTest
+@SpringBootTest(classes = {TestKubernetesConfig.class})
 public class DeploymentStatusCheckSchedulerTest {
 
   KubernetesClient client;

@@ -11,6 +11,7 @@ import io.so1s.backend.domain.aws.config.S3Config;
 import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.aws.service.AwsS3Service;
 import io.so1s.backend.domain.aws.service.FileUploadService;
+import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
 import java.io.FileInputStream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -26,7 +27,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @Import(S3MockConfig.class)
 @ActiveProfiles(profiles = "test")
-@SpringBootTest
+@SpringBootTest(classes = {TestKubernetesConfig.class})
 // Flush S3Mock Server After Test
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class FileUploadServiceTest {

@@ -31,6 +31,7 @@ import io.so1s.backend.domain.test.v1.service.ABTestService;
 import io.so1s.backend.domain.test.v1.service.internal.ABTestKubernetesService;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
+import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
 @EnableIstioMockClient(crud = true)
 @ExtendWith(MockitoExtension.class)
 @WithMockUser
-@SpringBootTest
+@SpringBootTest(classes = {TestKubernetesConfig.class})
 @ActiveProfiles(profiles = {"test"})
 public class ABTestServiceTest {
 

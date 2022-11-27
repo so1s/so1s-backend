@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import io.so1s.backend.domain.auth.exception.DuplicatedUserException;
 import io.so1s.backend.domain.auth.service.UserService;
 import io.so1s.backend.domain.auth.vo.UserRole;
+import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +20,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
+@SpringBootTest(classes = {TestKubernetesConfig.class})
 // Flush DB after each test
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 // For use test jwt secret

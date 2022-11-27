@@ -1,5 +1,6 @@
 package io.so1s.backend.integration.hello.controller;
 
+import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +20,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
+@SpringBootTest(classes = {TestKubernetesConfig.class})
 @ActiveProfiles(profiles = {"test"})
 public class HelloControllerTest {
 
