@@ -3,6 +3,9 @@ package io.so1s.backend.domain.registry.config;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.so1s.backend.domain.registry.entity.Registry;
 import io.so1s.backend.domain.registry.service.RegistryKubernetesService;
+import io.so1s.backend.global.utils.Base64Mapper;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -25,9 +28,9 @@ public class RegistryConfig {
 
     var data = secret.getData();
 
-    String username = Optional.ofNullable(data.get("username")).orElseThrow(
+    String username = Optional.ofNullable(data.get("username")).map(Base64Mapper::decode).orElseThrow(
         () -> new IllegalStateException("password field in secret definition was not found."));
-    String password = Optional.ofNullable(data.get("password")).orElseThrow(
+    String password = Optional.ofNullable(data.get("password")).map(Base64Mapper::decode).orElseThrow(
         () -> new IllegalStateException("password field in secret definition was not found."));
 
     return Registry.builder()

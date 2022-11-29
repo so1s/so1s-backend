@@ -1,11 +1,14 @@
 package io.so1s.backend.unit.registry.config;
 
+import com.sun.xml.bind.v2.runtime.unmarshaller.Base64Data;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretBuilder;
 import io.so1s.backend.domain.registry.config.RegistryConfig;
 import io.so1s.backend.domain.registry.entity.Registry;
 import io.so1s.backend.domain.registry.service.RegistryKubernetesService;
 import io.so1s.backend.domain.registry.service.RegistryKubernetesServiceImpl;
+import io.so1s.backend.global.utils.Base64Mapper;
+import java.util.Base64;
 import java.util.Optional;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Assertions;
@@ -56,9 +59,9 @@ public class RegistryConfigTest {
     // then
 
     AssertionsForClassTypes.assertThat(registry.getUsername())
-        .isEqualTo(secret.getData().get("username"));
+        .isEqualTo(Base64Mapper.decode(secret.getData().get("username")));
     AssertionsForClassTypes.assertThat(registry.getPassword())
-        .isEqualTo(secret.getData().get("password"));
+        .isEqualTo(Base64Mapper.decode(secret.getData().get("password")));
   }
 
   @Test
