@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-// TODO: Make this class real entity
+// TODO: Make it real entity
 // TODO: Create registry repository
 @Getter
 @Setter
