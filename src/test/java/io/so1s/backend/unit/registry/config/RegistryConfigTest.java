@@ -45,8 +45,8 @@ public class RegistryConfigTest {
     // given
 
     Secret secret = new SecretBuilder()
-        .addToData("username", "example-username")
-        .addToData("password", "example-password")
+        .addToData("username", Base64Mapper.encode("example-username"))
+        .addToData("password", Base64Mapper.encode("example-password"))
         .build();
 
     setMockSecretResult(secret);
@@ -59,9 +59,9 @@ public class RegistryConfigTest {
     // then
 
     AssertionsForClassTypes.assertThat(registry.getUsername())
-        .isEqualTo(Base64Mapper.decode(secret.getData().get("username")));
+        .isEqualTo(Base64Mapper.decode(secret.getData().get("username"))).isEqualTo("example-username");
     AssertionsForClassTypes.assertThat(registry.getPassword())
-        .isEqualTo(Base64Mapper.decode(secret.getData().get("password")));
+        .isEqualTo(Base64Mapper.decode(secret.getData().get("password"))).isEqualTo("example-password");
   }
 
   @Test
