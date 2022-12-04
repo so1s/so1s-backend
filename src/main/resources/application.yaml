@@ -12,12 +12,9 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        # Print all SQL queries from Hibernate execution to console
         show_sql: false
-        # Format JPA queries on console with readability
-        format_sql: true
-        # Print extra information besides SQL queries for debugging
-        use_sql_comments: true
+        format_sql: false
+        use_sql_comments: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
       generate-ddl: true
     defer-datasource-initialization: true
@@ -43,7 +40,6 @@ logging:
       hibernate:
         SQL=DEBUG:
 
-# jwt secret 임시값 사용
 jwt:
   header: Authorization
   # HS512 알고리즘을 사용할 것이기 때문에 512bit, 즉 64byte 이상의 secret key를 사용해야 한다.
@@ -53,7 +49,7 @@ jwt:
 cloud:
   aws:
     credentials:
-      instance-profile: true # AWS CLI에서 aws configure list 정보를 반영할건지 여부
+      instance-profile: true
       access-key: ${aws-s3-access-key}
       secret-key: ${aws-s3-secret-key}
     s3:
@@ -61,7 +57,7 @@ cloud:
     region:
       static: ${aws-region}
     stack:
-      auto: false # aws 배포할때 기본으로 CloudFormation 구성을 시작해서 기능을 끔
+      auto: false
 
 management:
   endpoints:
@@ -70,4 +66,4 @@ management:
         include: prometheus, health, info
   metrics:
     tags:
-      application: ${spring.application.name}    # 서비스 단위의 식별자. Prometheus label에 추가됨.
+      application: ${spring.application.name}

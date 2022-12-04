@@ -7,7 +7,7 @@ jwt:
 cloud:
   aws:
     credentials:
-      instance-profile: true # AWS CLI에서 aws configure list 정보를 반영할건지 여부
+      instance-profile: true
       access-key: RWQRNSD123FWE23FASD2
       secret-key: DSJBqrkjq12ndaksnd13kwa+WEK21ndaSKwe12lj
     s3:
@@ -15,7 +15,7 @@ cloud:
     region:
       static: ap-northeast-2
     stack:
-      auto: false # aws 배포할때 기본으로 CloudFormation 구성을 시작해서 기능을 끔
+      auto: false
 
 spring:
   main:
