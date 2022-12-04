@@ -5,7 +5,7 @@ plugins {
     id 'com.epages.restdocs-api-spec' version '0.16.0'
     id 'java'
     id 'jacoco'
-    id 'com.google.cloud.tools.jib' version '3.2.1' //jib
+    id 'com.google.cloud.tools.jib' version '3.2.1'
 }
 
 ext {
@@ -72,7 +72,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-//    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
 
@@ -93,23 +92,20 @@ dependencies {
     implementation 'org.springframework.security:spring-security-test'
     testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.16.2'
 
-    // https://mvnrepository.com/artifact/javax.validation/validation-api
     implementation 'javax.validation:validation-api:2.0.1.Final'
 
-    // Jackson
     implementation 'com.fasterxml.jackson.core:jackson-core:2.13.2'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2'
 
-    // Querydsl
     implementation 'com.querydsl:querydsl-jpa'
     implementation 'com.querydsl:querydsl-core'
+
     annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
     // java.lang.NoClassDefFoundError(javax.annotation.Entity) 발생 대응
     annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
 
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa"
 
-    // https://mvnrepository.com/artifact/io.fabric8/kubernetes-client
     implementation 'io.fabric8:kubernetes-client:5.12.2'
     implementation 'io.fabric8:kubernetes-test:5.12.2'
     implementation 'io.fabric8:kubernetes-server-mock:5.12.2'
@@ -118,33 +114,21 @@ dependencies {
     implementation 'io.fabric8:istio-server-mock:5.12.2'
     testImplementation 'io.rest-assured:rest-assured:4.4.0'
 
-    // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-iam
     implementation 'com.amazonaws:aws-java-sdk-iam:1.12.253'
-
-    // https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
-
 
     implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
 
     implementation 'com.aventrix.jnanoid:jnanoid:2.0.0'
-
-    // https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter
     testImplementation 'org.mockito:mockito-junit-jupiter:4.6.1'
 
-    // aws
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
     testImplementation 'io.findify:s3mock_2.12:0.2.4'
 
-    // metrics
     implementation 'org.springframework.boot:spring-boot-starter-actuator:2.7.3'
     implementation 'io.micrometer:micrometer-registry-prometheus:1.9.3'
-
-    // sleuth & zipkin
-//    implementation 'org.springframework.cloud:spring-cloud-starter-sleuth:3.1.4'
-//    implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin:3.1.4'
 
 }
 
@@ -158,9 +142,7 @@ tasks.named('asciidoctor') {
     dependsOn test
 }
 
-// clean task 실행시 QClass 삭제
 tasks.clean {
-    // IntelliJ Annotation processor 생성물 생성 위치
     delete file('src/main/generated')
 }
 
