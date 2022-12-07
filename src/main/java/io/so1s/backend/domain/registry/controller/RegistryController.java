@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v2/registry")
+@RequestMapping("/api/v2/registries")
 @RequiredArgsConstructor
 public class RegistryController {
 
