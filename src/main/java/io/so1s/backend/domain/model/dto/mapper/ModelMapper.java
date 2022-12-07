@@ -6,11 +6,16 @@ import io.so1s.backend.domain.model.dto.response.ModelDetailResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
+import io.so1s.backend.domain.registry.dto.mapper.RegistryMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@RequiredArgsConstructor
 public class ModelMapper {
+
+  private final RegistryMapper registryMapper;
 
   @Transactional(readOnly = true)
   public ModelDetailResponseDto toDetailResponseDto(Model model, ModelMetadata modelMetadata) {
@@ -22,7 +27,7 @@ public class ModelMapper {
         .version(modelMetadata.getVersion())
         .status(modelMetadata.getStatus())
         .url(modelMetadata.getUrl())
-        .registry(String.format("%s / %s", registry.getBaseUrl(), registry.getUsername()))
+        .registry(registryMapper.toStringFormat(registry))
         .library(model.getLibrary().getName())
         .inputShape(modelMetadata.getInputShape())
         .inputDtype(modelMetadata.getInputDtype())
