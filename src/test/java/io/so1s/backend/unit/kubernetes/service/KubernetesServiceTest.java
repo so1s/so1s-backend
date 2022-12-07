@@ -270,6 +270,7 @@ public class KubernetesServiceTest {
         .fileName("titanic.h5")
         .url("https://s3.test.com/")
         .registry(Registry.builder()
+            .name("default")
             .baseUrl("ghcr.io")
             .username("username")
             .password(textEncryptor.encrypt("password"))

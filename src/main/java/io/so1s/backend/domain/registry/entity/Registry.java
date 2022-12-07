@@ -29,6 +29,8 @@ public class Registry {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
   @NotBlank
+  private String name;
+  @NotBlank
   private String baseUrl;
   @NotBlank
   private String username;

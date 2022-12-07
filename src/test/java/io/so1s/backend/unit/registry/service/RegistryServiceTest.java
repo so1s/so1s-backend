@@ -29,14 +29,19 @@ public class RegistryServiceTest {
   @Test
   @DisplayName("RegistryService의 Entity Create, Read 관련 메소드가 제대로 동작한다.")
   public void registryServiceTest() {
-    RegistryUploadRequestDto requestDto = RegistryUploadRequestDto.builder().baseUrl("ghcr.io")
-        .username("username").password("password").build();
+    RegistryUploadRequestDto requestDto = RegistryUploadRequestDto.builder()
+        .name("default")
+        .baseUrl("ghcr.io")
+        .username("username")
+        .password("password")
+        .build();
 
     registryService.saveRegistry(requestDto);
 
     var founds = registryService.findAll();
 
     Assertions.assertThat(founds).hasSize(1);
+    Assertions.assertThat(founds.get(0).getName()).isEqualTo("default");
     Assertions.assertThat(founds.get(0).getBaseUrl()).isEqualTo("ghcr.io");
     Assertions.assertThat(founds.get(0).getUsername()).isEqualTo("username");
     Assertions.assertThat(textEncryptor.decrypt(founds.get(0).getPassword())).isEqualTo("password");

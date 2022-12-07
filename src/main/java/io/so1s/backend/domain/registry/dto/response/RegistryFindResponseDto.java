@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 public class RegistryFindResponseDto {
 
   @NotBlank
+  private String name;
+  @NotBlank
   private String baseUrl;
   @NotBlank
   private String username;

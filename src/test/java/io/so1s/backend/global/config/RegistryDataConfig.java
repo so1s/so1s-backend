@@ -17,6 +17,7 @@ public class RegistryDataConfig {
   @Primary
   public Registry defaultRegistry() {
     return Registry.builder()
+        .name("default")
         .baseUrl("ghcr.io")
         .username("username")
         .password(textEncryptor.encrypt("password"))

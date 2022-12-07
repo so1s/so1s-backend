@@ -16,6 +16,7 @@ public class RegistryMapperImpl implements RegistryMapper {
   @Override
   public Registry toEntity(RegistryUploadRequestDto dto) {
     return Registry.builder()
+        .name(dto.getName())
         .username(dto.getUsername())
         .password(secretKeyService.encode(dto.getPassword()))
         .baseUrl(dto.getBaseUrl())
@@ -25,6 +26,7 @@ public class RegistryMapperImpl implements RegistryMapper {
   @Override
   public RegistryFindResponseDto toDto(Registry entity) {
     return RegistryFindResponseDto.builder()
+        .name(entity.getName())
         .username(entity.getUsername())
         .baseUrl(entity.getBaseUrl())
         .build();

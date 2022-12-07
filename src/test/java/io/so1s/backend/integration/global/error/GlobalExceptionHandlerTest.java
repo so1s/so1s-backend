@@ -282,6 +282,7 @@ public class GlobalExceptionHandlerTest {
         .library(libraryRepository.findByName(libraryName).get())
         .build());
     Registry registry = registryRepository.save(Registry.builder()
+        .name("default")
         .baseUrl("ghcr.io")
         .username("username")
         .password(textEncryptor.encrypt("password"))
