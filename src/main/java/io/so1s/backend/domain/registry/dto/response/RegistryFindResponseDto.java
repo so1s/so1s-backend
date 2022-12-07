@@ -17,7 +17,5 @@ public class RegistryFindResponseDto {
   private String baseUrl;
   @NotBlank
   private String username;
-  @NotBlank
-  private String password;
 
 }

@@ -26,7 +26,6 @@ public class RegistryMapperImpl implements RegistryMapper {
   public RegistryFindResponseDto toDto(Registry entity) {
     return RegistryFindResponseDto.builder()
         .username(entity.getUsername())
-        .password(secretKeyService.decode(entity.getPassword()))
         .baseUrl(entity.getBaseUrl())
         .build();
   }
