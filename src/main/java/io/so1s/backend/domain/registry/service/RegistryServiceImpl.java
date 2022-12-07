@@ -5,6 +5,7 @@ import io.so1s.backend.domain.registry.dto.request.RegistryUploadRequestDto;
 import io.so1s.backend.domain.registry.entity.Registry;
 import io.so1s.backend.domain.registry.repository.RegistryRepository;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,11 @@ public class RegistryServiceImpl implements RegistryService {
   @Override
   public Registry saveRegistry(RegistryUploadRequestDto requestDto) {
     return repository.save(mapper.toEntity(requestDto));
+  }
+
+  @Override
+  public Optional<Registry> findRegistryById(Long id) {
+    return repository.findById(id);
   }
 
 }

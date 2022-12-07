@@ -7,17 +7,22 @@ import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class ModelMapper {
 
+  @Transactional(readOnly = true)
   public ModelDetailResponseDto toDetailResponseDto(Model model, ModelMetadata modelMetadata) {
+    var registry = modelMetadata.getRegistry();
+
     return ModelDetailResponseDto.builder()
         .age(modelMetadata.getUpdatedOn())
         .name(model.getName())
         .version(modelMetadata.getVersion())
         .status(modelMetadata.getStatus())
         .url(modelMetadata.getUrl())
+        .registry(String.format("%s / %s", registry.getBaseUrl(), registry.getUsername()))
         .library(model.getLibrary().getName())
         .inputShape(modelMetadata.getInputShape())
         .inputDtype(modelMetadata.getInputDtype())

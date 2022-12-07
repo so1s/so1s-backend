@@ -24,6 +24,9 @@ public class ModelUploadRequestDto {
   @Size(min = 1, max = 64, message = "Please enter the length within 1 to 64 characters.")
   private String name;
 
+  @NotNull
+  private Long registryId;
+
   @NotBlank
   private String library;
 
