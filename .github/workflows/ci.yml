@@ -46,8 +46,3 @@ jobs:
         run: ./gradlew jacocoTestReport
         env:
           JAVA_HOME: /home/runner/.sdkman/candidates/java/11.0.15.9.1-amzn
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
