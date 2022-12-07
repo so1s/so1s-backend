@@ -51,7 +51,6 @@ public class ModelMetadata extends BaseTimeEntity {
   @Column(nullable = false)
   private String url;
 
-  @Column(nullable = false)
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "registry_id")
   private Registry registry;
