@@ -1,6 +1,7 @@
 package io.so1s.backend.domain.model.entity;
 
 import io.so1s.backend.domain.deployment.entity.Deployment;
+import io.so1s.backend.domain.registry.entity.Registry;
 import io.so1s.backend.global.entity.BaseTimeEntity;
 import io.so1s.backend.global.vo.Status;
 import java.util.ArrayList;
@@ -49,6 +50,10 @@ public class ModelMetadata extends BaseTimeEntity {
 
   @Column(nullable = false)
   private String url;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "registry_id")
+  private Registry registry;
 
   @Column(nullable = false)
   private String inputShape;

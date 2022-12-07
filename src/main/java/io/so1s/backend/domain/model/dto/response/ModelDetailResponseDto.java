@@ -19,6 +19,7 @@ public class ModelDetailResponseDto {
   private String version;
   private Status status;
   private String url;
+  private String registry;
   private String library;
   private String inputShape;
   private String inputDtype;

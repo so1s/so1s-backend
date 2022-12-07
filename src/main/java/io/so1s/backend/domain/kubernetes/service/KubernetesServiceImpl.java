@@ -41,7 +41,10 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.task.TaskRejectedException;
+import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +55,8 @@ public class KubernetesServiceImpl implements KubernetesService {
   private final IstioClient istioClient;
   private final JobStatusChecker jobStatusChecker;
   private final UserService userService;
-  private final Registry registry;
+
+  private final TextEncryptor textEncryptor;
 
   public String getNamespace() {
     return "so1s-" + userService.getCurrentUsername().orElse("default");
@@ -67,8 +71,10 @@ public class KubernetesServiceImpl implements KubernetesService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public boolean inferenceServerBuild(ModelMetadata modelMetadata) throws InterruptedException {
     Model model = modelMetadata.getModel();
+    Registry registry = modelMetadata.getRegistry();
 
     String namespace = getNamespace();
 
@@ -113,8 +119,9 @@ public class KubernetesServiceImpl implements KubernetesService {
             "--name", modelName,
             "--tag", version,
             "--library", library,
+            "--registry", registry.getBaseUrl(),
             "--user", registry.getUsername(),
-            "--password", registry.getPassword(),
+            "--password", textEncryptor.decrypt(registry.getPassword()),
             "--type", type
         )
         .withNewResources()

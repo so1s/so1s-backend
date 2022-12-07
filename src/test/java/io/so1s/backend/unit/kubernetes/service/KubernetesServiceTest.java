@@ -14,6 +14,7 @@ import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.library.entity.Library;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
+import io.so1s.backend.domain.registry.entity.Registry;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.domain.test.v1.entity.ABTest;
 import io.so1s.backend.domain.test.v1.service.internal.ABTestKubernetesService;
@@ -31,6 +32,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -46,6 +48,8 @@ public class KubernetesServiceTest {
   KubernetesService kubernetesService;
   @Autowired
   ABTestKubernetesService abTestKubernetesService;
+  @Autowired
+  TextEncryptor textEncryptor;
   KubernetesClient client;
 
 
@@ -265,6 +269,11 @@ public class KubernetesServiceTest {
         .version(HashGenerator.sha256())
         .fileName("titanic.h5")
         .url("https://s3.test.com/")
+        .registry(Registry.builder()
+            .baseUrl("ghcr.io")
+            .username("username")
+            .password(textEncryptor.encrypt("password"))
+            .build())
         .inputShape("(10,)")
         .inputDtype("float32")
         .outputShape("(1,)")

@@ -1,5 +1,4 @@
-package io.so1s.backend.domain.registry.entity;
-
+package io.so1s.backend.domain.crypto.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,23 +15,24 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "registry")
+@Table(name = "secret_key")
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Registry {
+public class SecretKey {
 
   @Id
-  @Column(name = "registry_id")
+  @Column(name = "secret_key_id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
   @NotBlank
-  private String baseUrl;
+  private String name;
+  @Column(name = "secret_key_key")
   @NotBlank
-  private String username;
+  private String key;
   @NotBlank
-  private String password;
+  private String salt;
 
 }
