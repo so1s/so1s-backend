@@ -55,7 +55,7 @@ public class FileUploadServiceTest {
   public void uploadFileTest() throws Exception {
     // given
     String fileName = "testFileName";
-    String path = "forTest/titanic_e500.h5";
+    String path = "src/test/resources/titanic_e500.h5";
     MockMultipartFile mockMultipartFile = new MockMultipartFile(
         fileName,
         path,
@@ -75,7 +75,7 @@ public class FileUploadServiceTest {
   public void uploadFileIllegalArgumentExceptionTest() throws Exception {
     // given
     String fileName = "testFileName";
-    String path = "forTest/titanic_e500";
+    String path = "src/test/resources/titanic_e500";
     MockMultipartFile mockMultipartFile = new MockMultipartFile(
         fileName,
         path,

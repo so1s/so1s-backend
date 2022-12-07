@@ -12,7 +12,6 @@ import io.so1s.backend.domain.aws.dto.response.FileSaveResultForm;
 import io.so1s.backend.domain.aws.service.FileUploadService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.library.entity.Library;
-import io.so1s.backend.domain.model.controller.ModelController;
 import io.so1s.backend.domain.model.dto.request.ModelUploadRequestDto;
 import io.so1s.backend.domain.model.dto.response.ModelDetailResponseDto;
 import io.so1s.backend.domain.model.dto.response.ModelFindResponseDto;
@@ -20,7 +19,10 @@ import io.so1s.backend.domain.model.dto.response.ModelMetadataFindResponseDto;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelServiceImpl;
-import io.so1s.backend.global.config.SecurityConfig;
+import io.so1s.backend.domain.registry.dto.mapper.RegistryMapper;
+import io.so1s.backend.domain.registry.entity.Registry;
+import io.so1s.backend.domain.registry.repository.RegistryRepository;
+import io.so1s.backend.global.config.RegistryDataConfig;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
 import java.io.FileInputStream;
@@ -31,10 +33,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -45,12 +46,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 
 @WithMockUser
+@AutoConfigureMockMvc
 @ActiveProfiles(profiles = {"test"})
-@WebMvcTest(controllers = ModelController.class,
-    excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class)
-    }
-)
+@SpringBootTest(classes = {RegistryDataConfig.class})
 class ModelControllerTest {
 
   @Autowired
@@ -62,6 +60,12 @@ class ModelControllerTest {
   @MockBean
   KubernetesService kubernetesService;
 
+  @Autowired
+  RegistryRepository registryRepository;
+  @Autowired
+  Registry registry;
+  @Autowired
+  RegistryMapper registryMapper;
   MockMultipartFile multipartFile;
   ObjectMapper objectMapper;
   ModelUploadRequestDto modelUploadRequestDto;
@@ -71,17 +75,20 @@ class ModelControllerTest {
 
   @BeforeEach
   public void setup() throws Exception {
+    registry = registryRepository.save(registry);
+
     multipartFile = new MockMultipartFile(
         "modelFile",
         "titanic_e500.h5",
         "application/octet-stream",
-        new FileInputStream("forTest/titanic_e500.h5")
+        new FileInputStream("src/test/resources/titanic_e500.h5")
     );
 
     objectMapper = new ObjectMapper();
     modelUploadRequestDto = ModelUploadRequestDto.builder()
         .name("testModel")
         .library("tensorflow")
+        .registryId(registry.getId())
         .inputShape("(10,)")
         .inputDtype("float32")
         .outputShape("(1,)")
@@ -121,6 +128,7 @@ class ModelControllerTest {
             .file(multipartFile)
             .param("name", "testModel")
             .param("library", "tensorflow")
+            .param("registryId", registry.getId().toString())
             .param("inputShape", "(10,)")
             .param("inputDtype", "float32")
             .param("outputShape", "(1,)")
@@ -158,6 +166,7 @@ class ModelControllerTest {
         .file(multipartFile)
         .param("name", "testModel")
         .param("library", "tensorflow")
+        .param("registryId", registry.getId().toString())
         .param("inputShape", "(10,)")
         .param("inputDtype", "float32")
         .param("outputShape", "(1,)")
@@ -245,6 +254,7 @@ class ModelControllerTest {
         .name("testModel")
         .version(HashGenerator.sha256())
         .status(Status.SUCCEEDED)
+        .registry(registryMapper.toStringFormat(registry))
         .url("http://s3.test.com/")
         .library("tensorflow")
         .inputShape("(10,)")
@@ -269,6 +279,7 @@ class ModelControllerTest {
         .andExpect(jsonPath("$.status").value(findModelMetadata.getStatus().toString()))
         .andExpect(jsonPath("$.url").value(findModelMetadata.getUrl()))
         .andExpect(jsonPath("$.library").value(findModelMetadata.getLibrary()))
+        .andExpect(jsonPath("$.registry").value(findModelMetadata.getRegistry()))
         .andExpect(jsonPath("$.inputShape").value(findModelMetadata.getInputShape()))
         .andExpect(jsonPath("$.inputDtype").value(findModelMetadata.getInputDtype()))
         .andExpect(jsonPath("$.outputShape").value(findModelMetadata.getOutputShape()))

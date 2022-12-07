@@ -34,8 +34,11 @@ import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.domain.model.service.DataTypeService;
 import io.so1s.backend.domain.model.service.ModelService;
+import io.so1s.backend.domain.registry.entity.Registry;
+import io.so1s.backend.domain.registry.repository.RegistryRepository;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.domain.resource.repository.ResourceRepository;
+import io.so1s.backend.global.config.RegistryDataConfig;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
 import io.so1s.backend.integration.aws.service.S3MockConfig;
@@ -43,6 +46,7 @@ import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,16 +63,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Import(S3MockConfig.class)
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = {TestKubernetesConfig.class})
+@SpringBootTest(classes = {TestKubernetesConfig.class, RegistryDataConfig.class})
 @ActiveProfiles(profiles = {"test"})
 // Flush S3Mock Server After Test
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 class ModelServiceTest {
 
-  static String name = "testModel";
-  static String library = "tensorflow";
-  static String version;
-  static ModelUploadRequestDto modelUploadRequestDto;
+  String name = "testModel";
+  String library = "tensorflow";
+  String version = HashGenerator.sha256();
+
+  ModelUploadRequestDto modelUploadRequestDto;
+  @Autowired
+  Registry registry;
   @Autowired
   ModelService modelService;
   @MockBean
@@ -77,6 +84,8 @@ class ModelServiceTest {
   AwsS3Service awsS3UploadService;
   @Autowired
   FileUploadService fileUploadService;
+  @Autowired
+  RegistryRepository registryRepository;
   @Autowired
   ModelRepository modelRepository;
   @Autowired
@@ -91,15 +100,19 @@ class ModelServiceTest {
   DeploymentStrategyRepository deploymentStrategyRepository;
 
   @BeforeAll
-  static void setup(@Autowired S3Config s3Config, @Autowired S3Mock s3Mock,
+  static void setUp(@Autowired S3Config s3Config, @Autowired S3Mock s3Mock,
       @Autowired AmazonS3 amazonS3) {
-    version = HashGenerator.sha256();
-
     amazonS3.createBucket(s3Config.getBucket());
+  }
+
+  @BeforeEach
+  void setUpData() {
+    registry = registryRepository.save(registry);
 
     modelUploadRequestDto = ModelUploadRequestDto.builder()
         .name(name)
         .library(library)
+        .registryId(registry.getId())
         .inputShape("(10,)")
         .inputDtype("float32")
         .outputShape("(1,)")

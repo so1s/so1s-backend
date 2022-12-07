@@ -23,6 +23,8 @@ import io.so1s.backend.domain.deployment.dto.request.DeploymentRequestDto;
 import io.so1s.backend.domain.library.repository.LibraryRepository;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.repository.ModelRepository;
+import io.so1s.backend.domain.registry.entity.Registry;
+import io.so1s.backend.domain.registry.repository.RegistryRepository;
 import io.so1s.backend.global.error.exception.ErrorCode;
 import io.so1s.backend.global.utils.JsonMapper;
 import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
@@ -40,6 +42,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -72,29 +75,24 @@ public class GlobalExceptionHandlerTest {
   ModelRepository modelRepository;
   @Autowired
   LibraryRepository libraryRepository;
+  @Autowired
+  RegistryRepository registryRepository;
+  @Autowired
+  TextEncryptor textEncryptor;
 
   User user;
   String token;
 
-  String modelName;
-  String libraryName;
-  String inputShape;
-  String inputDtype;
-  String outputShape;
-  String outputDtype;
-  String deviceType;
-
+  String modelName = "testModel";
+  String libraryName = "tensorflow";
+  String inputShape = "float32";
+  String inputDtype = "(10,)";
+  String outputShape = "float32";
+  String outputDtype = "(1,)";
+  String deviceType = "cpu";
 
   @BeforeEach
   public void setup() throws Exception {
-    modelName = "testModel";
-    libraryName = "tensorflow";
-    inputShape = "float32";
-    inputDtype = "(10,)";
-    outputShape = "float32";
-    outputDtype = "(1,)";
-    deviceType = "cpu";
-
     String username = "so1s-test";
     UserRole userRole = UserRole.OWNER;
     String password = "so1s1234567890";
@@ -283,11 +281,16 @@ public class GlobalExceptionHandlerTest {
         .name(modelName)
         .library(libraryRepository.findByName(libraryName).get())
         .build());
+    Registry registry = registryRepository.save(Registry.builder()
+        .baseUrl("ghcr.io")
+        .username("username")
+        .password(textEncryptor.encrypt("password"))
+        .build());
     MockMultipartFile multipartFile = new MockMultipartFile(
         "modelFile",
         "titanic_e500.h5",
         "application/octet-stream",
-        new FileInputStream("forTest/titanic_e500.h5"));
+        new FileInputStream("src/test/resources/titanic_e500.h5"));
 
     // when
     ResultActions result = mockMvc.perform(MockMvcRequestBuilders
@@ -295,6 +298,7 @@ public class GlobalExceptionHandlerTest {
             .file(multipartFile)
             .param("name", modelName)
             .param("library", libraryName)
+            .param("registryId", registry.getId().toString())
             .param("inputShape", inputShape)
             .param("inputDtype", inputDtype)
             .param("outputShape", outputShape)
