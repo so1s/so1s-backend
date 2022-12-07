@@ -32,6 +32,8 @@ import io.so1s.backend.domain.model.repository.ModelMetadataRepository;
 import io.so1s.backend.domain.model.repository.ModelRepository;
 import io.so1s.backend.domain.model.service.DataTypeService;
 import io.so1s.backend.domain.model.service.ModelService;
+import io.so1s.backend.domain.registry.entity.Registry;
+import io.so1s.backend.domain.registry.repository.RegistryRepository;
 import io.so1s.backend.domain.resource.dto.request.ResourceCreateRequestDto;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.domain.resource.repository.ResourceRepository;
@@ -39,6 +41,7 @@ import io.so1s.backend.domain.resource.service.ResourceService;
 import io.so1s.backend.domain.test.v1.entity.ABTest;
 import io.so1s.backend.domain.test.v1.exception.ABTestExistsException;
 import io.so1s.backend.domain.test.v1.repository.ABTestRepository;
+import io.so1s.backend.global.config.RegistryDataConfig;
 import io.so1s.backend.global.utils.HashGenerator;
 import io.so1s.backend.global.vo.Status;
 import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
@@ -58,7 +61,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@SpringBootTest(classes = {TestKubernetesConfig.class})
+@SpringBootTest(classes = {TestKubernetesConfig.class, RegistryDataConfig.class})
 @EnableKubernetesMockClient(crud = true)
 @EnableIstioMockClient(crud = true)
 @ExtendWith(MockitoExtension.class)
@@ -71,6 +74,11 @@ public class DeploymentServiceTest {
   DeploymentService deploymentService;
   @Autowired
   ModelService modelService;
+
+  @Autowired
+  Registry registry;
+  @Autowired
+  RegistryRepository registryRepository;
 
   @Autowired
   ModelRepository modelRepository;
@@ -366,11 +374,14 @@ public class DeploymentServiceTest {
   }
 
   public ModelMetadata getModelMetadata() {
+    registry = registryRepository.save(registry);
+
     return modelMetadataRepository.save(ModelMetadata.builder()
         .status(Status.SUCCEEDED)
         .version(HashGenerator.sha256())
         .fileName("testFile")
         .url("https://s3.test.com/")
+        .registry(registry)
         .inputShape("(10,)")
         .inputDtype("float32")
         .outputShape("(1,)")
