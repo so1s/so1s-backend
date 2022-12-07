@@ -28,6 +28,7 @@ public class Registry {
   @Column(name = "registry_id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+  @Column(unique = true)
   @NotBlank
   private String name;
   @NotBlank
