@@ -10,4 +10,6 @@ public interface RegistryMapper {
 
   RegistryFindResponseDto toDto(Registry entity);
 
+  String toStringFormat(Registry registry);
+
 }

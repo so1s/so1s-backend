@@ -30,4 +30,9 @@ public class RegistryMapperImpl implements RegistryMapper {
         .baseUrl(entity.getBaseUrl())
         .build();
   }
+
+  @Override
+  public String toStringFormat(Registry registry) {
+    return String.format("%s / %s", registry.getBaseUrl(), registry.getUsername());
+  }
 }
