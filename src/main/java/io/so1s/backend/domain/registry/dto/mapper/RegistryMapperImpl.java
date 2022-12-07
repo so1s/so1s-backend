@@ -34,6 +34,7 @@ public class RegistryMapperImpl implements RegistryMapper {
 
   @Override
   public String toStringFormat(Registry registry) {
-    return String.format("%s / %s", registry.getBaseUrl(), registry.getUsername());
+    return String.format("%s / %s / %s", registry.getName(), registry.getUsername(),
+        registry.getBaseUrl());
   }
 }
