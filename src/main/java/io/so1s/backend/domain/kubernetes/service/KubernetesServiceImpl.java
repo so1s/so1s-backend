@@ -220,13 +220,20 @@ public class KubernetesServiceImpl implements KubernetesService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public boolean deployInferenceServer(
       io.so1s.backend.domain.deployment.entity.Deployment deployment) {
 
     String namespace = getNamespace();
     String deployName = "inference-" + deployment.getName().toLowerCase();
-    String modelName = deployment.getModelMetadata().getModel().getName().toLowerCase();
-    String modelVersion = deployment.getModelMetadata().getVersion().toLowerCase();
+
+    var modelMetadata = deployment.getModelMetadata();
+    var registry = modelMetadata.getRegistry();
+
+    String registryUrl = registry.getBaseUrl();
+    String registryUser = registry.getUsername();
+    String modelName = modelMetadata.getModel().getName().toLowerCase();
+    String modelVersion = modelMetadata.getVersion().toLowerCase();
 
     Map<String, String> labels = new HashMap<>();
     labels.put("app", "inference");
@@ -262,7 +269,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .addNewContainer()
         .withImagePullPolicy("Always")
         .withName(deployName)
-        .withImage("so1s/" + modelName + ":" + modelVersion)
+        .withImage(String.format("%s/%s/%s:%s", registryUrl, registryUser, modelName, modelVersion))
         .withNewResources()
         .addToRequests("cpu", new Quantity(deployment.getResource().getCpu()))
         .addToRequests("memory", new Quantity(deployment.getResource().getMemory()))
@@ -286,7 +293,6 @@ public class KubernetesServiceImpl implements KubernetesService {
         .endTemplate()
         .endSpec()
         .build();
-    // See https://github.com/So1S/istio/blob/main/gateway.yaml
 
     io.fabric8.kubernetes.api.model.Service inferenceService = new ServiceBuilder()
         .withNewMetadata()
