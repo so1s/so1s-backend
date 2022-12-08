@@ -16,7 +16,7 @@ public enum ErrorCode {
   METHOD_NOT_ALLOWED(405, "Common003", "Invalid Method"),
   INVALID_TYPE_VALUE(400, "Common004", "Invalid Type Value"),
   HANDLE_ACCESS_DENIED(403, "Common005", "Access is Denied"),
-  INTERNAL_SERVER_ERROR(500, "Common006", "Server Error"),
+  INTERNAL_SERVER_ERROR(500, "Common006", "Internal Server Error"),
   ENTITY_NOT_FOUND(404, "Common007", "Entity Not Found"),
   ENTITY_DUPLICATED(409, "Common008", "Entity Duplicated"),
   ENTITY_EXIST(409, "Common009", "Entity Exist"),
