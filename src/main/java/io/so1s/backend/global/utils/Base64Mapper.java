@@ -1,7 +1,6 @@
 package io.so1s.backend.global.utils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Base64;
 
 public class Base64Mapper {

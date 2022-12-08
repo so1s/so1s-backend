@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RegistryServiceImpl implements RegistryService {
 
+  private final RegistryKubernetesService kubernetesService;
   private final RegistryRepository repository;
   private final RegistryMapper mapper;
 
@@ -23,7 +24,25 @@ public class RegistryServiceImpl implements RegistryService {
 
   @Override
   public Registry saveRegistry(RegistryUploadRequestDto requestDto) {
-    return repository.save(mapper.toEntity(requestDto));
+    Registry registry = mapper.toEntity(requestDto);
+
+    kubernetesService.deployRegistrySecret(registry);
+    repository.save(registry);
+
+    return registry;
+  }
+
+  @Override
+  public boolean deleteRegistryById(Long id) {
+    var entity = repository.findById(id);
+
+    if (entity.isEmpty()) {
+      return false;
+    }
+
+    repository.delete(entity.get());
+
+    return true;
   }
 
   @Override

@@ -1,10 +1,9 @@
 package io.so1s.backend.domain.registry.service;
 
-import io.fabric8.kubernetes.api.model.Secret;
-import java.util.Optional;
+import io.so1s.backend.domain.registry.entity.Registry;
 
 public interface RegistryKubernetesService {
 
-  Optional<Secret> getDefaultSecret();
+  void deployRegistrySecret(Registry registry);
 
 }

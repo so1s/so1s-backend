@@ -11,6 +11,8 @@ public interface RegistryService {
 
   Registry saveRegistry(RegistryUploadRequestDto requestDto);
 
+  boolean deleteRegistryById(Long id);
+
   Optional<Registry> findRegistryById(Long id);
 
 }

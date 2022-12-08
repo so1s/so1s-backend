@@ -24,6 +24,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.springframework.transaction.annotation.Transactional;
 
 @Entity
 @Table(name = "model_metadata")
@@ -79,11 +80,13 @@ public class ModelMetadata extends BaseTimeEntity {
   @Fetch(FetchMode.SUBSELECT)
   private List<Deployment> deployments = new ArrayList<>();
 
+  @Transactional
   public void setModel(Model model) {
     this.model = model;
     model.getModelMetadatas().add(this);
   }
 
+  @Transactional
   public void changeStatus(Status status) {
     this.status = status;
   }

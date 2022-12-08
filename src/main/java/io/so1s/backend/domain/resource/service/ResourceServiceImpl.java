@@ -88,12 +88,26 @@ public class ResourceServiceImpl implements ResourceService {
 
   @Override
   public boolean isDeployable(Resource resource) {
+    var nodes = nodesService.findNodes();
+
+    if (nodes.isEmpty()) {
+      return false;
+    }
+
     ResourceDto desired = resourceMapper.toServiceDto(resource);
 
-    return nodesService.findNodes()
+    var inferenceNodes = nodesService.findNodes()
         .stream()
         .filter(e -> e.getSpec().getTaints().stream()
             .anyMatch(t -> t.getKey().equals("kind") && t.getValue().equals("inference")))
+        .collect(Collectors.toList());
+
+    // Terraform으로 구성된 클러스터가 아닌 자체 매니지드 환경
+    if (inferenceNodes.isEmpty()) {
+      return true;
+    }
+
+    return inferenceNodes.stream()
         .anyMatch(e -> {
           ResourceDto allocatable = resourceMapper.toServiceDto(e.getStatus().getAllocatable());
 
