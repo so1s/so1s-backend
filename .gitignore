@@ -153,3 +153,5 @@ openapi3.json
 
 src/main/resources/application-dev.yaml
 src/main/generated
+
+*.db

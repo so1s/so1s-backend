@@ -27,7 +27,7 @@ public class RegistryServiceTest {
   TextEncryptor textEncryptor;
 
   @Test
-  @DisplayName("RegistryService의 Entity Create, Read 관련 메소드가 제대로 동작한다.")
+  @DisplayName("RegistryService의 Entity Create, Read, Delete 관련 메소드가 제대로 동작한다.")
   public void registryServiceTest() {
     RegistryUploadRequestDto requestDto = RegistryUploadRequestDto.builder()
         .name("default")
@@ -52,6 +52,14 @@ public class RegistryServiceTest {
 
     Assertions.assertThat(foundById).isPresent();
     Assertions.assertThat(foundById.get()).isEqualTo(founds.get(0));
+
+    var deleteResult = registryService.deleteRegistryById(id);
+
+    Assertions.assertThat(deleteResult).isTrue();
+
+    foundById = registryService.findRegistryById(id);
+
+    Assertions.assertThat(foundById).isEmpty();
 
   }
 

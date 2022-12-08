@@ -3,7 +3,7 @@ package io.so1s.backend.domain.kubernetes.utils;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
-import io.so1s.backend.domain.kubernetes.service.KubernetesService;
+import io.so1s.backend.domain.kubernetes.service.NamespaceService;
 import io.so1s.backend.global.vo.Status;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +23,7 @@ public class DeploymentStatusCheckScheduler {
   private final KubernetesClient client;
   private final DeploymentRepository deploymentRepository;
   private final ApplicationHealthChecker applicationHealthChecker;
-  private final KubernetesService kubernetesService;
+  private final NamespaceService namespaceService;
 
   @Autowired
   @Lazy
@@ -32,26 +32,27 @@ public class DeploymentStatusCheckScheduler {
   @Scheduled(fixedDelay = 1000L * 60)
   public void checkDeploymentStatus() {
     log.info("Scheduled method DeploymentStatusCheckScheduler.checkDeploymentStatus() invoked");
+
     List<Deployment> deployments = deploymentRepository.findAll();
 
     List<io.fabric8.kubernetes.api.model.apps.Deployment> k8sDeployments = client.apps()
-        .deployments().inNamespace(kubernetesService.getNamespace()).withLabel("app", "inference")
+        .deployments().inAnyNamespace().withLabel("app", "inference")
         .list().getItems();
 
-    for (Deployment deployment : deployments) {
+    deployments.stream().parallel().forEach(deployment -> {
       Optional<io.fabric8.kubernetes.api.model.apps.Deployment> find = k8sDeployments.stream()
-          .parallel().filter(d -> d.getMetadata().getName().equalsIgnoreCase(deployment.getName()))
+          .parallel().filter(d -> d.getMetadata().getName().equalsIgnoreCase(
+              String.format("inference-%s", deployment.getName())))
           .findAny();
       find.ifPresentOrElse(e -> {
         if (e.getStatus().getConditions().stream()
-            .anyMatch(cond -> cond.getStatus().equals("True"))
-            && applicationHealthChecker.checkApplicationHealth(deployment.getEndPoint())) {
+            .anyMatch(cond -> cond.getStatus().equals("True"))) {
           self.setDeploymentStatus(deployment, Status.RUNNING);
         } else {
           self.setDeploymentStatus(deployment, Status.FAILED);
         }
       }, () -> self.setDeploymentStatus(deployment, Status.UNKNOWN));
-    }
+    });
   }
 
   @Transactional

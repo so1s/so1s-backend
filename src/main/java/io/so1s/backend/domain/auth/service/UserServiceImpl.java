@@ -103,36 +103,24 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public Optional<String> getCurrentUsername() {
+  public String getCurrentUsername() {
     final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
     if (authentication == null) {
       log.debug("Security Context에 인증 정보가 없습니다.");
-      return Optional.empty();
+      return "default";
     }
 
-    String username = parseUserName(authentication);
-
-    return Optional.ofNullable(username);
+    return parseUserName(authentication);
   }
 
 
   @Override
   public User getCurrentUser() {
-    Optional<String> optionalCurrentUsername = getCurrentUsername();
+    String username = getCurrentUsername();
+    Optional<User> optionalUser = findByUsername(username);
 
-    if (optionalCurrentUsername.isEmpty()) {
-      return null;
-    }
+    return optionalUser.orElse(null);
 
-    String currentUsername = optionalCurrentUsername.get();
-
-    Optional<User> optionalUser = findByUsername(currentUsername);
-
-    if (optionalUser.isEmpty()) {
-      return null;
-    }
-
-    return optionalUser.get();
   }
 }

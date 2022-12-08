@@ -12,7 +12,7 @@ public interface UserService {
 
   Optional<User> findByUsername(String username);
 
-  Optional<String> getCurrentUsername();
+  String getCurrentUsername();
 
   User getCurrentUser();
 

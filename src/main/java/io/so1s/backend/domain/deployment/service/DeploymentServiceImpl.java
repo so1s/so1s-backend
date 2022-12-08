@@ -10,17 +10,15 @@ import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
 import io.so1s.backend.domain.deployment.exception.DeploymentNotFoundException;
 import io.so1s.backend.domain.deployment.exception.DeploymentUpdateFailedException;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
-import io.so1s.backend.domain.deployment_strategy.repository.DeploymentStrategyRepository;
 import io.so1s.backend.domain.deployment_strategy.service.DeploymentStrategyService;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.model.service.ModelService;
 import io.so1s.backend.domain.resource.entity.Resource;
-import io.so1s.backend.domain.resource.repository.ResourceRepository;
 import io.so1s.backend.domain.resource.service.ResourceService;
-import io.so1s.backend.domain.test.v1.entity.ABTest;
-import io.so1s.backend.domain.test.v1.exception.ABTestExistsException;
-import io.so1s.backend.domain.test.v1.repository.ABTestRepository;
+import io.so1s.backend.domain.test.v2.entity.ABNTest;
+import io.so1s.backend.domain.test.v2.exception.ABNTestExistsException;
+import io.so1s.backend.domain.test.v2.repository.ABNTestRepository;
 import io.so1s.backend.global.error.exception.NodeResourceExceededException;
 import java.util.List;
 import java.util.Optional;
@@ -34,9 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DeploymentServiceImpl implements DeploymentService {
 
   private final DeploymentRepository deploymentRepository;
-  private final DeploymentStrategyRepository deploymentStrategyRepository;
-  private final ResourceRepository resourceRepository;
-  private final ABTestRepository abTestRepository;
+  private final ABNTestRepository abnTestRepository;
   private final KubernetesService kubernetesService;
 
   private final ModelService modelService;
@@ -69,15 +65,14 @@ public class DeploymentServiceImpl implements DeploymentService {
 
   @Override
   public DeploymentDeleteResponseDto deleteDeployment(Long id)
-      throws DeploymentNotFoundException, ABTestExistsException {
+      throws DeploymentNotFoundException, ABNTestExistsException {
     Deployment deployment = deploymentRepository.findById(id).orElseThrow(
         () -> new DeploymentNotFoundException(String.format("디플로이먼트 %s를 찾을 수 없습니다.", id)));
 
-    List<ABTest> aTests = abTestRepository.findAllByA_Id(deployment.getId());
-    List<ABTest> bTests = abTestRepository.findAllByB_Id(deployment.getId());
+    List<ABNTest> tests = abnTestRepository.findAllByDeploymentId(deployment.getId());
 
-    if (!aTests.isEmpty() || !bTests.isEmpty()) {
-      throw new ABTestExistsException("해당 디플로이먼트를 사용하고 있는 AB 테스트가 존재합니다.\nAB 테스트를 먼저 삭제해 주세요.");
+    if (!tests.isEmpty()) {
+      throw new ABNTestExistsException("해당 디플로이먼트를 사용하고 있는 ABN 테스트가 존재합니다.\nAB 테스트를 먼저 삭제해 주세요.");
     }
 
     boolean result = kubernetesService.deleteInferenceServer(deployment);
@@ -88,7 +83,7 @@ public class DeploymentServiceImpl implements DeploymentService {
           .message("디플로이먼트 삭제에 실패했습니다.").build();
     }
 
-    deploymentRepository.deleteById(deployment.getId());
+    deploymentRepository.delete(deployment);
 
     return DeploymentDeleteResponseDto.builder()
         .success(true)
@@ -117,16 +112,16 @@ public class DeploymentServiceImpl implements DeploymentService {
         .build();
   }
 
-  public boolean updateInference(Deployment deployment) throws DeploymentUpdateFailedException {
+  public boolean updateInference(Deployment deployment)
+      throws DeploymentUpdateFailedException, ABNTestExistsException {
     if (deployment.getDeploymentStrategy().getName().equals("rolling")) {
       return kubernetesService.deployInferenceServer(deployment);
     } else if (deployment.getDeploymentStrategy().getName().equals("static")) {
-      List<ABTest> aTests = abTestRepository.findAllByA_Id(deployment.getId());
-      List<ABTest> bTests = abTestRepository.findAllByB_Id(deployment.getId());
+      List<ABNTest> tests = abnTestRepository.findAllByDeploymentId(deployment.getId());
 
-      if (!aTests.isEmpty() || !bTests.isEmpty()) {
-        throw new ABTestExistsException(
-            "AB Test is exist that use Deployment.\nPlease delete the AB Test first.");
+      if (!tests.isEmpty()) {
+        throw new ABNTestExistsException(
+            "ABN Test is exist that use Deployment.\nPlease delete the AB Test first.");
       }
 
       kubernetesService.deleteInferenceServer(deployment);
