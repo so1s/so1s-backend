@@ -3,7 +3,6 @@ package io.so1s.backend.domain.kubernetes.utils;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
-import io.so1s.backend.domain.kubernetes.service.KubernetesService;
 import io.so1s.backend.domain.kubernetes.service.NamespaceService;
 import io.so1s.backend.global.vo.Status;
 import java.util.List;
@@ -24,7 +23,6 @@ public class DeploymentStatusCheckScheduler {
   private final KubernetesClient client;
   private final DeploymentRepository deploymentRepository;
   private final ApplicationHealthChecker applicationHealthChecker;
-  private final KubernetesService kubernetesService;
   private final NamespaceService namespaceService;
 
   @Autowired
@@ -44,7 +42,8 @@ public class DeploymentStatusCheckScheduler {
 
     for (Deployment deployment : deployments) {
       Optional<io.fabric8.kubernetes.api.model.apps.Deployment> find = k8sDeployments.stream()
-          .parallel().filter(d -> d.getMetadata().getName().equalsIgnoreCase(deployment.getName()))
+          .parallel().filter(d -> d.getMetadata().getName().equalsIgnoreCase(
+              String.format("inference-%s", deployment.getName())))
           .findAny();
       find.ifPresentOrElse(e -> {
         if (e.getStatus().getConditions().stream()
