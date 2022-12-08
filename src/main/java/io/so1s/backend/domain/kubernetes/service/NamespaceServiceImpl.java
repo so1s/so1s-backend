@@ -11,7 +11,7 @@ public class NamespaceServiceImpl implements NamespaceService {
   private final UserService userService;
 
   public String getNamespace() {
-    return "so1s-" + userService.getCurrentUsername().orElse("default");
+    return "so1s-" + userService.getCurrentUsername();
   }
 
 }
