@@ -4,7 +4,7 @@
 
 # So1s Backend
 
-Spring Boot 기반 리소스 프로비저닝 API 서버
+Spring Boot 기반 MLOps 컴포넌트 프로비저닝 / 매니지먼트 API 서버
 
 [프로젝트 소개 페이지로 돌아가기](https://github.com/so1s)
 
