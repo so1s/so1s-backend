@@ -15,6 +15,7 @@ import io.so1s.backend.domain.deployment.entity.DeploymentStrategy;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.deployment_strategy.repository.DeploymentStrategyRepository;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
+import io.so1s.backend.domain.kubernetes.service.NamespaceService;
 import io.so1s.backend.domain.kubernetes.utils.ApplicationHealthChecker;
 import io.so1s.backend.domain.kubernetes.utils.DeploymentStatusCheckScheduler;
 import io.so1s.backend.domain.library.entity.Library;
@@ -43,139 +44,141 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(classes = { TestKubernetesConfig.class })
+@SpringBootTest(classes = {TestKubernetesConfig.class})
 @Import(JpaConfig.class)
 @ExtendWith(MockitoExtension.class)
 @WithMockUser
-@ActiveProfiles(profiles = { "test" })
+@ActiveProfiles(profiles = {"test"})
 public class DeploymentStatusCheckSchedulerTest {
 
-    @Autowired
-    KubernetesClient client;
+  @Autowired
+  KubernetesClient client;
 
-    @Autowired
-    DeploymentStatusCheckScheduler deploymentStatusCheckScheduler;
+  @Autowired
+  DeploymentStatusCheckScheduler deploymentStatusCheckScheduler;
 
-    @Autowired
-    KubernetesService kubernetesService;
+  @Autowired
+  KubernetesService kubernetesService;
+  @Autowired
+  NamespaceService namespaceService;
 
-    @Autowired
-    ResourceRepository resourceRepository;
-    @Autowired
-    DeploymentStrategyRepository deploymentStrategyRepository;
-    @Autowired
-    DeploymentRepository deploymentRepository;
-    @Autowired
-    ModelMetadataRepository modelMetadataRepository;
-    @Autowired
-    LibraryRepository libraryRepository;
-    @Autowired
-    ModelRepository modelRepository;
+  @Autowired
+  ResourceRepository resourceRepository;
+  @Autowired
+  DeploymentStrategyRepository deploymentStrategyRepository;
+  @Autowired
+  DeploymentRepository deploymentRepository;
+  @Autowired
+  ModelMetadataRepository modelMetadataRepository;
+  @Autowired
+  LibraryRepository libraryRepository;
+  @Autowired
+  ModelRepository modelRepository;
 
-    @MockBean
-    ApplicationHealthChecker applicationHealthChecker;
+  @MockBean
+  ApplicationHealthChecker applicationHealthChecker;
 
-    @Test
-    @DisplayName("디플로이먼트의 상태를 성공적으로 감지하면 RUNNING으로 변경한다.")
-    public void schdulingTest() throws Exception {
-        // given
-        Library lib = libraryRepository.findByName("tensorflow").get();
-        Model model = modelRepository.save(Model.builder()
-                .name("testModel")
-                .library(lib)
-                .build());
-        ModelMetadata modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
-                .status(Status.SUCCEEDED)
-                .version(HashGenerator.sha256())
-                .fileName("testModelFile")
-                .url("https://s3.testModelFile.com")
-                .inputShape("(10,)")
-                .inputDtype("float32")
-                .outputShape("(1,)")
-                .outputDtype("float32")
-                .deviceType("cpu")
-                .model(model)
-                .build());
-        DeploymentStrategy deploymentStrategy = deploymentStrategyRepository.findByName("rolling")
-                .get();
-        Resource resource = resourceRepository.save(Resource.builder()
-                .name("schdulingTest")
-                .cpu("1")
-                .memory("1Gi")
-                .gpu("0")
-                .cpuLimit("2")
-                .memoryLimit("2Gi")
-                .gpuLimit("0")
-                .build());
-        Deployment deployment = deploymentRepository.save(Deployment.builder()
-                .name("test-deployment")
-                .endPoint("www.test.io")
-                .status(Status.PENDING)
-                .standard(Standard.REPLICAS)
-                .standardValue(1)
-                .modelMetadata(modelMetadata)
-                .deploymentStrategy(deploymentStrategy)
-                .resource(resource)
-                .build());
+  @Test
+  @DisplayName("디플로이먼트의 상태를 성공적으로 감지하면 RUNNING으로 변경한다.")
+  public void schdulingTest() throws Exception {
+    // given
+    Library lib = libraryRepository.findByName("tensorflow").get();
+    Model model = modelRepository.save(Model.builder()
+        .name("testModel")
+        .library(lib)
+        .build());
+    ModelMetadata modelMetadata = modelMetadataRepository.save(ModelMetadata.builder()
+        .status(Status.SUCCEEDED)
+        .version(HashGenerator.sha256())
+        .fileName("testModelFile")
+        .url("https://s3.testModelFile.com")
+        .inputShape("(10,)")
+        .inputDtype("float32")
+        .outputShape("(1,)")
+        .outputDtype("float32")
+        .deviceType("cpu")
+        .model(model)
+        .build());
+    DeploymentStrategy deploymentStrategy = deploymentStrategyRepository.findByName("rolling")
+        .get();
+    Resource resource = resourceRepository.save(Resource.builder()
+        .name("schdulingTest")
+        .cpu("1")
+        .memory("1Gi")
+        .gpu("0")
+        .cpuLimit("2")
+        .memoryLimit("2Gi")
+        .gpuLimit("0")
+        .build());
+    Deployment deployment = deploymentRepository.save(Deployment.builder()
+        .name("test-deployment")
+        .endPoint("www.test.io")
+        .status(Status.PENDING)
+        .standard(Standard.REPLICAS)
+        .standardValue(1)
+        .modelMetadata(modelMetadata)
+        .deploymentStrategy(deploymentStrategy)
+        .resource(resource)
+        .build());
 
-        String namespace = kubernetesService.getNamespace();
-        String deployName = deployment.getName().toLowerCase();
-        Map<String, String> labels = new HashMap<>();
-        labels.put("app", "inference");
-        labels.put("name", deployName);
+    String namespace = namespaceService.getNamespace();
+    String deployName = deployment.getName().toLowerCase();
+    Map<String, String> labels = new HashMap<>();
+    labels.put("app", "inference");
+    labels.put("name", deployName);
 
-        io.fabric8.kubernetes.api.model.apps.Deployment inferenceDeployment = new DeploymentBuilder()
-                .withNewMetadata()
-                .withName(deployName)
-                .withNamespace(namespace)
-                .addToLabels(labels)
-                .endMetadata()
-                .withNewSpec()
-                .withReplicas(1)
-                .withNewSelector()
-                .addToMatchLabels(labels)
-                .endSelector()
-                .withNewTemplate()
-                .withNewMetadata()
-                .withName(deployName)
-                .addToLabels(labels)
-                .endMetadata()
-                .withNewSpec()
-                .addNewContainer()
-                .withImagePullPolicy("Always")
-                .withName(deployName)
-                .withImage("so1s/" + model.getName() + ":" + modelMetadata.getVersion())
-                .addNewPort()
-                .withName("inference-port")
-                .withContainerPort(3000)
-                .endPort()
-                .endContainer()
-                .withTolerations(new TolerationBuilder()
-                        .withKey("kind")
-                        .withOperator("Equal")
-                        .withValue("inference")
-                        .withEffect("NoSchedule")
-                        .build())
-                .endSpec()
-                .endTemplate()
-                .endSpec()
-                .build();
+    io.fabric8.kubernetes.api.model.apps.Deployment inferenceDeployment = new DeploymentBuilder()
+        .withNewMetadata()
+        .withName(deployName)
+        .withNamespace(namespace)
+        .addToLabels(labels)
+        .endMetadata()
+        .withNewSpec()
+        .withReplicas(1)
+        .withNewSelector()
+        .addToMatchLabels(labels)
+        .endSelector()
+        .withNewTemplate()
+        .withNewMetadata()
+        .withName(deployName)
+        .addToLabels(labels)
+        .endMetadata()
+        .withNewSpec()
+        .addNewContainer()
+        .withImagePullPolicy("Always")
+        .withName(deployName)
+        .withImage("so1s/" + model.getName() + ":" + modelMetadata.getVersion())
+        .addNewPort()
+        .withName("inference-port")
+        .withContainerPort(3000)
+        .endPort()
+        .endContainer()
+        .withTolerations(new TolerationBuilder()
+            .withKey("kind")
+            .withOperator("Equal")
+            .withValue("inference")
+            .withEffect("NoSchedule")
+            .build())
+        .endSpec()
+        .endTemplate()
+        .endSpec()
+        .build();
 
-        DeploymentCondition deploymentCondition = new DeploymentCondition();
-        deploymentCondition.setStatus("True");
-        DeploymentStatus deploymentStatus = new DeploymentStatus();
-        deploymentStatus.getConditions().add(deploymentCondition);
-        inferenceDeployment.setStatus(deploymentStatus);
+    DeploymentCondition deploymentCondition = new DeploymentCondition();
+    deploymentCondition.setStatus("True");
+    DeploymentStatus deploymentStatus = new DeploymentStatus();
+    deploymentStatus.getConditions().add(deploymentCondition);
+    inferenceDeployment.setStatus(deploymentStatus);
 
-        client.apps().deployments().inNamespace(namespace).createOrReplace(inferenceDeployment);
+    client.apps().deployments().inNamespace(namespace).createOrReplace(inferenceDeployment);
 
-        when(applicationHealthChecker.checkApplicationHealth(anyString())).thenReturn(true);
+    when(applicationHealthChecker.checkApplicationHealth(anyString())).thenReturn(true);
 
-        // when
-        deploymentStatusCheckScheduler.checkDeploymentStatus();
+    // when
+    deploymentStatusCheckScheduler.checkDeploymentStatus();
 
-        // then
-        Optional<Deployment> findDeployment = deploymentRepository.findById(deployment.getId());
-        findDeployment.ifPresent(value -> assertThat(value.getStatus()).isEqualTo(Status.RUNNING));
-    }
+    // then
+    Optional<Deployment> findDeployment = deploymentRepository.findById(deployment.getId());
+    findDeployment.ifPresent(value -> assertThat(value.getStatus()).isEqualTo(Status.RUNNING));
+  }
 }

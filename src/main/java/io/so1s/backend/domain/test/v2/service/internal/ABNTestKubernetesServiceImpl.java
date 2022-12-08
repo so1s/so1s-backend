@@ -5,14 +5,14 @@ import io.fabric8.istio.api.networking.v1beta1.GatewayBuilder;
 import io.fabric8.istio.api.networking.v1beta1.VirtualService;
 import io.fabric8.istio.api.networking.v1beta1.VirtualServiceBuilder;
 import io.fabric8.istio.client.IstioClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
-import io.so1s.backend.domain.kubernetes.service.KubernetesService;
+import io.so1s.backend.domain.kubernetes.service.NamespaceService;
 import io.so1s.backend.domain.test.v2.entity.ABNTest;
 import io.so1s.backend.domain.test.v2.entity.ABNTestElement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,14 +22,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class ABNTestKubernetesServiceImpl implements
     ABNTestKubernetesService {
 
-  private final KubernetesService kubernetesService;
-  private final KubernetesClient client;
+  private final NamespaceService namespaceService;
   private final IstioClient istioClient;
+  private String namespace;
+
+  @PostConstruct
+  private void initData() {
+    namespace = namespaceService.getNamespace();
+  }
 
   @Transactional
   @Override
   public boolean deployABNTest(ABNTest abnTest) {
-    String namespace = kubernetesService.getNamespace();
     String fullName = "abn-test-" + abnTest.getName().toLowerCase();
 
     String endpoint = abnTest.getEndPoint();
@@ -112,7 +116,6 @@ public class ABNTestKubernetesServiceImpl implements
 
   @Override
   public boolean deleteABNTest(ABNTest abTest) {
-    String namespace = kubernetesService.getNamespace();
     String abTestName = "abn-test-" + abTest.getName().toLowerCase();
 
     try {

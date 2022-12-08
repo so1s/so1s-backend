@@ -4,6 +4,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.so1s.backend.domain.deployment.entity.Deployment;
 import io.so1s.backend.domain.deployment.repository.DeploymentRepository;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
+import io.so1s.backend.domain.kubernetes.service.NamespaceService;
 import io.so1s.backend.global.vo.Status;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,7 @@ public class DeploymentStatusCheckScheduler {
   private final DeploymentRepository deploymentRepository;
   private final ApplicationHealthChecker applicationHealthChecker;
   private final KubernetesService kubernetesService;
+  private final NamespaceService namespaceService;
 
   @Autowired
   @Lazy
@@ -32,10 +34,12 @@ public class DeploymentStatusCheckScheduler {
   @Scheduled(fixedDelay = 1000L * 60)
   public void checkDeploymentStatus() {
     log.info("Scheduled method DeploymentStatusCheckScheduler.checkDeploymentStatus() invoked");
+
+    String namespace = namespaceService.getNamespace();
     List<Deployment> deployments = deploymentRepository.findAll();
 
     List<io.fabric8.kubernetes.api.model.apps.Deployment> k8sDeployments = client.apps()
-        .deployments().inNamespace(kubernetesService.getNamespace()).withLabel("app", "inference")
+        .deployments().inNamespace(namespace).withLabel("app", "inference")
         .list().getItems();
 
     for (Deployment deployment : deployments) {

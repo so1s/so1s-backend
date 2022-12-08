@@ -8,9 +8,11 @@ import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.so1s.backend.domain.kubernetes.service.KubernetesService;
+import io.so1s.backend.domain.kubernetes.service.NamespaceService;
 import io.so1s.backend.domain.test.v1.entity.ABTest;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,15 +22,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class ABTestKubernetesServiceImpl implements
     ABTestKubernetesService {
 
+  private final NamespaceService namespaceService;
   private final KubernetesService kubernetesService;
   private final KubernetesClient client;
   private final IstioClient istioClient;
+  private String namespace;
+
+  @PostConstruct
+  private void initData() {
+    namespace = namespaceService.getNamespace();
+  }
 
   @Transactional(readOnly = true)
   @Override
   public boolean deployABTest(ABTest abTest) {
-
-    String namespace = kubernetesService.getNamespace();
     String abTestName = "ab-test-" + abTest.getName().toLowerCase();
 
     String host = abTestName + ".so1s.io"; // TODO: Fix hard-coded root domain
@@ -117,7 +124,6 @@ public class ABTestKubernetesServiceImpl implements
 
   @Override
   public boolean deleteABTest(ABTest abTest) {
-    String namespace = kubernetesService.getNamespace();
     String abTestName = "ab-test-" + abTest.getName().toLowerCase();
 
     try {
