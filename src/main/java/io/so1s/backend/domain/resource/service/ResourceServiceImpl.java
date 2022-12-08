@@ -96,9 +96,8 @@ public class ResourceServiceImpl implements ResourceService {
             .anyMatch(t -> t.getKey().equals("kind") && t.getValue().equals("inference")))
         .collect(Collectors.toList());
 
+    // Terraform으로 구성된 클러스터가 아닌 자체 매니지드 환경
     if (inferenceNodes.size() == 0) {
-      // Terraform으로 구성된 클러스터가 아닌 자체 매니지드 환경
-
       return true;
     }
 
