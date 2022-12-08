@@ -7,6 +7,7 @@ import io.so1s.backend.domain.test.v2.dto.response.ABNTestCreateResponseDto;
 import io.so1s.backend.domain.test.v2.dto.response.ABNTestReadResponseDto;
 import io.so1s.backend.domain.test.v2.entity.ABNTest;
 import io.so1s.backend.domain.test.v2.repository.ABNTestElementRepository;
+import io.so1s.backend.global.utils.ResourceTemplateStringBuilder;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class ABNTestMapperImpl implements ABNTestMapper {
     var entity = ABNTest.builder()
         .name(dto.getName())
         .domain(dto.getDomain())
-        .endPoint(String.format("abn-test-%s.%s", dto.getName().toLowerCase(), dto.getDomain()))
+        .endPoint(ResourceTemplateStringBuilder.ABNTestEndpoint(dto))
         .build();
 
     entity.addElements(elements);
