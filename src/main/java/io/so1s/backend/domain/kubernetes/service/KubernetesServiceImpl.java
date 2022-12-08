@@ -90,6 +90,8 @@ public class KubernetesServiceImpl implements KubernetesService {
     labels.put("modelName", modelName);
     labels.put("version", version);
 
+    createNamespace(userService.getCurrentUsername());
+
     final Job job = new JobBuilder()
         .withApiVersion("batch/v1")
         .withNewMetadata()
