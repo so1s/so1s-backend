@@ -2,7 +2,7 @@
 
 <img src="https://raw.githubusercontent.com/so1s/.github/main/static/logo.png" alt="So1s Logo" height="250px" />
 
-# So1s Frontend
+# So1s Backend
 
 Spring Boot 기반 리소스 프로비저닝 API 서버
 
