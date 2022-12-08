@@ -33,6 +33,19 @@ public class RegistryServiceImpl implements RegistryService {
   }
 
   @Override
+  public boolean deleteRegistryById(Long id) {
+    var entity = repository.findById(id);
+
+    if (entity.isEmpty()) {
+      return false;
+    }
+
+    repository.delete(entity.get());
+
+    return true;
+  }
+
+  @Override
   public Optional<Registry> findRegistryById(Long id) {
     return repository.findById(id);
   }
