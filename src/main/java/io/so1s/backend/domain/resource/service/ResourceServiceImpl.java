@@ -88,6 +88,12 @@ public class ResourceServiceImpl implements ResourceService {
 
   @Override
   public boolean isDeployable(Resource resource) {
+    var nodes = nodesService.findNodes();
+
+    if (nodes.isEmpty()) {
+      return false;
+    }
+
     ResourceDto desired = resourceMapper.toServiceDto(resource);
 
     var inferenceNodes = nodesService.findNodes()
@@ -97,7 +103,7 @@ public class ResourceServiceImpl implements ResourceService {
         .collect(Collectors.toList());
 
     // Terraform으로 구성된 클러스터가 아닌 자체 매니지드 환경
-    if (inferenceNodes.size() == 0) {
+    if (inferenceNodes.isEmpty()) {
       return true;
     }
 

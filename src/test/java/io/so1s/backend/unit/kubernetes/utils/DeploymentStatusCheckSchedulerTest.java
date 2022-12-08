@@ -122,7 +122,7 @@ public class DeploymentStatusCheckSchedulerTest {
         .build());
 
     String namespace = namespaceService.getNamespace();
-    String deployName = deployment.getName().toLowerCase();
+    String deployName = String.format("inference-%s", deployment.getName().toLowerCase());
     Map<String, String> labels = new HashMap<>();
     labels.put("app", "inference");
     labels.put("name", deployName);

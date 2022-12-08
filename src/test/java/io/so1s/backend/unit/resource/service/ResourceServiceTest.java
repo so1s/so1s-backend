@@ -209,18 +209,6 @@ public class ResourceServiceTest {
       }
 
       @Test
-      @DisplayName("인퍼런스 Taint가 존재하지 않는 노드들만 존재하는 환경에서는 할당을 원하는 리소스를 제공할 수 없다.")
-      void noInferenceNodeTest() throws Exception {
-        List<Node> nodes = List.of(
-            createExampleNode("4", "4Gi", "3", "application")
-        );
-
-        given(nodesService.findNodes()).willReturn(nodes);
-
-        assertThat(resourceService.isDeployable(resource)).isFalse();
-      }
-
-      @Test
       @DisplayName("현재 노드가 할당 가능한 리소스를 초과해서 제공할 수 없다.")
       void resourceExceededTest() throws Exception {
         List<Node> nodes = List.of(
