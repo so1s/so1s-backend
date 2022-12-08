@@ -12,4 +12,6 @@ public interface RegistryMapper {
 
   String toStringFormat(Registry registry);
 
+  String toJsonEncoded(Registry registry);
+
 }

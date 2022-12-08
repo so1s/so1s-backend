@@ -4,6 +4,7 @@ import io.so1s.backend.domain.crypto.service.SecretKeyService;
 import io.so1s.backend.domain.registry.dto.request.RegistryUploadRequestDto;
 import io.so1s.backend.domain.registry.dto.response.RegistryFindResponseDto;
 import io.so1s.backend.domain.registry.entity.Registry;
+import java.util.Base64;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -37,5 +38,22 @@ public class RegistryMapperImpl implements RegistryMapper {
   public String toStringFormat(Registry registry) {
     return String.format("%s / %s / %s", registry.getName(), registry.getUsername(),
         registry.getBaseUrl());
+  }
+
+  @Override
+  public String toJsonEncoded(Registry registry) {
+    String baseUrl = registry.getBaseUrl();
+    String username = registry.getUsername();
+    String password = secretKeyService.decode(registry.getPassword());
+
+    String auth = Base64.getEncoder()
+        .encodeToString(String.format("%s:%s", username, password).getBytes());
+
+    return String.format(
+        "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"auth\":\"%s\"}}}",
+        baseUrl,
+        username,
+        password,
+        auth);
   }
 }
