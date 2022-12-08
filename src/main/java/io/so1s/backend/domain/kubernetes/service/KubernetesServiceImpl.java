@@ -26,18 +26,19 @@ import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.internal.SerializationUtils;
-import io.so1s.backend.domain.auth.service.UserService;
 import io.so1s.backend.domain.deployment.dto.request.Standard;
 import io.so1s.backend.domain.kubernetes.exception.TooManyBuildRequestException;
 import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
 import io.so1s.backend.domain.model.entity.Model;
 import io.so1s.backend.domain.model.entity.ModelMetadata;
 import io.so1s.backend.domain.registry.entity.Registry;
+import io.so1s.backend.domain.registry.service.RegistryKubernetesService;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.global.utils.HashGenerator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.task.TaskRejectedException;
@@ -54,19 +55,22 @@ public class KubernetesServiceImpl implements KubernetesService {
   private final KubernetesClient client;
   private final IstioClient istioClient;
   private final JobStatusChecker jobStatusChecker;
-  private final UserService userService;
-
+  private final RegistryKubernetesService registryKubernetesService;
+  private final NamespaceService namespaceService;
   private final TextEncryptor textEncryptor;
 
-  public String getNamespace() {
-    return "so1s-" + userService.getCurrentUsername().orElse("default");
+  private String namespace = "";
+
+  @PostConstruct
+  private void initData() {
+    namespace = namespaceService.getNamespace();
   }
 
   public String getWorkloadToYaml(HasMetadata object) {
     try {
       return SerializationUtils.dumpAsYaml(object);
     } catch (JsonProcessingException e) {
-      throw new IllegalStateException("Fail");
+      throw new IllegalStateException("Yaml dump failed.");
     }
   }
 
@@ -75,8 +79,6 @@ public class KubernetesServiceImpl implements KubernetesService {
   public boolean inferenceServerBuild(ModelMetadata modelMetadata) throws InterruptedException {
     Model model = modelMetadata.getModel();
     Registry registry = modelMetadata.getRegistry();
-
-    String namespace = getNamespace();
 
     String tag = HashGenerator.sha256().toLowerCase();
     String jobName = "build-" + tag.substring(0, 12).toLowerCase();
@@ -223,8 +225,6 @@ public class KubernetesServiceImpl implements KubernetesService {
   @Transactional(readOnly = true)
   public boolean deployInferenceServer(
       io.so1s.backend.domain.deployment.entity.Deployment deployment) {
-
-    String namespace = getNamespace();
     String deployName = "inference-" + deployment.getName().toLowerCase();
 
     var modelMetadata = deployment.getModelMetadata();
@@ -380,7 +380,6 @@ public class KubernetesServiceImpl implements KubernetesService {
   @Override
   public boolean deleteInferenceServer(
       io.so1s.backend.domain.deployment.entity.Deployment deployment) {
-    String namespace = getNamespace();
     String deploymentName = "inference-" + deployment.getName().toLowerCase();
 
     try {
@@ -401,7 +400,8 @@ public class KubernetesServiceImpl implements KubernetesService {
 
 
   public HasMetadata getDeploymentObject(String name) {
-    List<Deployment> deployments = client.apps().deployments().inNamespace(getNamespace())
+    List<Deployment> deployments = client.apps().deployments()
+        .inNamespace(namespace)
         .withLabel("app", "inference").list()
         .getItems();
 
@@ -410,7 +410,7 @@ public class KubernetesServiceImpl implements KubernetesService {
   }
 
   public HasMetadata getJobObject(String name) {
-    List<Job> jobs = client.batch().v1().jobs().inNamespace(getNamespace())
+    List<Job> jobs = client.batch().v1().jobs().inNamespace(namespace)
         .withLabel("app", "inference-build").list()
         .getItems();
 

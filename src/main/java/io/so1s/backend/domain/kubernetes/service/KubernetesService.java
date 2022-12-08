@@ -7,8 +7,6 @@ import io.so1s.backend.domain.resource.entity.Resource;
 
 public interface KubernetesService {
 
-  String getNamespace();
-
   HasMetadata getDeploymentObject(String name);
 
   HasMetadata getJobObject(String name);
