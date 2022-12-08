@@ -12,5 +12,21 @@ Spring Boot 기반 리소스 프로비저닝 API 서버
 
 ## 주요 기능
 
+- 모델 빌드
+- 인퍼런스 서버 Deployment 생성
+- Model / Deployment Health Check
+- ABN Test 인프라 프로비저닝
+- Node 조회
+- Pod Resource Template 관리
+
+
 ## 사용 기술
 
+- Java 11 - Corretto JDK
+- Spring Boot
+- Spring Security
+- Spring Data JPA
+- Fabric8 Kubernetes / Istio Client
+- JUnit 5 / Mockito
+- Lombok
+- JWT
