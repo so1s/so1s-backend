@@ -33,28 +33,26 @@ public class DeploymentStatusCheckScheduler {
   public void checkDeploymentStatus() {
     log.info("Scheduled method DeploymentStatusCheckScheduler.checkDeploymentStatus() invoked");
 
-    String namespace = namespaceService.getNamespace();
     List<Deployment> deployments = deploymentRepository.findAll();
 
     List<io.fabric8.kubernetes.api.model.apps.Deployment> k8sDeployments = client.apps()
-        .deployments().inNamespace(namespace).withLabel("app", "inference")
+        .deployments().inAnyNamespace().withLabel("app", "inference")
         .list().getItems();
 
-    for (Deployment deployment : deployments) {
+    deployments.stream().parallel().forEach(deployment -> {
       Optional<io.fabric8.kubernetes.api.model.apps.Deployment> find = k8sDeployments.stream()
           .parallel().filter(d -> d.getMetadata().getName().equalsIgnoreCase(
               String.format("inference-%s", deployment.getName())))
           .findAny();
       find.ifPresentOrElse(e -> {
         if (e.getStatus().getConditions().stream()
-            .anyMatch(cond -> cond.getStatus().equals("True"))
-            && applicationHealthChecker.checkApplicationHealth(deployment.getEndPoint())) {
+            .anyMatch(cond -> cond.getStatus().equals("True"))) {
           self.setDeploymentStatus(deployment, Status.RUNNING);
         } else {
           self.setDeploymentStatus(deployment, Status.FAILED);
         }
       }, () -> self.setDeploymentStatus(deployment, Status.UNKNOWN));
-    }
+    });
   }
 
   @Transactional
