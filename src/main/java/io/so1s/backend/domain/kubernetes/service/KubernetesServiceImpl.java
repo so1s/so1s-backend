@@ -8,6 +8,7 @@ import io.fabric8.istio.api.networking.v1beta1.VirtualServiceBuilder;
 import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
+import io.fabric8.kubernetes.api.model.LocalObjectReference;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.ResourceQuotaBuilder;
@@ -26,6 +27,7 @@ import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.internal.SerializationUtils;
+import io.so1s.backend.domain.auth.service.UserService;
 import io.so1s.backend.domain.deployment.dto.request.Standard;
 import io.so1s.backend.domain.kubernetes.exception.TooManyBuildRequestException;
 import io.so1s.backend.domain.kubernetes.utils.JobStatusChecker;
@@ -38,7 +40,6 @@ import io.so1s.backend.global.utils.HashGenerator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.task.TaskRejectedException;
@@ -57,14 +58,9 @@ public class KubernetesServiceImpl implements KubernetesService {
   private final JobStatusChecker jobStatusChecker;
   private final RegistryKubernetesService registryKubernetesService;
   private final NamespaceService namespaceService;
+  private final UserService userService;
   private final TextEncryptor textEncryptor;
 
-  private String namespace = "";
-
-  @PostConstruct
-  private void initData() {
-    namespace = namespaceService.getNamespace();
-  }
 
   public String getWorkloadToYaml(HasMetadata object) {
     try {
@@ -77,6 +73,7 @@ public class KubernetesServiceImpl implements KubernetesService {
   @Override
   @Transactional(readOnly = true)
   public boolean inferenceServerBuild(ModelMetadata modelMetadata) throws InterruptedException {
+    String namespace = namespaceService.getNamespace();
     Model model = modelMetadata.getModel();
     Registry registry = modelMetadata.getRegistry();
 
@@ -225,15 +222,20 @@ public class KubernetesServiceImpl implements KubernetesService {
   @Transactional(readOnly = true)
   public boolean deployInferenceServer(
       io.so1s.backend.domain.deployment.entity.Deployment deployment) {
+    String namespace = namespaceService.getNamespace();
     String deployName = "inference-" + deployment.getName().toLowerCase();
 
     var modelMetadata = deployment.getModelMetadata();
     var registry = modelMetadata.getRegistry();
 
     String registryUrl = registry.getBaseUrl();
+    String registryName = registry.getName();
     String registryUser = registry.getUsername();
     String modelName = modelMetadata.getModel().getName().toLowerCase();
     String modelVersion = modelMetadata.getVersion().toLowerCase();
+
+    createNamespace(userService.getCurrentUsername());
+    registryKubernetesService.deployRegistrySecret(registry);
 
     Map<String, String> labels = new HashMap<>();
     labels.put("app", "inference");
@@ -266,6 +268,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .withSchedulerName(
             (!deployment.getResource().getGpu().equals("0")) ? "gpu-resource-scheduler"
                 : "default-scheduler")
+        .withImagePullSecrets(new LocalObjectReference(registryName))
         .addNewContainer()
         .withImagePullPolicy("Always")
         .withName(deployName)
@@ -380,6 +383,7 @@ public class KubernetesServiceImpl implements KubernetesService {
   @Override
   public boolean deleteInferenceServer(
       io.so1s.backend.domain.deployment.entity.Deployment deployment) {
+    String namespace = namespaceService.getNamespace();
     String deploymentName = "inference-" + deployment.getName().toLowerCase();
 
     try {
@@ -400,6 +404,7 @@ public class KubernetesServiceImpl implements KubernetesService {
 
 
   public HasMetadata getDeploymentObject(String name) {
+    String namespace = namespaceService.getNamespace();
     List<Deployment> deployments = client.apps().deployments()
         .inNamespace(namespace)
         .withLabel("app", "inference").list()
@@ -410,6 +415,7 @@ public class KubernetesServiceImpl implements KubernetesService {
   }
 
   public HasMetadata getJobObject(String name) {
+    String namespace = namespaceService.getNamespace();
     List<Job> jobs = client.batch().v1().jobs().inNamespace(namespace)
         .withLabel("app", "inference-build").list()
         .getItems();
