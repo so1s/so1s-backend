@@ -27,6 +27,7 @@ Spring Boot 기반 Kubernetes MLOps 컴포넌트 프로비저닝 / 매니지먼�
 - Spring Security
 - Spring Data JPA
 - QueryDSL
+- Postgres / H2 Database
 - Fabric8 Kubernetes / Istio Client
 - JUnit 5 / Mockito
 - Lombok
