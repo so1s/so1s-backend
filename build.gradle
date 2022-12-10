@@ -28,7 +28,7 @@ jacocoTestReport {
 
 jib {
     from {
-        image = 'openjdk:11-jre-slim'
+        image = 'eclipse-temurin:17-jre-jammy'
         platforms {
             platform {
                 architecture = 'amd64'
@@ -55,7 +55,7 @@ jib {
 
 group = 'io.so1s'
 version = "${rootProject.ext.applicationVersion}" + '-SNAPSHOT' + new Date().format("yyyyMMddHHmmss")
-sourceCompatibility = '11'
+sourceCompatibility = '17'
 
 configurations {
     compileOnly {
@@ -84,7 +84,7 @@ dependencies {
     implementation 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.h2database:h2'
-    implementation 'org.postgresql:postgresql:42.4.0'
+    implementation 'org.postgresql:postgresql:42.4.3'
     runtimeOnly 'mysql:mysql-connector-java'
     annotationProcessor 'org.projectlombok:lombok'
     implementation 'org.springframework.boot:spring-boot-starter-test'

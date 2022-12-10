@@ -38,11 +38,15 @@ import io.so1s.backend.domain.resource.dto.request.ResourceCreateRequestDto;
 import io.so1s.backend.domain.resource.entity.Resource;
 import io.so1s.backend.domain.resource.repository.ResourceRepository;
 import io.so1s.backend.domain.resource.service.ResourceService;
-import io.so1s.backend.domain.test.v1.entity.ABTest;
-import io.so1s.backend.domain.test.v1.exception.ABTestExistsException;
-import io.so1s.backend.domain.test.v1.repository.ABTestRepository;
+import io.so1s.backend.domain.test.v2.dto.request.ABNTestRequestDto;
+import io.so1s.backend.domain.test.v2.entity.ABNTest;
+import io.so1s.backend.domain.test.v2.entity.ABNTestElement;
+import io.so1s.backend.domain.test.v2.exception.ABNTestExistsException;
+import io.so1s.backend.domain.test.v2.repository.ABNTestElementRepository;
+import io.so1s.backend.domain.test.v2.repository.ABNTestRepository;
 import io.so1s.backend.global.config.RegistryDataConfig;
 import io.so1s.backend.global.utils.HashGenerator;
+import io.so1s.backend.global.utils.ResourceTemplateStringBuilder;
 import io.so1s.backend.global.vo.Status;
 import io.so1s.backend.unit.kubernetes.config.TestKubernetesConfig;
 import java.util.List;
@@ -93,7 +97,9 @@ public class DeploymentServiceTest {
   @Autowired
   ResourceRepository resourceRepository;
   @Autowired
-  ABTestRepository abTestRepository;
+  ABNTestRepository abnTestRepository;
+  @Autowired
+  ABNTestElementRepository abnTestElementRepository;
   @MockBean
   JobStatusChecker jobStatusChecker;
   @MockBean
@@ -337,7 +343,8 @@ public class DeploymentServiceTest {
   }
 
   @Test
-  @DisplayName("AB 테스트가 있는 디플로이먼트를 삭제하려고 하지만, 성공하지 않는다.")
+  @DisplayName("ABN 테스트가 있는 디플로이먼트를 삭제하려고 하지만, 성공하지 않는다.")
+  @Transactional
   public void deleteDeploymentButHasABTest() throws Exception {
     // given
     ModelMetadata modelMetadata = getModelMetadata();
@@ -347,19 +354,29 @@ public class DeploymentServiceTest {
     Deployment deployment = deploymentService.createDeployment(resource, deploymentRequestDto);
 
     kubernetesService.deployInferenceServer(
-        deployment); // Controller에서 Deployment 배포가 이루어지므로 로직을 가져옴.
+        deployment);
 
-    ABTest abTest = ABTest.builder()
-        .name("testABTest")
-        .a(deployment)
-        .b(deployment)
-        .domain("*.so1s.io")
+    ABNTestRequestDto requestDto = ABNTestRequestDto.builder()
+        .name("test")
+        .domain("so1s.io")
+        .elements(List.of())
         .build();
 
-    abTestRepository.save(abTest);
+    ABNTest abnTest = abnTestRepository.save(ABNTest.builder()
+        .name(requestDto.getName())
+        .domain(requestDto.getDomain())
+        .endPoint(ResourceTemplateStringBuilder.ABNTestEndpoint(requestDto))
+        .build());
+
+    ABNTestElement abnTestElement = abnTestElementRepository.save(ABNTestElement.builder()
+        .deployment(deployment)
+        .weight(1)
+        .build());
+
+    abnTest.addElement(abnTestElement);
 
     // when & then
-    assertThrowsExactly(ABTestExistsException.class, () -> deploymentService.deleteDeployment(
+    assertThrowsExactly(ABNTestExistsException.class, () -> deploymentService.deleteDeployment(
         deployment.getId()));
 
   }
