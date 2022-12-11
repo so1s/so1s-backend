@@ -24,7 +24,7 @@ Spring Boot 기반 Kubernetes MLOps 컴포넌트 프로비저닝 / 매니지먼�
 
 - Java 17
 - Gradle 7.4.2
-- Spring Boot
+- Spring Boot 2.7.1
 - Spring Security
 - Spring Data JPA
 - QueryDSL
