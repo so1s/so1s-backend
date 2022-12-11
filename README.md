@@ -22,7 +22,7 @@ Spring Boot 기반 Kubernetes MLOps 컴포넌트 프로비저닝 / 매니지먼�
 
 ## 사용 기술
 
-- Java 11
+- Java 17
 - Spring Boot
 - Spring Security
 - Spring Data JPA
