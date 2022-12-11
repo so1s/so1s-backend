@@ -7,6 +7,7 @@ import io.so1s.backend.domain.auth.security.handler.JwtAccessDeniedHandler;
 import io.so1s.backend.domain.auth.security.provider.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -87,10 +88,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         .and()
         .authorizeRequests()
-        .antMatchers("/docs/**/*").permitAll()
+        .antMatchers("/docs/**").permitAll()
         .antMatchers("/livez").permitAll()
         .antMatchers("/api/v1/signin").permitAll()
-        .antMatchers("/actuator/*").permitAll()
+        .antMatchers("/actuator/**").permitAll()
+        .antMatchers(HttpMethod.GET,
+            "/v3/api-docs",
+            "/swagger-resources/**",
+            "/swagger-ui/",
+            "/swagger-ui/**",
+            "/webjars/**").permitAll()
 
         .anyRequest().authenticated()
 
