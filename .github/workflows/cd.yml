@@ -44,13 +44,6 @@ jobs:
           sudo chmod +x gradlew
         env:
           sdkman_selfupdate_enable: false
-      - name: Build Openapi3 json
-        run: |
-          mkdir -p ./src/main/resources/static/docs
-          touch ./src/main/resources/static/docs/openapi3.json
-          ./gradlew openapi3
-        env:
-          JAVA_HOME: /home/runner/.sdkman/candidates/java/17.0.5-amzn
       - name: Build with Gradle
         run: ./gradlew clean jib -x test -Djib.to.tags=latest
         env:

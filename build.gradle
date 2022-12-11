@@ -149,15 +149,3 @@ tasks.named('asciidoctor') {
 tasks.clean {
     delete file('src/main/generated')
 }
-
-
-// ./gradlew openapi3
-// See /src/main/resources/static/docs/openapi3.json
-openapi3 {
-    servers = [{ url = 'http://localhost:8080' }, { url = 'https://www.so1s.io' }]
-    title = 'So1s'
-    description = 'MLOps Inference Deployment Management Framework'
-    version = '0.1.0'
-    format = 'json'
-    outputDirectory = 'src/main/resources/static/docs'
-}
