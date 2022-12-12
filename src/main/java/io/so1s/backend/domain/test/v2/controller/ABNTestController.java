@@ -1,7 +1,6 @@
 package io.so1s.backend.domain.test.v2.controller;
 
 
-import io.so1s.backend.domain.test.v1.exception.ABTestNotFoundException;
 import io.so1s.backend.domain.test.v2.dto.mapper.ABNTestMapper;
 import io.so1s.backend.domain.test.v2.dto.request.ABNTestRequestDto;
 import io.so1s.backend.domain.test.v2.dto.response.ABNTestCreateResponseDto;
@@ -44,7 +43,7 @@ public class ABNTestController {
       throws ABNTestNotFoundException {
 
     return ResponseEntity.ok(service.findById(id)
-        .orElseThrow(() -> new ABTestNotFoundException("주어진 AB Test id와 일치하는 객체를 찾지 못했습니다.")));
+        .orElseThrow(() -> new ABNTestNotFoundException("주어진 ABN Test id와 일치하는 객체를 찾지 못했습니다.")));
   }
 
   @PostMapping
