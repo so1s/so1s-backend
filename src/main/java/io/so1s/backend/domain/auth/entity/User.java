@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.springframework.transaction.annotation.Transactional;
 
 @Entity
 @Table(name = "user_table")
@@ -46,8 +47,14 @@ public class User {
   @Builder.Default
   private List<UserToRole> userToRoles = new ArrayList<>();
 
+  @Transactional
   public void addAllUserToRole(List<UserToRole> userToRoles) {
     this.userToRoles.addAll(userToRoles);
+  }
+
+  @Transactional
+  public void changePassword(String encodedPassword) {
+    password = encodedPassword;
   }
 
 }
