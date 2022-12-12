@@ -13,7 +13,8 @@ Spring Boot 기반 Kubernetes MLOps 컴포넌트 프로비저닝 / 매니지먼�
 ## 주요 기능
 
 - Springfox 기반 OpenAPI 3.0 Swagger API 문서 제공
-- 모델 빌드 및 버전 관리
+- K8s Job 기반 모델 빌드 업로드, 메타데이터 기반 버전 관리 기능 지원
+- Container Image 레지스트리 인증 정보 관리 기능 지원
 - 인퍼런스 서버 Deployment 배포 및 Endpoint 구성
 - Model / Deployment Health Check
 - Istio 기반 ABN Test 인프라 구성 / Multiple Endpoints & Dynamic Weights Traffic Splitting 구현
