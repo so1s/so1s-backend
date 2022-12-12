@@ -1,4 +1,7 @@
 spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -16,8 +19,8 @@ spring:
         format_sql: false
         use_sql_comments: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
-      generate-ddl: true
     defer-datasource-initialization: true
+    generate-ddl: true
 
   sql:
     init:
