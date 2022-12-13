@@ -111,7 +111,7 @@ public class KubernetesServiceImpl implements KubernetesService {
         .addNewContainer()
         .withImagePullPolicy("Always")
         .withName(jobName)
-        .withImage("ghcr.io/so1s/model-templates:" + type)
+        .withImage("ghcr.io/so1s/model-template:" + type)
         .withCommand(
             "/bin/bash", "/apps/build.sh",
             "--file", modelMetadata.getUrl(),
