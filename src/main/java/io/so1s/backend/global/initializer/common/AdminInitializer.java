@@ -3,6 +3,7 @@ package io.so1s.backend.global.initializer.common;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.so1s.backend.domain.auth.repository.UserRepository;
 import io.so1s.backend.domain.auth.service.UserService;
 import io.so1s.backend.domain.auth.vo.UserRole;
@@ -10,10 +11,12 @@ import io.so1s.backend.global.utils.Base64Mapper;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+@Profile("!test")
 @Component
 @RequiredArgsConstructor
 public class AdminInitializer {
@@ -36,8 +39,14 @@ public class AdminInitializer {
 
   @PostConstruct
   private void initAdmin() {
-    var adminSecret = Optional.ofNullable(
-        kubernetesClient.secrets().inNamespace(namespace).withName(secretName).get());
+    Optional<Secret> adminSecret = Optional.empty();
+
+    try {
+      adminSecret = Optional.ofNullable(
+          kubernetesClient.secrets().inNamespace(namespace).withName(secretName).get());
+    } catch (KubernetesClientException ignored) {
+
+    }
 
     adminSecret.ifPresentOrElse((secret) -> {
       var data = secret.getData();
