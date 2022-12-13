@@ -45,7 +45,7 @@ jobs:
         env:
           sdkman_selfupdate_enable: false
       - name: Run test
-        run: ./gradlew test --args='--spring.profiles.active=test'
+        run: ./gradlew test -Dspring.profiles.active=test
         env:
           JAVA_HOME: /home/runner/.sdkman/candidates/java/17.0.5-amzn
       - name: Build with Gradle
