@@ -26,13 +26,10 @@ Spring Boot 기반 Kubernetes MLOps 컴포넌트 프로비저닝 / 매니지먼�
 - Java 17
 - Gradle 7.4.2
 - Spring Boot 2.7.1
-- Spring Security
-- Spring Data JPA
-- QueryDSL
+- Spring Security / JJWT
+- Spring Data JPA / QueryDSL
 - Postgres / H2 Database
 - Springfox 3.0.0 / OpenAPI 3.0
 - Fabric8 Kubernetes / Istio Client
 - JUnit 5 / Mockito
-- Lombok
-- JJWT
 - Github Actions / Github Packages / Jib
